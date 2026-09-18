@@ -63,7 +63,6 @@ export default {
 
   links: {
     bookingUrl: "#",
-    bookingWidgetScriptUrl: "/noop.js",
     reviewsUrl: "#",
     mapUrl: "#",
     routeUrl: "#",
