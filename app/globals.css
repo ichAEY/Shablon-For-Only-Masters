@@ -3042,7 +3042,7 @@ body > a.yButton {
 }
 
 /* Replace the former Master identity footer with TANEM's TANEM footer treatment. */
-.dct-footer.dct-footer-stluxe {
+.dct-footer.dct-footer-tanem {
   display: block !important;
   height: auto !important;
   margin: 0 !important;
@@ -3209,7 +3209,7 @@ body > a.yButton {
 
 /* Current TANEM TANEM footer: exact text hierarchy, no white gap above. */
 .dct-footer,
-.dct-footer-stluxe,
+.dct-footer-tanem,
 .mct-tanem-badge,
 .mct-tanem-footer { display: none !important; }
 
@@ -4288,7 +4288,7 @@ body > a.yButton {
   object-position: left center !important;
 }
 
-.mct-intro-mark-yulia {
+.mct-intro-mark-master {
   display: grid !important;
   place-items: center !important;
   width: min(78vw, 360px) !important;
@@ -4296,7 +4296,7 @@ body > a.yButton {
   transform: none !important;
 }
 
-.mct-intro-logo-yulia {
+.mct-intro-logo-master {
   display: block !important;
   width: min(72vw, 330px) !important;
   max-width: 330px !important;
@@ -4373,11 +4373,11 @@ body > a.yButton {
 }
 
 @media (min-width: 768px) {
-  .mct-intro-mark-yulia {
+  .mct-intro-mark-master {
     width: min(32vw, 380px) !important;
   }
 
-  .mct-intro-logo-yulia {
+  .mct-intro-logo-master {
     width: min(28vw, 350px) !important;
     max-width: 350px !important;
     max-height: 200px !important;
