@@ -86,6 +86,7 @@ export default {
   },
 
   i18n: {
+    localLocale: "ru",
     locales: [
       { code: "ru", label: "RU" },
       { code: "en", label: "EN" },
