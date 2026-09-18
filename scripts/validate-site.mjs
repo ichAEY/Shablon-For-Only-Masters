@@ -2,6 +2,7 @@ import site from "../site-data.mjs";
 import {
   bookingMode,
   categoryMode,
+  clientTranslationKeys,
   contactOptions,
   normalizedLocales,
   specialtyMode,
@@ -52,6 +53,16 @@ if (site.location.countryCode) {
     if (locales.length !== 3 || !locales.includes(localLocale) || !locales.includes("ru") || !locales.includes("en")) {
       fail("non-Russia site must publish local + RU + EN");
     }
+  }
+}
+
+if (site.master.name) {
+  const keys = clientTranslationKeys(site);
+  for (const locale of locales.filter((code) => code !== "ru")) {
+    const dictionary = site.i18n?.translations?.[locale];
+    if (!dictionary || typeof dictionary !== "object") fail(`missing translation dictionary for ${locale}`);
+    const missing = keys.filter((key) => !String(dictionary[key] || "").trim());
+    if (missing.length) fail(`missing ${locale} translations: ${missing.slice(0, 8).join(" | ")}`);
   }
 }
 
