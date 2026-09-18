@@ -191,6 +191,21 @@ export default function MasterTemplate() {
     "Открыто до": "Open until",
     "Закрыто до": "Closed until",
     "Создано в": "Created with",
+    "Открыть свободное время": "Open available times",
+    "Все отзывы": "All reviews",
+    "клиенты": "clients",
+    "Запишитесь онлайн": "Book online",
+    "или свяжитесь любым удобным способом": "or contact us in the way that works for you",
+    "По предварительной записи": "By appointment",
+    "Написать": "Message",
+    "Категории услуг": "Service categories",
+    "Разведите двумя пальцами, чтобы увеличить": "Pinch with two fingers to zoom",
+    "Предыдущая фотография": "Previous photo",
+    "Следующая фотография": "Next photo",
+    "Закрыть фотографию": "Close photo",
+    "Закрыть галерею": "Close gallery",
+    "Открыть меню": "Open menu",
+    "Закрыть меню": "Close menu",
   };
   const translatedText = (value: string) => {
     if (!value) return value;
@@ -919,10 +934,10 @@ export default function MasterTemplate() {
               {hasLogo(site) ? <img src={site.images.logo} alt="" /> : <span>{site.brand.name || site.master.name || "TANEM"}</span>}
             </a>
             <nav className="dct-navigation" aria-label="Основные разделы сайта">
-              <a href="#mobile-prices">Услуги и цены</a>
-              <a href="#mobile-about">О мастере</a>
-              <a href="#mobile-reviews">Отзывы</a>
-              <a href="#mobile-location">Визит и запись</a>
+              <a href="#mobile-prices">{translatedText("Услуги и цены")}</a>
+              <a href="#mobile-about">{translatedText("О мастере")}</a>
+              <a href="#mobile-reviews">{translatedText("Отзывы")}</a>
+              <a href="#mobile-location">{translatedText("Визит и запись")}</a>
             </nav>
             <div className="dct-top-actions" aria-label={`Быстрые способы связи с ${site.master.name}`}>
               {bookingContacts.find((item) => item.kind === "phone") ? (
@@ -956,7 +971,7 @@ export default function MasterTemplate() {
               <button
                 className={`mct-menu-button${menuOpen ? " is-open" : ""}`}
                 type="button"
-                aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
+                aria-label={translatedText(menuOpen ? "Закрыть меню" : "Открыть меню")}
                 aria-expanded={menuOpen}
                 aria-controls="mobile-navigation"
                 onClick={() => setMenuOpen((value) => !value)}
@@ -965,18 +980,18 @@ export default function MasterTemplate() {
               </button>
               {menuOpen && (
                 <nav className="mct-menu-panel" id="mobile-navigation" aria-label="Разделы сайта">
-                  <a href="#mobile-portfolio" onClick={() => setMenuOpen(false)}><span>•</span>Портфолио</a>
-                  <a href="#mobile-prices" onClick={() => setMenuOpen(false)}><span>•</span>Услуги и цены</a>
-                  <a href="#mobile-about" onClick={() => setMenuOpen(false)}><span>•</span>О мастере</a>
-                  <a href="#mobile-reviews" onClick={() => setMenuOpen(false)}><span>•</span>Отзывы</a>
-                  <a href="#mobile-location" onClick={() => setMenuOpen(false)}><span>•</span>Визит и запись</a>
+                  <a href="#mobile-portfolio" onClick={() => setMenuOpen(false)}><span>•</span>{translatedText("Портфолио")}</a>
+                  <a href="#mobile-prices" onClick={() => setMenuOpen(false)}><span>•</span>{translatedText("Услуги и цены")}</a>
+                  <a href="#mobile-about" onClick={() => setMenuOpen(false)}><span>•</span>{translatedText("О мастере")}</a>
+                  <a href="#mobile-reviews" onClick={() => setMenuOpen(false)}><span>•</span>{translatedText("Отзывы")}</a>
+                  <a href="#mobile-location" onClick={() => setMenuOpen(false)}><span>•</span>{translatedText("Визит и запись")}</a>
                 </nav>
               )}
             </div>
           </div>
           <div className="mct-hero-content">
             <div className="mct-hero-meta">
-              <span>{site.location.city}</span>
+              <span>{translatedText(site.location.city)}</span>
               <a className="mct-hero-phone" href={site.contacts.phoneHref} aria-label={`Позвонить ${site.master.dative} по номеру ${site.contacts.phoneDisplay}`}>
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                   <path d="M7.1 3.5 9.3 8c.2.5.1 1-.3 1.4l-1.4 1.2c1 2.1 2.7 3.8 4.8 4.8l1.2-1.4c.4-.4.9-.5 1.4-.3l4.5 2.2c.5.2.8.8.6 1.4l-.6 2.3c-.2.7-.8 1.1-1.5 1.1C10 20.7 3.3 14 3.3 6c0-.7.4-1.3 1.1-1.5l2.3-.6c.6-.2 1.2.1 1.4.6Z" />
@@ -984,8 +999,8 @@ export default function MasterTemplate() {
                 <span>{site.contacts.phoneDisplay}</span>
               </a>
             </div>
-            <h1>{site.master.name} — ваш <em>{site.master.heroEmphasis}</em></h1>
-            <p className="mct-hero-copy">{site.master.heroCopy}</p>
+            <h1>{translatedText(site.master.heroTitle || site.master.name)}<em>{translatedText(site.master.heroEmphasis)}</em></h1>
+            <p className="mct-hero-copy">{translatedText(site.master.heroCopy)}</p>
           </div>
           <div
             className="mct-hero-visual"
@@ -995,7 +1010,7 @@ export default function MasterTemplate() {
             ) : null}
             <figure className="dct-hero-portrait">
               <img src={site.images.portrait} alt={`${site.master.name} — ${site.master.imageAlt}`} />
-              <figcaption><span>{site.master.name}</span><small>{site.master.heroCaption}</small></figcaption>
+              <figcaption><span>{site.master.name}</span><small>{translatedText(site.master.heroCaption)}</small></figcaption>
             </figure>
             {siteSpecialtyMode === "nails" ? <div className="mct-palette-stage" aria-hidden="true">
               <div className="mct-palette-set">
@@ -1084,7 +1099,7 @@ export default function MasterTemplate() {
           <div className="mct-hero-bottom">
             <div className="mct-hero-actions">
               <a className="mct-main-cta" href={bookingHref} target={siteBookingMode === "direct" ? "_blank" : undefined} rel={siteBookingMode === "direct" ? "noopener noreferrer" : undefined} onClick={handleBookingClick}>{translatedText("Записаться онлайн")}&nbsp; →</a>
-              <a className="mct-quiet-link" href="#mobile-portfolio">Смотреть работы ↓</a>
+              <a className="mct-quiet-link" href="#mobile-portfolio">{translatedText("Смотреть работы")} ↓</a>
             </div>
             <div className={`mct-stats${siteExperienceMode === "unknown" ? " is-two-stats" : ""}`} aria-label="Опыт и рейтинг мастера">
               {siteExperienceMode === "known" ? <div className="mct-stat"><strong>{site.master.experienceYears}</strong><span>{translatedText("лет опыта")}</span></div> : null}
@@ -1098,7 +1113,7 @@ export default function MasterTemplate() {
       <section className="mct-section" id="mobile-portfolio">
         <div className="mct-shell mct-reveal">
           <div className="mct-section-head">
-            <div><p className="mct-section-kicker">Портфолио</p><h2>Работы</h2></div>
+            <div><p className="mct-section-kicker">{translatedText("Портфолио")}</p><h2>{translatedText("Работы")}</h2></div>
             
           </div>
         </div>
@@ -1166,16 +1181,16 @@ export default function MasterTemplate() {
               </div>
             </div>
           </div>
-          <button className="mct-gallery-button" type="button" onClick={() => setGalleryOpen(true)}><span>Открыть галерею</span><span aria-hidden="true">→</span></button>
+          <button className="mct-gallery-button" type="button" onClick={() => setGalleryOpen(true)}><span>{translatedText("Открыть галерею")}</span><span aria-hidden="true">→</span></button>
         </div>
       </section>
 
       <section className="mct-prices mct-reveal" id="mobile-prices">
         <div className="mct-shell">
           <div className="mct-price-head">
-            <p className="mct-section-kicker">Услуги и цены</p>
-            <h2>Выберите <br />услугу</h2>
-            <span>Актуальная стоимость и продолжительность указаны для каждой процедуры. Онлайн-запись откроется в новой вкладке.</span>
+            <p className="mct-section-kicker">{translatedText("Услуги и цены")}</p>
+            <h2>{translatedText("Выберите услугу")}</h2>
+            <span>{translatedText("Актуальная стоимость и продолжительность указаны для каждой процедуры. Онлайн-запись откроется в новой вкладке.")}</span>
           </div>
           {serviceCategoryMode !== "single" ? (
             <div className={`mct-tabs-ribbon-wrap is-${serviceCategoryMode}`}>
@@ -1208,11 +1223,11 @@ export default function MasterTemplate() {
                   {service.sectionLabel && <div className="mct-service-group-label">{service.sectionLabel}</div>}
                   <div className="master-service-body">
                     <div className="master-service-head">
-                      <strong className="master-service-title">{service.displayName || service.name}</strong>
+                      <strong className="master-service-title">{translatedText(service.displayName || service.name)}</strong>
                       {!hasVariants && <b className="master-service-price mct-mobile-service-price">{service.price}</b>}
                     </div>
                     <div className={`dct-service-description-slot${hasDescription ? " has-copy" : " is-empty"}`}>
-                      {hasDescription && <p className={`dct-service-description master-service-description${service.detailClass === "contouring" ? " master-contouring-detail" : ""}`}>{service.description}</p>}
+                      {hasDescription && <p className={`dct-service-description master-service-description${service.detailClass === "contouring" ? " master-contouring-detail" : ""}`}>{translatedText(service.description)}</p>}
                       {descriptionIsLong && (
                         <span
                           className="dct-service-description-toggle"
@@ -1230,7 +1245,7 @@ export default function MasterTemplate() {
                             event.stopPropagation();
                             setExpandedDescriptions((current) => ({ ...current, [serviceKey]: !current[serviceKey] }));
                           }}
-                        >{descriptionExpanded ? "Свернуть" : "Продолжить"}</span>
+                        >{translatedText(descriptionExpanded ? "Свернуть" : "Продолжить")}</span>
                       )}
                     </div>
                     {!hasVariants && service.time && <small className="master-service-time mct-mobile-service-time">{service.time}</small>}
@@ -1244,7 +1259,7 @@ export default function MasterTemplate() {
                       <div className="master-service-variants">
                         {service.variants!.map((item) => (
                           <div className="master-service-variant" key={item.label}>
-                            <span>{item.label}{item.time ? <small className="mct-mobile-variant-time">{item.time}</small> : null}</span>
+                            <span>{translatedText(item.label)}{item.time ? <small className="mct-mobile-variant-time">{item.time}</small> : null}</span>
                             <b className="mct-mobile-variant-price">{item.price}</b>
                             <span className="dct-service-variant-meta" aria-hidden="true">
                               {item.time ? <small>{item.time}</small> : null}
@@ -1289,9 +1304,9 @@ export default function MasterTemplate() {
                           key={serviceKey}
                         >
                           <div className="dct-service-card-body">
-                            <strong className="dct-service-card-title">{service.displayName || service.name}</strong>
+                            <strong className="dct-service-card-title">{translatedText(service.displayName || service.name)}</strong>
                             <div className={`dct-service-card-description${hasDescription ? " has-copy" : " is-empty"}`}>
-                              {hasDescription && <p>{service.description}</p>}
+                              {hasDescription && <p>{translatedText(service.description)}</p>}
                               {descriptionIsLong && (
                                 <span
                                   className="dct-service-description-toggle"
@@ -1309,14 +1324,14 @@ export default function MasterTemplate() {
                                     event.stopPropagation();
                                     setExpandedDescriptions((current) => ({ ...current, [serviceKey]: !current[serviceKey] }));
                                   }}
-                                >{descriptionExpanded ? "Свернуть" : "Подробнее"}</span>
+                                >{translatedText(descriptionExpanded ? "Свернуть" : "Подробнее")}</span>
                               )}
                             </div>
                             {hasVariants ? (
                               <div className="dct-service-card-variants">
                                 {service.variants!.map((item) => (
                                   <div className="dct-service-card-variant" key={item.label}>
-                                    <span>{item.label}</span>
+                                    <span>{translatedText(item.label)}</span>
                                     <span className="dct-service-card-variant-meta">
                                       {item.time ? <small>{item.time}</small> : null}
                                       <b>{item.price}</b>
@@ -1351,7 +1366,7 @@ export default function MasterTemplate() {
       <section className="mct-about mct-reveal" id="mobile-about">
         <div className="mct-shell">
           <div className="mct-about-head">
-            <div><p className="mct-section-kicker">О мастере</p><h2>{site.master.aboutTitle}</h2></div>
+            <div><p className="mct-section-kicker">{translatedText("О мастере")}</p><h2>{translatedText(site.master.aboutTitle)}</h2></div>
             <span className="mct-about-monogram" aria-hidden="true">{site.master.monogram}</span>
           </div>
           <div className="mct-about-card">
@@ -1367,24 +1382,24 @@ export default function MasterTemplate() {
               ) : null}
             </div>
             <div className="mct-about-copy">
-              <p className="mct-about-lead">{site.master.aboutLead}</p>
-              <p>{aboutParagraphs[0]}</p>
-              <p>{aboutParagraphs[1]}</p>
-              {aboutParagraphs[2] && <p className="dct-about-extra-copy">{aboutParagraphs[2]}</p>}
-              <ul className="mct-about-list">{skills.map((skill) => <li key={skill}>{skill}</li>)}</ul>
+              <p className="mct-about-lead">{translatedText(site.master.aboutLead)}</p>
+              <p>{translatedText(aboutParagraphs[0] || "")}</p>
+              <p>{translatedText(aboutParagraphs[1] || "")}</p>
+              {aboutParagraphs[2] && <p className="dct-about-extra-copy">{translatedText(aboutParagraphs[2])}</p>}
+              <ul className="mct-about-list">{skills.map((skill) => <li key={skill}>{translatedText(skill)}</li>)}</ul>
               <div className="dct-about-amenities" aria-label={`Дополнительная информация о визите к ${site.master.dative}`}>
-                <div className="dct-about-amenities-head"><p className="mct-section-kicker">Дополнительно</p><span>Полезно перед записью</span></div>
+                <div className="dct-about-amenities-head"><p className="mct-section-kicker">{translatedText("Дополнительно")}</p><span>{translatedText("Полезно перед записью")}</span></div>
                 <div className="dct-about-amenities-grid">
-                  {amenities.map((item) => <article key={item.title}><strong>{item.title}</strong><span>{item.text}</span></article>)}
+                  {amenities.map((item) => <article key={item.title}><strong>{translatedText(item.title)}</strong><span>{translatedText(item.text)}</span></article>)}
                 </div>
               </div>
             </div>
           </div>
 
           <div className="mct-amenities mct-about-amenities-mobile" aria-label={`О визите к ${site.master.dative}`}>
-            <div className="mct-amenities-head"><p className="mct-section-kicker">Дополнительно</p><span>Полезно перед записью</span></div>
+            <div className="mct-amenities-head"><p className="mct-section-kicker">{translatedText("Дополнительно")}</p><span>{translatedText("Полезно перед записью")}</span></div>
             <div className="mct-amenities-grid">
-              {amenities.map((item) => <article key={item.title}><strong>{item.title}</strong><span>{item.text}</span></article>)}
+              {amenities.map((item) => <article key={item.title}><strong>{translatedText(item.title)}</strong><span>{translatedText(item.text)}</span></article>)}
             </div>
           </div>
         </div>
@@ -1392,7 +1407,7 @@ export default function MasterTemplate() {
 
       <section className="mct-reviews mct-reveal" id="mobile-reviews">
         <div className="mct-shell">
-          <p className="mct-section-kicker">Отзывы</p><h2>Что говорят<br />клиенты</h2>
+          <p className="mct-section-kicker">{translatedText("Отзывы")}</p><h2>{translatedText("Что говорят клиенты")}</h2>
           <a className="mct-review-summary" href={reviewsUrl} target="_blank" rel="noopener noreferrer"><span>Все отзывы в {site.template.bookingProvider} →</span></a>
           <p className="dct-review-drag-hint">Зажмите ленту мышью и двигайте в любую сторону</p>
           <div className="dct-review-controls" aria-label="Управление лентой отзывов">
@@ -1457,7 +1472,7 @@ export default function MasterTemplate() {
                               event.preventDefault();
                               reviewWasDraggedRef.current = false;
                             }}
-                          >Продолжить →</a>
+                          >{translatedText("Продолжить")} →</a>
                         )}
                       </article>
                     </div>
@@ -1473,7 +1488,7 @@ export default function MasterTemplate() {
         <div className="mct-shell">
           <div className="mct-visit-booking" id="mobile-booking">
             <div className="mct-visit-booking-top">
-              <p className="mct-section-kicker">Запись и связь</p>
+              <p className="mct-section-kicker">{translatedText("Запись и связь")}</p>
               <span className={`mct-open-status${openStatus.isOpen === true ? " is-open" : openStatus.isOpen === false ? " is-closed" : ""}`}>
                 <i aria-hidden="true" />{openStatus.label}
               </span>
@@ -1507,7 +1522,7 @@ export default function MasterTemplate() {
 
         </div>
       </section>
-      <a className="mct-tanem-footer" href="https://tanem.ru/" target="_blank" rel="noopener noreferrer"><span className="tanem-mark">T</span><span className="tanem-credit">Создано в <strong>TANEM.ru</strong></span></a>
+      <a className="mct-tanem-footer" href="https://tanem.ru/" target="_blank" rel="noopener noreferrer"><span className="tanem-mark">T</span><span className="tanem-credit">{translatedText("Создано в")} <strong>TANEM.ru</strong></span></a>
 
       <div className={`mct-sticky-wrap${stickyVisible && !galleryOpen && !bookingOpen ? " is-visible" : ""}`} aria-hidden={!stickyVisible || galleryOpen}>
         <a className="mct-sticky" href={bookingHref} target={siteBookingMode === "direct" ? "_blank" : undefined} rel={siteBookingMode === "direct" ? "noopener noreferrer" : undefined} onClick={handleBookingClick} tabIndex={stickyVisible && !galleryOpen && !bookingOpen ? 0 : -1}>
@@ -1539,9 +1554,9 @@ export default function MasterTemplate() {
 
       {galleryOpen && (
         <div className="mct-gallery-overlay" role="dialog" aria-modal="true" aria-label={`Галерея ${site.master.genitive}`}>
-          <div className="mct-gallery-top"><strong>Галерея</strong><button className="mct-gallery-close" type="button" onClick={() => setGalleryOpen(false)} aria-label="Закрыть галерею">×</button></div>
+          <div className="mct-gallery-top"><strong>{translatedText("Галерея")}</strong><button className="mct-gallery-close" type="button" onClick={() => setGalleryOpen(false)} aria-label={translatedText("Закрыть галерею")}>×</button></div>
           <div className="mct-gallery-content">
-            <h3>Работы</h3>
+            <h3>{translatedText("Работы")}</h3>
             <div className="mct-gallery-works">
               {galleryWorks.map((item) => (
                 <button className="mct-gallery-image" type="button" key={item.src} onClick={() => openLightbox(item.src)} aria-label={`Открыть фотографию: ${item.alt}`}>
@@ -1556,7 +1571,7 @@ export default function MasterTemplate() {
       {lightboxIndex !== null && (
         <div className={`mct-lightbox${lightboxTransform.scale > 1.01 ? " is-zoomed" : ""}`} role="dialog" aria-modal="true" aria-label="Полноэкранный просмотр фотографии" onClick={() => setLightboxIndex(null)}>
           <button className="mct-lightbox-close" type="button" onClick={() => setLightboxIndex(null)} aria-label="Закрыть фотографию">×</button>
-          <span className="mct-lightbox-hint">Разведите двумя пальцами, чтобы увеличить</span>
+          <span className="mct-lightbox-hint">{translatedText("Разведите двумя пальцами, чтобы увеличить")}</span>
           <button className="mct-lightbox-nav mct-lightbox-prev" type="button" onClick={(event) => { event.stopPropagation(); stepLightbox(-1); }} aria-label="Предыдущая фотография" tabIndex={lightboxTransform.scale > 1.01 ? -1 : 0}>‹</button>
           <figure
             className="mct-lightbox-figure"
@@ -1585,7 +1600,7 @@ export default function MasterTemplate() {
                 setLightboxIndex(null);
                 setGalleryOpen(true);
               }}
-            >Открыть галерею</button>
+            >{translatedText("Открыть галерею")}</button>
           )}
           <button className="mct-lightbox-nav mct-lightbox-next" type="button" onClick={(event) => { event.stopPropagation(); stepLightbox(1); }} aria-label="Следующая фотография" tabIndex={lightboxTransform.scale > 1.01 ? -1 : 0}>›</button>
         </div>
