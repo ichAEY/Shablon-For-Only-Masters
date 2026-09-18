@@ -111,7 +111,7 @@ const scenarios = [
       site.master.experienceAria = "8 лет опыта";
       site.links.bookingUrl = "https://booking.example/master";
       site.services.groups = [
-        { id: "cuts", label: "Стрижки", services: [service("Стрижка женская")] },
+        { id: "cuts", label: "Стрижки", services: [service("Стрижка женская", { url: "https://booking.example/service/42" })] },
         { id: "color", label: "Окрашивание", services: [service("Окрашивание тон в тон", { variants: [{ label: "Короткие волосы", price: "3 000 ₽", time: "90 мин" }, { label: "Длинные волосы", price: "5 000 ₽", time: "120 мин" }] })] },
         { id: "care", label: "Уход", services: [service("Уход для волос", { description: "Описание процедуры" })] },
       ];
