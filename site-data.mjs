@@ -27,6 +27,7 @@ export default {
     heroCaption: "",
     imageAlt: "",
     heroCopy: "",
+    visitMotto: "",
     experienceYears: null,
     experienceAria: "",
     aboutTitle: "",
