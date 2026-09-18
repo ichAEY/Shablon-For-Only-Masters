@@ -6,6 +6,7 @@ import {
   contactOptions,
   normalizedLocales,
   specialtyMode,
+  UI_TRANSLATION_KEYS,
   visibleServiceGroups,
 } from "../template-rules.mjs";
 
@@ -44,24 +45,28 @@ const locales = normalizedLocales(site).map((item) => item.code);
 if (site.location.countryCode) {
   const country = String(site.location.countryCode).toUpperCase();
   if (country === "RU") {
-    if (locales.length !== 2 || !locales.includes("ru") || !locales.includes("en")) {
-      fail("Russia must publish exactly RU + EN");
+    if (locales.length !== 2 || locales[0] !== "ru" || locales[1] !== "en") {
+      fail("Russia must publish languages in RU, EN order");
     }
   } else {
     const localLocale = String(site.i18n.localLocale || "").toLowerCase();
     if (!localLocale || localLocale === "ru" || localLocale === "en") fail("non-Russia site must declare a local language");
-    if (locales.length !== 3 || !locales.includes(localLocale) || !locales.includes("ru") || !locales.includes("en")) {
-      fail("non-Russia site must publish local + RU + EN");
+    if (locales.length !== 3 || locales[0] !== localLocale || locales[1] !== "ru" || locales[2] !== "en") {
+      fail("non-Russia site must publish languages in local, RU, EN order");
     }
   }
 }
 
 if (site.master.name) {
   const keys = clientTranslationKeys(site);
+  const localLocale = String(site.i18n?.localLocale || "ru").toLowerCase();
   for (const locale of locales.filter((code) => code !== "ru")) {
     const dictionary = site.i18n?.translations?.[locale];
     if (!dictionary || typeof dictionary !== "object") fail(`missing translation dictionary for ${locale}`);
-    const missing = keys.filter((key) => !String(dictionary[key] || "").trim());
+    const required = locale === localLocale && locale !== "en"
+      ? [...keys, ...UI_TRANSLATION_KEYS]
+      : keys;
+    const missing = [...new Set(required)].filter((key) => !String(dictionary[key] || "").trim());
     if (missing.length) fail(`missing ${locale} translations: ${missing.slice(0, 8).join(" | ")}`);
   }
 }
