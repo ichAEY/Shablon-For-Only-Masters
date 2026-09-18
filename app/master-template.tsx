@@ -155,6 +155,8 @@ export default function MasterTemplate() {
 
   const baseEnglish: Record<string, string> = {
     "Услуги и цены": "Services & prices",
+    "ваш": "your",
+    "Стоимость и продолжительность указаны для каждой процедуры. Нажмите на услугу, чтобы выбрать способ связи.": "Price and duration are shown for each service. Tap a service to choose how to contact the master.",
     "О мастере": "About",
     "Отзывы": "Reviews",
     "Визит и запись": "Visit & booking",
@@ -1006,7 +1008,7 @@ export default function MasterTemplate() {
                 </a>
               ) : null}
             </div>
-            <h1>{translatedText(site.master.heroTitle || site.master.name)}<em>{translatedText(site.master.heroEmphasis)}</em></h1>
+            <h1>{site.master.name}{site.master.name ? " — " : ""}{translatedText("ваш")} <em>{translatedText(site.master.heroEmphasis)}</em></h1>
             <p className="mct-hero-copy">{translatedText(site.master.heroCopy)}</p>
           </div>
           <div
@@ -1197,7 +1199,9 @@ export default function MasterTemplate() {
           <div className="mct-price-head">
             <p className="mct-section-kicker">{translatedText("Услуги и цены")}</p>
             <h2>{translatedText("Выберите услугу")}</h2>
-            <span>{translatedText("Актуальная стоимость и продолжительность указаны для каждой процедуры. Онлайн-запись откроется в новой вкладке.")}</span>
+            <span>{siteBookingMode === "direct"
+              ? translatedText("Актуальная стоимость и продолжительность указаны для каждой процедуры. Онлайн-запись откроется в новой вкладке.")
+              : translatedText("Стоимость и продолжительность указаны для каждой процедуры. Нажмите на услугу, чтобы выбрать способ связи.")}</span>
           </div>
           {serviceCategoryMode !== "single" ? (
             <div className={`mct-tabs-ribbon-wrap is-${serviceCategoryMode}`}>
@@ -1255,10 +1259,10 @@ export default function MasterTemplate() {
                         >{translatedText(descriptionExpanded ? "Свернуть" : "Продолжить")}</span>
                       )}
                     </div>
-                    {!hasVariants && service.time && <small className="master-service-time mct-mobile-service-time">{service.time}</small>}
+                    {!hasVariants && service.time && <small className="master-service-time mct-mobile-service-time">{translatedText(service.time)}</small>}
                     {!hasVariants && (
                       <div className="dct-service-meta" aria-hidden="true">
-                        {service.time && <small className="master-service-time">{service.time}</small>}
+                        {service.time && <small className="master-service-time">{translatedText(service.time)}</small>}
                         <b className="master-service-price">{service.price}</b>
                       </div>
                     )}
@@ -1266,10 +1270,10 @@ export default function MasterTemplate() {
                       <div className="master-service-variants">
                         {service.variants!.map((item) => (
                           <div className="master-service-variant" key={item.label}>
-                            <span>{translatedText(item.label)}{item.time ? <small className="mct-mobile-variant-time">{item.time}</small> : null}</span>
+                            <span>{translatedText(item.label)}{item.time ? <small className="mct-mobile-variant-time">{translatedText(item.time)}</small> : null}</span>
                             <b className="mct-mobile-variant-price">{item.price}</b>
                             <span className="dct-service-variant-meta" aria-hidden="true">
-                              {item.time ? <small>{item.time}</small> : null}
+                              {item.time ? <small>{translatedText(item.time)}</small> : null}
                               <b>{item.price}</b>
                             </span>
                           </div>
@@ -1340,7 +1344,7 @@ export default function MasterTemplate() {
                                   <div className="dct-service-card-variant" key={item.label}>
                                     <span>{translatedText(item.label)}</span>
                                     <span className="dct-service-card-variant-meta">
-                                      {item.time ? <small>{item.time}</small> : null}
+                                      {item.time ? <small>{translatedText(item.time)}</small> : null}
                                       <b>{item.price}</b>
                                     </span>
                                   </div>
@@ -1348,7 +1352,7 @@ export default function MasterTemplate() {
                               </div>
                             ) : (
                               <div className="dct-service-card-meta">
-                                {service.time ? <small>{service.time}</small> : <span aria-hidden="true" />}
+                                {service.time ? <small>{translatedText(service.time)}</small> : <span aria-hidden="true" />}
                                 <b>{service.price}</b>
                               </div>
                             )}
@@ -1530,7 +1534,7 @@ export default function MasterTemplate() {
                         ? <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>
                         : <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>}
                     </span>
-                    <span className="mct-contact-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? site.contacts.phoneDisplay : `Написать ${site.master.dative}`}</small></span><i className="mct-link-arrow" aria-hidden="true" />
+                    <span className="mct-contact-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? site.contacts.phoneDisplay : `${translatedText("Написать")} ${locale === "ru" ? site.master.dative : site.master.name}`}</small></span><i className="mct-link-arrow" aria-hidden="true" />
                   </a>
                 ))}
                 {mapUrl ? (
@@ -1567,7 +1571,7 @@ export default function MasterTemplate() {
                     ? <svg viewBox="0 0 24 24"><path d="M7 4h3l1.3 4-2 1.5c1 2 2.6 3.6 4.6 4.6l1.5-2L19 13.5v3c0 1.1-.9 2-2 2C10.4 18.5 5.5 13.6 5.5 7A2 2 0 0 1 7 4Z" /></svg>
                     : <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>}
                 </span>
-                <span className="mct-book-option-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? site.contacts.phoneDisplay : `Написать ${site.master.dative}`}</small></span>
+                <span className="mct-book-option-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? site.contacts.phoneDisplay : `${translatedText("Написать")} ${locale === "ru" ? site.master.dative : site.master.name}`}</small></span>
                 <span className="mct-book-arrow" aria-hidden="true">→</span>
               </a>
             ))}
