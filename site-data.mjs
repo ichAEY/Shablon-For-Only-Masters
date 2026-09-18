@@ -77,7 +77,7 @@ export default {
     portrait: `${publicBase}/placeholder.svg`,
     about: `${publicBase}/placeholder.svg`,
     favicon: `${publicBase}/placeholder.svg`,
-    heroDecoration: "",
+    heroDecoration: `${publicBase}/assets/template/hair-tools.png`,
     beforeAfter: [],
     gallery: [],
   },
