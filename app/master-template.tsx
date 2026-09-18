@@ -506,7 +506,7 @@ export default function MasterTemplate() {
     const frame = window.requestAnimationFrame(() => {
       let saved = "";
       try { saved = localStorage.getItem("tanem-master-locale") || ""; } catch {}
-      const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language || ""];
+      const browserLanguages = navigator.languages?.length ? Array.from(navigator.languages) : [navigator.language || ""];
       setLocale(chooseInitialLocale(site, browserLanguages, saved));
     });
     return () => window.cancelAnimationFrame(frame);
