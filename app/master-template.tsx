@@ -213,6 +213,7 @@ export default function MasterTemplate() {
     "Запись через": "Booking via",
     "по предварительной записи": "by appointment",
     "Все отзывы в": "All reviews on",
+    "Зажмите ленту мышью и двигайте в любую сторону": "Hold and drag the review strip in either direction",
   };
   const translatedText = (value: string) => {
     if (!value) return value;
@@ -1420,7 +1421,7 @@ export default function MasterTemplate() {
         <div className="mct-shell">
           <p className="mct-section-kicker">{translatedText("Отзывы")}</p><h2>{translatedText("Что говорят клиенты")}</h2>
           {reviewsUrl ? <a className="mct-review-summary" href={reviewsUrl} target="_blank" rel="noopener noreferrer"><span>{translatedText("Все отзывы в")} {site.template.reviewSource || site.template.bookingProvider} →</span></a> : null}
-          <p className="dct-review-drag-hint">Зажмите ленту мышью и двигайте в любую сторону</p>
+          <p className="dct-review-drag-hint">{translatedText("Зажмите ленту мышью и двигайте в любую сторону")}</p>
           <div className="dct-review-controls" aria-label="Управление лентой отзывов">
             <button type="button" onClick={() => stepReviews(-1)} aria-label="Показать предыдущие отзывы">←</button>
             <button type="button" onClick={() => stepReviews(1)} aria-label="Показать следующие отзывы">→</button>
@@ -1540,7 +1541,7 @@ export default function MasterTemplate() {
                 {mapUrl ? (
                   <a className="mct-final-secondary" href={mapUrl} target="_blank" rel="noopener noreferrer">
                     <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span>
-                    <span className="mct-contact-copy"><strong className="mct-mobile-location-title">{translatedText("Яндекс Карты")}</strong><strong className="dct-location-title">{translatedText("Локация")}</strong><small className="mct-mobile-location-copy">{translatedText("Адрес и маршрут")}</small><small className="dct-location-copy">{site.location.city},<br />{site.location.mapCardAddress}</small></span><i className="mct-link-arrow" aria-hidden="true" />
+                    <span className="mct-contact-copy"><strong className="mct-mobile-location-title">{translatedText("Яндекс Карты")}</strong><strong className="dct-location-title">{translatedText("Локация")}</strong><small className="mct-mobile-location-copy">{translatedText("Адрес и маршрут")}</small><small className="dct-location-copy">{translatedText(site.location.city)},<br />{translatedText(site.location.mapCardAddress)}</small></span><i className="mct-link-arrow" aria-hidden="true" />
                   </a>
                 ) : null}
               </div>
@@ -1553,7 +1554,7 @@ export default function MasterTemplate() {
 
       <div className={`mct-sticky-wrap${stickyVisible && !galleryOpen && !bookingOpen ? " is-visible" : ""}`} aria-hidden={!stickyVisible || galleryOpen}>
         <a className="mct-sticky" href={bookingHref} target={siteBookingMode === "direct" ? "_blank" : undefined} rel={siteBookingMode === "direct" ? "noopener noreferrer" : undefined} onClick={handleBookingClick} tabIndex={stickyVisible && !galleryOpen && !bookingOpen ? 0 : -1}>
-          <span className="mct-sticky-icon dct-sticky-mobile-mark">{site.brand.monogram}</span><span className="dct-sticky-live" aria-hidden="true"><i /></span><span className="mct-sticky-copy"><strong>{translatedText("Записаться онлайн")}</strong><small>{siteBookingMode === "direct" ? "Открыть свободное время" : translatedText("Выберите удобный способ связи")}</small></span><span className="mct-sticky-arrow" aria-hidden="true">→</span>
+          <span className="mct-sticky-icon dct-sticky-mobile-mark">{site.brand.monogram}</span><span className="dct-sticky-live" aria-hidden="true"><i /></span><span className="mct-sticky-copy"><strong>{translatedText("Записаться онлайн")}</strong><small>{siteBookingMode === "direct" ? translatedText("Открыть свободное время") : translatedText("Выберите удобный способ связи")}</small></span><span className="mct-sticky-arrow" aria-hidden="true">→</span>
         </a>
       </div>
 
