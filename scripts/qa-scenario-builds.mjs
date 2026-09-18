@@ -196,4 +196,6 @@ try {
   console.log("\nAll rendered production scenarios passed.");
 } finally {
   fs.writeFileSync(siteDataPath, original);
+  fs.rmSync(new URL("../.next", import.meta.url), { recursive: true, force: true });
+  fs.rmSync(new URL("../out", import.meta.url), { recursive: true, force: true });
 }
