@@ -50,6 +50,12 @@ Initial locale:
 
 The selected locale is saved locally on the visitor device.
 
+Content normalization:
+- Russian is the canonical internal content language used by the template.
+- If source card data is in another language, the factory first creates a faithful Russian canonical version, then stores the local-language and English translations.
+- Reviews may remain in their original language; service names, descriptions, categories, master copy, location copy and interface must be translated.
+- A populated site fails validation if a required enabled-language translation is missing.
+
 Mobile switcher uses the style/behavior of Esmeralda and sits immediately to the left of the menu button. Desktop uses the same visual language in a desktop-safe location.
 
 ## Booking
