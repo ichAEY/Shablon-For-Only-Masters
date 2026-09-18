@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties, TouchEvent as ReactTouchEvent } from "react";
+import type { CSSProperties, MouseEvent as ReactMouseEvent, TouchEvent as ReactTouchEvent } from "react";
 import site from "../site-data.mjs";
 import {
   bookingMode,
@@ -201,13 +201,13 @@ export default function MasterTemplate() {
     return value;
   };
   const bookingHref = siteBookingMode === "direct" ? bookingUrl : "#booking-options";
-  const handleBookingClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleBookingClick = (event: ReactMouseEvent<HTMLAnchorElement>) => {
     if (siteBookingMode === "direct") return;
     event.preventDefault();
     setBookingOpen(true);
   };
   const serviceHref = (service: Service) => serviceBookingUrl(service, site) || "#booking-options";
-  const handleServiceClick = (event: React.MouseEvent<HTMLAnchorElement>, service: Service) => {
+  const handleServiceClick = (event: ReactMouseEvent<HTMLAnchorElement>, service: Service) => {
     if (serviceBookingUrl(service, site)) return;
     event.preventDefault();
     setBookingOpen(true);
@@ -340,12 +340,45 @@ export default function MasterTemplate() {
     return () => window.clearInterval(timer);
   }, []);
 
+  const overlayOpen = bookingOpen || galleryOpen || lightboxIndex !== null;
+
   useEffect(() => {
-    if (!galleryOpen && lightboxIndex === null) return;
-    const previous = document.body.style.overflow;
+    if (!overlayOpen) return;
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const previous = {
+      htmlOverflow: document.documentElement.style.overflow,
+      bodyPosition: document.body.style.position,
+      bodyTop: document.body.style.top,
+      bodyLeft: document.body.style.left,
+      bodyRight: document.body.style.right,
+      bodyWidth: document.body.style.width,
+      bodyOverflow: document.body.style.overflow,
+      scrollBehavior: document.documentElement.style.scrollBehavior,
+    };
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = previous };
-  }, [galleryOpen, lightboxIndex]);
+
+    return () => {
+      document.documentElement.style.scrollBehavior = "auto";
+      document.documentElement.style.overflow = previous.htmlOverflow;
+      document.body.style.position = previous.bodyPosition;
+      document.body.style.top = previous.bodyTop;
+      document.body.style.left = previous.bodyLeft;
+      document.body.style.right = previous.bodyRight;
+      document.body.style.width = previous.bodyWidth;
+      document.body.style.overflow = previous.bodyOverflow;
+      window.scrollTo({ top: scrollY, left: 0, behavior: "auto" });
+      requestAnimationFrame(() => {
+        document.documentElement.style.scrollBehavior = previous.scrollBehavior;
+      });
+    };
+  }, [overlayOpen]);
 
   useEffect(() => {
     const section = promotionSectionRef.current;
@@ -450,6 +483,23 @@ export default function MasterTemplate() {
   }, [menuOpen]);
 
   useEffect(() => {
+    const key = "tanem-master-locale";
+    let saved = "";
+    try { saved = localStorage.getItem(key) || ""; } catch {}
+    const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language || ""];
+    const next = chooseInitialLocale(site, browserLanguages, saved);
+    setLocale(next);
+    document.documentElement.lang = next;
+  }, []);
+
+  const chooseLocale = (next: string) => {
+    if (!languages.some((item) => item.code === next)) return;
+    setLocale(next);
+    document.documentElement.lang = next;
+    try { localStorage.setItem("tanem-master-locale", next); } catch {}
+  };
+
+  useEffect(() => {
     const elements = Array.from(document.querySelectorAll<HTMLElement>(".mct-reveal"));
     if (!elements.length) return;
 
@@ -474,12 +524,13 @@ export default function MasterTemplate() {
   }, []);
 
   useEffect(() => {
-    if (!galleryOpen && lightboxIndex === null) return;
+    if (!bookingOpen && !galleryOpen && lightboxIndex === null) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         if (lightboxIndex !== null) setLightboxIndex(null);
-        else setGalleryOpen(false);
+        else if (galleryOpen) setGalleryOpen(false);
+        else setBookingOpen(false);
       }
       if (lightboxIndex !== null && event.key === "ArrowLeft") {
         setLightboxTransform({ scale: 1, x: 0, y: 0 });
@@ -495,7 +546,7 @@ export default function MasterTemplate() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [galleryOpen, lightboxIndex]);
+  }, [bookingOpen, galleryOpen, lightboxIndex]);
 
   const switchCategory = (next: string) => {
     setCategory(next);
@@ -850,14 +901,20 @@ export default function MasterTemplate() {
     <div className="mct-mobile">
       {introVisible && (
         <div className="mct-intro" aria-hidden="true">
-          <div className="mct-intro-mark mct-intro-mark-master"><img className="mct-intro-logo-master" src={site.images.introLogo} alt="" /></div>
+          <div className="mct-intro-mark mct-intro-mark-master">
+            {hasLogo(site)
+              ? <img className="mct-intro-logo-master" src={site.images.logo} alt="" />
+              : <span className="mct-intro-text-master">{site.brand.name || site.master.name || "TANEM"}</span>}
+          </div>
         </div>
       )}
 
       <header className="mct-hero" id="mobile-top" ref={heroRef}>
         <div className="mct-shell">
           <div className="mct-topbar">
-            <a className="mct-brand mct-brand-master-image" href="#mobile-top" aria-label={`${site.master.name}, наверх`}><img src={site.images.headerLogo} alt="" /></a>
+            <a className={`mct-brand${hasLogo(site) ? " mct-brand-master-image" : " mct-brand-master-text"}`} href="#mobile-top" aria-label={`${site.master.name || site.brand.name}, наверх`}>
+              {hasLogo(site) ? <img src={site.images.logo} alt="" /> : <span>{site.brand.name || site.master.name || "TANEM"}</span>}
+            </a>
             <nav className="dct-navigation" aria-label="Основные разделы сайта">
               <a href="#mobile-prices">Услуги и цены</a>
               <a href="#mobile-about">О мастере</a>
@@ -914,12 +971,14 @@ export default function MasterTemplate() {
           <div
             className="mct-hero-visual"
           >
-            <div className="mct-master-tools" aria-hidden="true"><img className="mct-master-hero-image" src={site.images.heroDecoration} alt="" /></div>
+            {siteSpecialtyMode === "hair" && site.images.heroDecoration ? (
+              <div className="mct-master-tools" aria-hidden="true"><img className="mct-master-hero-image" src={site.images.heroDecoration} alt="" /></div>
+            ) : null}
             <figure className="dct-hero-portrait">
               <img src={site.images.portrait} alt={`${site.master.name} — ${site.master.imageAlt}`} />
               <figcaption><span>{site.master.name}</span><small>{site.master.heroCaption}</small></figcaption>
             </figure>
-            <div className="mct-palette-stage" aria-hidden="true">
+            {siteSpecialtyMode === "nails" ? <div className="mct-palette-stage" aria-hidden="true">
               <div className="mct-palette-set">
                 {paletteSamples.map((shade, index) => {
                   const leftAngle = -47 + (94 / (paletteSamples.length - 1)) * index;
@@ -1001,17 +1060,17 @@ export default function MasterTemplate() {
                   );
                 })}
               </div>
-            </div>
+            </div> : null}
           </div>
           <div className="mct-hero-bottom">
             <div className="mct-hero-actions">
               <a className="mct-main-cta" href={bookingUrl} target="_blank" rel="noopener noreferrer">Записаться онлайн&nbsp; →</a>
               <a className="mct-quiet-link" href="#mobile-portfolio">Смотреть работы ↓</a>
             </div>
-            <div className="mct-stats" aria-label="Опыт и рейтинг мастера">
-              <div className="mct-stat"><strong>{site.master.experienceYears}</strong><span>лет опыта</span></div>
-              <div className="mct-stat"><strong>{site.reputation.rating} <i className="mct-stat-star">★</i></strong><span>рейтинг</span></div>
-              <div className="mct-stat"><strong>{allServices.length}</strong><span>услуги</span></div>
+            <div className={`mct-stats${siteExperienceMode === "unknown" ? " is-two-stats" : ""}`} aria-label="Опыт и рейтинг мастера">
+              {siteExperienceMode === "known" ? <div className="mct-stat"><strong>{site.master.experienceYears}</strong><span>{translatedText("лет опыта")}</span></div> : null}
+              <div className="mct-stat"><strong>{site.reputation.rating} <i className="mct-stat-star">★</i></strong><span>{translatedText("рейтинг")}</span></div>
+              <div className="mct-stat"><strong>{allServices.length}</strong><span>{translatedText("услуги")}</span></div>
             </div>
           </div>
         </div>
@@ -1278,10 +1337,12 @@ export default function MasterTemplate() {
               <figure className="mct-about-portrait">
                 <img src={site.images.about} alt={`${site.master.name} — ${site.master.imageAlt}`} loading="lazy" />
               </figure>
-              <div className="mct-about-experience" aria-label={site.master.experienceAria}>
-                <strong>{site.master.experienceYears}</strong>
-                <span>лет<br />опыта</span>
-              </div>
+              {siteExperienceMode === "known" ? (
+                <div className="mct-about-experience" aria-label={site.master.experienceAria}>
+                  <strong>{site.master.experienceYears}</strong>
+                  <span>{translatedText("лет опыта")}</span>
+                </div>
+              ) : null}
             </div>
             <div className="mct-about-copy">
               <p className="mct-about-lead">{site.master.aboutLead}</p>
