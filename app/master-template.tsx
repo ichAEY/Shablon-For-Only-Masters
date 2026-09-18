@@ -483,20 +483,23 @@ export default function MasterTemplate() {
   }, [menuOpen]);
 
   useEffect(() => {
-    const key = "tanem-master-locale";
-    let saved = "";
-    try { saved = localStorage.getItem(key) || ""; } catch {}
-    const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language || ""];
-    const next = chooseInitialLocale(site, browserLanguages, saved);
-    setLocale(next);
-    document.documentElement.lang = next;
+    const frame = window.requestAnimationFrame(() => {
+      let saved = "";
+      try { saved = localStorage.getItem("tanem-master-locale") || ""; } catch {}
+      const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language || ""];
+      setLocale(chooseInitialLocale(site, browserLanguages, saved));
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    try { localStorage.setItem("tanem-master-locale", locale); } catch {}
+  }, [locale]);
 
   const chooseLocale = (next: string) => {
     if (!languages.some((item) => item.code === next)) return;
     setLocale(next);
-    document.documentElement.lang = next;
-    try { localStorage.setItem("tanem-master-locale", next); } catch {}
   };
 
   useEffect(() => {
