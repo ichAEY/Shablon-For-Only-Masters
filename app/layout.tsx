@@ -179,12 +179,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru">
-      <head>
-        <meta
-          httpEquiv="Content-Security-Policy"
-          content="frame-src 'self' https://*.yclients.com https://yclients.com https://yandex.ru https://*.yandex.ru;"
-        />
-        <style dangerouslySetInnerHTML={{ __html: mapCleanupStyles }} />
+      <head>        <style dangerouslySetInnerHTML={{ __html: mapCleanupStyles }} />
       </head>
       <body>
         {children}
@@ -204,22 +199,7 @@ export default function RootLayout({
               </div>
             </noscript>
           </>
-        ) : null}
-        <a
-          id="yclients-booking-proxy"
-          className="ms_booking yclients-booking-proxy"
-          data-url={site.links.bookingUrl}
-          aria-hidden="true"
-          tabIndex={-1}
-        />
-        <script src={`${site.basePath}/template-runtime.js`} defer />
-        <script
-          type="text/javascript"
-          src={`${site.basePath}/noop.js`}
-          charSet="UTF-8"
-          defer
-        />
-      </body>
+        ) : null}        <script src={`${site.basePath}/template-runtime.js`} defer />      </body>
     </html>
   );
 }
