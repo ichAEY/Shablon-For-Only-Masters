@@ -16,6 +16,9 @@ type Service = {
   displayName?: string;
 };
 type CategoryKey = "group1" | "group2" | "group3" | "group4";
+type GalleryItem = { src: string; alt: string };
+type Review = { author: string; text: string };
+type Amenity = { title: string; text: string };
 
 const bookingUrl = site.links.bookingUrl;
 const reviewsUrl = site.links.reviewsUrl;
@@ -46,15 +49,18 @@ const allServices: Array<Service & { sectionLabel?: string; sectionKey?: string 
   })),
 );
 
-const beforeAfter = site.images.beforeAfter;
-const galleryWorks = site.images.gallery;
+const beforeAfter = site.images.beforeAfter as unknown[];
+const galleryWorks = site.images.gallery as GalleryItem[];
 const desktopGalleryModules = [galleryWorks.slice(0, 4), galleryWorks.slice(4, 8), galleryWorks.slice(8)];
 const desktopGallerySetCount = 3;
 const featuredWorks = galleryWorks.slice(0, 7);
 const lightboxItems = [...galleryWorks];
-const reviews = site.reviews;
+const reviews = site.reviews as Review[];
 const reviewSetCount = 5;
-const promotions = site.promotions;
+const promotions = site.promotions as unknown[];
+const aboutParagraphs = site.master.aboutParagraphs as string[];
+const skills = site.master.skills as string[];
+const amenities = site.amenities as Amenity[];
 
 const toMinutes = (value: string) => {
   const [hours, minutes] = value.split(":").map(Number);
@@ -1212,14 +1218,14 @@ export default function MasterTemplate() {
             </div>
             <div className="mct-about-copy">
               <p className="mct-about-lead">{site.master.aboutLead}</p>
-              <p>{site.master.aboutParagraphs[0]}</p>
-              <p>{site.master.aboutParagraphs[1]}</p>
-              {site.master.aboutParagraphs[2] && <p className="dct-about-extra-copy">{site.master.aboutParagraphs[2]}</p>}
-              <ul className="mct-about-list">{site.master.skills.map((skill) => <li key={skill}>{skill}</li>)}</ul>
+              <p>{aboutParagraphs[0]}</p>
+              <p>{aboutParagraphs[1]}</p>
+              {aboutParagraphs[2] && <p className="dct-about-extra-copy">{aboutParagraphs[2]}</p>}
+              <ul className="mct-about-list">{skills.map((skill) => <li key={skill}>{skill}</li>)}</ul>
               <div className="dct-about-amenities" aria-label={`Дополнительная информация о визите к ${site.master.dative}`}>
                 <div className="dct-about-amenities-head"><p className="mct-section-kicker">Дополнительно</p><span>Полезно перед записью</span></div>
                 <div className="dct-about-amenities-grid">
-                  {site.amenities.map((item) => <article key={item.title}><strong>{item.title}</strong><span>{item.text}</span></article>)}
+                  {amenities.map((item) => <article key={item.title}><strong>{item.title}</strong><span>{item.text}</span></article>)}
                 </div>
               </div>
             </div>
@@ -1228,7 +1234,7 @@ export default function MasterTemplate() {
           <div className="mct-amenities mct-about-amenities-mobile" aria-label={`О визите к ${site.master.dative}`}>
             <div className="mct-amenities-head"><p className="mct-section-kicker">Дополнительно</p><span>Полезно перед записью</span></div>
             <div className="mct-amenities-grid">
-              {site.amenities.map((item) => <article key={item.title}><strong>{item.title}</strong><span>{item.text}</span></article>)}
+              {amenities.map((item) => <article key={item.title}><strong>{item.title}</strong><span>{item.text}</span></article>)}
             </div>
           </div>
         </div>
