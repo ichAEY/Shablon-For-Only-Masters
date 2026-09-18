@@ -46,6 +46,8 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm test
+      - name: Render production scenarios
+        run: npm run qa:scenarios
       - id: pages-check
         name: Check whether Pages is enabled
         env:
