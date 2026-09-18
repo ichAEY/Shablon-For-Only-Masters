@@ -205,8 +205,6 @@ export default function MasterTemplate() {
     "Закрыть галерею": "Close gallery",
     "Открыть меню": "Open menu",
     "Закрыть меню": "Close menu",
-    "Запишитесь онлайн": "Book online",
-    "или свяжитесь любым удобным способом": "or contact us in the way that works for you",
     "Свяжитесь удобным способом": "Contact in the way that works for you",
     "Позвоните или напишите мастеру, чтобы согласовать услугу и время.": "Call or message the master to arrange the service and time.",
     "Выберите свободное время онлайн. Если нужно уточнить услугу, свяжитесь с мастером напрямую.": "Choose an available time online. If you need help with a service, contact the master directly.",
