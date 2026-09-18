@@ -777,7 +777,7 @@ export default function MasterTemplate() {
     <div className="mct-mobile">
       {introVisible && (
         <div className="mct-intro" aria-hidden="true">
-          <div className="mct-intro-mark mct-intro-mark-yulia"><img className="mct-intro-logo-yulia" src={site.images.introLogo} alt="" /></div>
+          <div className="mct-intro-mark mct-intro-mark-master"><img className="mct-intro-logo-master" src={site.images.introLogo} alt="" /></div>
         </div>
       )}
 
