@@ -62,9 +62,9 @@ export default {
     reviewsUrl: "",
     mapUrl: "",
     routeUrl: "",
-    mobileMapEmbedUrl: "",
-    desktopMapEmbedUrl: "",
-    yandexMapHrefMatch: "",
+    mobileMapEmbedUrl: "about:blank",
+    desktopMapEmbedUrl: "about:blank",
+    yandexMapHrefMatch: "__tanem_map_not_configured__",
   },
 
   reputation: {
