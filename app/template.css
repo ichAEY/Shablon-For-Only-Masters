@@ -3071,8 +3071,7 @@ body > a.yButton {
 }
 
 .mct-service-row,
-.mct-service-row.has-variants,
-.mct-service-row.stl-grouped-service {
+.mct-service-row.has-variants {
   min-height: 84px !important;
   display: grid !important;
   grid-template-columns: minmax(0,1fr) 108px !important;
@@ -3082,20 +3081,15 @@ body > a.yButton {
   border-bottom: 1px solid rgba(55,47,42,.18) !important;
 }
 
-.mct-service-row.stl-grouped-service {
-  align-items: start !important;
-}
 
 .mct-service-name,
-.mct-service-row.has-variants .mct-service-name,
-.mct-service-row.stl-grouped-service .mct-service-name {
+.mct-service-row.has-variants .mct-service-name {
   min-width: 0 !important;
   padding: 13px 0 !important;
 }
 
 .mct-service-name > strong,
-.mct-service-row.has-variants .mct-service-name > strong,
-.mct-service-row.stl-grouped-service .mct-service-name > strong {
+.mct-service-row.has-variants .mct-service-name > strong {
   display: -webkit-box !important;
   -webkit-box-orient: vertical !important;
   -webkit-line-clamp: 2 !important;
@@ -3120,8 +3114,7 @@ body > a.yButton {
 }
 
 .mct-service-action,
-.mct-service-row.has-variants .mct-service-action,
-.mct-service-row.stl-grouped-service .mct-service-action {
+.mct-service-row.has-variants .mct-service-action {
   align-self: center !important;
   display: block !important;
   margin: 0 !important;
@@ -3129,9 +3122,6 @@ body > a.yButton {
   text-align: right !important;
 }
 
-.mct-service-row.stl-grouped-service .mct-service-action {
-  padding-top: 14px !important;
-}
 
 .mct-service-action > a { display: none !important; }
 
@@ -3142,41 +3132,8 @@ body > a.yButton {
   letter-spacing: .005em !important;
 }
 
-.stl-price-variants {
-  display: grid !important;
-  gap: 5px !important;
-  margin-top: 8px !important;
-  padding: 0 !important;
-  border: 0 !important;
-}
 
-.stl-price-variant {
-  min-height: 0 !important;
-  display: flex !important;
-  align-items: baseline !important;
-  justify-content: space-between !important;
-  gap: 8px !important;
-  padding: 0 !important;
-  border: 0 !important;
-  color: #81766f !important;
-  font: 400 10px/1.35 "Manrope", Arial, sans-serif !important;
-}
 
-.stl-price-variant > span { min-width: 0 !important; }
-.stl-price-variant > span small {
-  display: inline !important;
-  margin: 0 0 0 7px !important;
-  color: #91857d !important;
-  font: 400 9px/1.35 "Manrope", Arial, sans-serif !important;
-  white-space: nowrap !important;
-}
-.stl-price-variant > b {
-  flex: 0 0 auto !important;
-  color: #4d4641 !important;
-  white-space: nowrap !important;
-  font: 500 11px/1.2 "Manrope", Arial, sans-serif !important;
-  letter-spacing: 0 !important;
-}
 
 .mct-service-variants,
 .mct-service-variant { display: none !important; }
@@ -3212,14 +3169,12 @@ body > a.yButton {
 
 @media (max-width: 370px) {
   .mct-service-row,
-  .mct-service-row.has-variants,
-  .mct-service-row.stl-grouped-service {
+  .mct-service-row.has-variants {
     grid-template-columns: minmax(0,1fr) 100px !important;
     gap: 12px !important;
   }
   .mct-service-name > strong,
-  .mct-service-row.has-variants .mct-service-name > strong,
-  .mct-service-row.stl-grouped-service .mct-service-name > strong {
+  .mct-service-row.has-variants .mct-service-name > strong {
     font-size: 17px !important;
   }
   .mct-service-action b { font-size: 19px !important; }
@@ -3294,8 +3249,7 @@ body > a.yButton {
     opacity: .72 !important;
   }
   .mct-service-row.master-price-row,
-  .mct-service-row.master-price-row.has-variants,
-  .mct-service-row.master-price-row.stl-grouped-service {
+  .mct-service-row.master-price-row.has-variants {
     display: block !important;
     min-height: 0 !important;
     margin: 0 !important;
@@ -3961,8 +3915,7 @@ body > a.yButton {
   }
 
   .mct-service-row.master-price-row,
-  .mct-service-row.master-price-row.has-variants,
-  .mct-service-row.master-price-row.stl-grouped-service {
+  .mct-service-row.master-price-row.has-variants {
     display: block !important;
     min-height: 0 !important;
     margin: 0 !important;
@@ -8703,8 +8656,7 @@ html body .mct-map-wrap > a::after {
   }
 
   .mct-service-row.master-price-row,
-  .mct-service-row.master-price-row.has-variants,
-  .mct-service-row.master-price-row.stl-grouped-service {
+  .mct-service-row.master-price-row.has-variants {
     position: relative !important;
     display: block !important;
     width: 100% !important;
@@ -9448,8 +9400,7 @@ html body .mct-map-wrap > a::after {
   }
 
   .mct-service-row.master-price-row,
-  .mct-service-row.master-price-row.has-variants,
-  .mct-service-row.master-price-row.stl-grouped-service {
+  .mct-service-row.master-price-row.has-variants {
     display: inline-block !important;
     width: 100% !important;
     min-height: 140px !important;
