@@ -964,9 +964,19 @@ export default function MasterTemplate() {
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
                 </a>
               ) : null}
+              {languages.length > 1 ? (
+                <div className="mct-lang-switch is-desktop" role="group" aria-label="Language">
+                  {languages.map((item, index) => (
+                    <span className="mct-lang-item" key={`desktop-${item.code}`}>
+                      {index > 0 ? <span className="mct-lang-sep" aria-hidden="true">/</span> : null}
+                      <button type="button" className={locale === item.code ? "is-active" : ""} aria-pressed={locale === item.code} onClick={() => chooseLocale(item.code)}>{item.label}</button>
+                    </span>
+                  ))}
+                </div>
+              ) : null}
             </div>
             {languages.length > 1 ? (
-              <div className="mct-lang-switch" role="group" aria-label="Language">
+              <div className="mct-lang-switch is-mobile" role="group" aria-label="Language">
                 {languages.map((item, index) => (
                   <span className="mct-lang-item" key={item.code}>
                     {index > 0 ? <span className="mct-lang-sep" aria-hidden="true">/</span> : null}
