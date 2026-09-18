@@ -206,6 +206,14 @@ export default function MasterTemplate() {
     "Закрыть галерею": "Close gallery",
     "Открыть меню": "Open menu",
     "Закрыть меню": "Close menu",
+    "Запишитесь онлайн": "Book online",
+    "или свяжитесь любым удобным способом": "or contact us in the way that works for you",
+    "Свяжитесь удобным способом": "Contact in the way that works for you",
+    "Позвоните или напишите мастеру, чтобы согласовать услугу и время.": "Call or message the master to arrange the service and time.",
+    "Выберите свободное время онлайн. Если нужно уточнить услугу, свяжитесь с мастером напрямую.": "Choose an available time online. If you need help with a service, contact the master directly.",
+    "Запись через": "Booking via",
+    "по предварительной записи": "by appointment",
+    "Все отзывы в": "All reviews on",
   };
   const translatedText = (value: string) => {
     if (!value) return value;
@@ -1408,7 +1416,7 @@ export default function MasterTemplate() {
       <section className="mct-reviews mct-reveal" id="mobile-reviews">
         <div className="mct-shell">
           <p className="mct-section-kicker">{translatedText("Отзывы")}</p><h2>{translatedText("Что говорят клиенты")}</h2>
-          <a className="mct-review-summary" href={reviewsUrl} target="_blank" rel="noopener noreferrer"><span>Все отзывы в {site.template.bookingProvider} →</span></a>
+          {reviewsUrl ? <a className="mct-review-summary" href={reviewsUrl} target="_blank" rel="noopener noreferrer"><span>{translatedText("Все отзывы в")} {site.template.reviewSource || site.template.bookingProvider} →</span></a> : null}
           <p className="dct-review-drag-hint">Зажмите ленту мышью и двигайте в любую сторону</p>
           <div className="dct-review-controls" aria-label="Управление лентой отзывов">
             <button type="button" onClick={() => stepReviews(-1)} aria-label="Показать предыдущие отзывы">←</button>
@@ -1493,12 +1501,21 @@ export default function MasterTemplate() {
                 <i aria-hidden="true" />{openStatus.label}
               </span>
             </div>
-            <span className="dct-visit-motto" aria-hidden="true">Красивые волосы —<br />увереннее вы</span>
-            <h3>Запишитесь онлайн<br /><em>или свяжитесь любым удобным способом</em></h3>
-            <p>Выберите свободное время в {site.template.bookingProvider}. Если нужно уточнить услугу или подобрать процедуру, напишите {site.master.dative} напрямую.</p>
+            {site.master.visitMotto ? <span className="dct-visit-motto" aria-hidden="true">{translatedText(site.master.visitMotto)}</span> : null}
+            {siteBookingMode === "direct" ? (
+              <>
+                <h3>{translatedText("Запишитесь онлайн")}<br /><em>{translatedText("или свяжитесь любым удобным способом")}</em></h3>
+                <p>{translatedText("Выберите свободное время онлайн. Если нужно уточнить услугу, свяжитесь с мастером напрямую.")}</p>
+              </>
+            ) : (
+              <>
+                <h3>{translatedText("Свяжитесь удобным способом")}</h3>
+                <p>{translatedText("Позвоните или напишите мастеру, чтобы согласовать услугу и время.")}</p>
+              </>
+            )}
             <div className="mct-visit-actions">
               <a className="mct-final-cta" href={bookingHref} target={siteBookingMode === "direct" ? "_blank" : undefined} rel={siteBookingMode === "direct" ? "noopener noreferrer" : undefined} onClick={handleBookingClick}><span>{siteBookingMode === "direct" ? translatedText("Выбрать время онлайн") : translatedText("Записаться онлайн")}</span><i className="mct-link-arrow" aria-hidden="true" /></a>
-              <div className="dct-booking-note" aria-hidden="true"><span>▢</span><small>Запись через {site.template.bookingProvider}<br />по предварительной записи</small></div>
+              {siteBookingMode === "direct" && site.template.bookingProvider ? <div className="dct-booking-note" aria-hidden="true"><span>▢</span><small>{translatedText("Запись через")} {site.template.bookingProvider}<br />{translatedText("по предварительной записи")}</small></div> : null}
               <div className="mct-final-contact-grid" aria-label={`Способы связи с ${site.master.instrumental}`}>
                 {bookingContacts.map((item) => (
                   <a className="mct-final-secondary" href={item.url} target={item.kind === "phone" ? undefined : "_blank"} rel={item.kind === "phone" ? undefined : "noopener noreferrer"} key={`${item.kind}-${item.url}`}>
