@@ -3,6 +3,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, TouchEvent as ReactTouchEvent } from "react";
 import site from "../site-data.mjs";
+import {
+  bookingMode,
+  categoryMode,
+  chooseInitialLocale,
+  contactOptions,
+  experienceMode,
+  hasLogo,
+  normalizedLocales,
+  serviceBookingUrl,
+  specialtyMode,
+  visibleServiceGroups,
+} from "../template-rules.mjs";
 
 type ServiceVariant = { label: string; price: string; time?: string };
 type Service = {
@@ -10,15 +22,16 @@ type Service = {
   price: string;
   time: string;
   description: string;
-  url: string;
+  url?: string;
   variants?: ServiceVariant[];
   detailClass?: string;
   displayName?: string;
 };
-type CategoryKey = "group1" | "group2" | "group3" | "group4";
+type ServiceGroup = { id: string; label: string; services: Service[] };
 type GalleryItem = { src: string; alt: string };
 type Review = { author: string; text: string };
 type Amenity = { title: string; text: string };
+type LocaleOption = { code: string; label: string };
 
 const bookingUrl = site.links.bookingUrl;
 const reviewsUrl = site.links.reviewsUrl;
@@ -26,28 +39,21 @@ const mapUrl = site.links.mapUrl;
 const routeUrl = site.links.routeUrl;
 const mobileMapEmbedUrl = site.links.mobileMapEmbedUrl;
 const desktopMapEmbedUrl = site.links.desktopMapEmbedUrl;
-const personalTelegramUrl = site.contacts.personalTelegramUrl;
-const vkUrl = site.contacts.vkUrl;
 
-const group1 = site.services.group1 as Service[];
-const group2 = site.services.group2 as Service[];
-const group3 = site.services.group3 as Service[];
-const group4 = site.services.group4 as Service[];
-const categoryKeys: CategoryKey[] = ["group1", "group2", "group3", "group4"];
-const serviceGroups: Record<CategoryKey, { label: string; services: Service[] }> = {
-  group1: { label: site.template.categoryLabels.group1, services: group1 },
-  group2: { label: site.template.categoryLabels.group2, services: group2 },
-  group3: { label: site.template.categoryLabels.group3, services: group3 },
-  group4: { label: site.template.categoryLabels.group4, services: group4 },
-};
-const visibleCategoryKeys = categoryKeys.filter((key) => serviceGroups[key].services.length > 0);
-const allServices: Array<Service & { sectionLabel?: string; sectionKey?: string }> = visibleCategoryKeys.flatMap((key) =>
-  serviceGroups[key].services.map((service, index) => ({
+const serviceGroups = visibleServiceGroups(site) as ServiceGroup[];
+const allServices: Array<Service & { sectionLabel?: string; sectionKey?: string }> = serviceGroups.flatMap((group) =>
+  group.services.map((service, index) => ({
     ...service,
-    sectionLabel: index === 0 ? serviceGroups[key].label : undefined,
-    sectionKey: key,
+    sectionLabel: index === 0 ? group.label : undefined,
+    sectionKey: group.id,
   })),
 );
+const serviceCategoryMode = categoryMode(site);
+const siteBookingMode = bookingMode(site);
+const siteExperienceMode = experienceMode(site);
+const siteSpecialtyMode = specialtyMode(site);
+const languages = normalizedLocales(site) as LocaleOption[];
+const bookingContacts = contactOptions(site);
 
 const beforeAfter = site.images.beforeAfter as unknown[];
 const galleryWorks = site.images.gallery as GalleryItem[];
@@ -84,8 +90,11 @@ const paletteSamples = [
 ];
 
 export default function MasterTemplate() {
-  const [category, setCategory] = useState<"all" | "group1" | "group2" | "group3" | "group4">("all");
+  const initialCategory = serviceCategoryMode === "two" ? (serviceGroups[0]?.id || "all") : "all";
+  const [category, setCategory] = useState<string>(initialCategory);
   const [expanded, setExpanded] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [locale, setLocale] = useState<string>(languages[0]?.code || "ru");
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -137,14 +146,72 @@ export default function MasterTemplate() {
     startDistance: 0,
   });
 
+  const activeGroup = serviceGroups.find((group) => group.id === category);
   const services: Array<Service & { sectionLabel?: string; sectionKey?: string }> =
-    category === "all" ? allServices
-      : category === "group1" ? group1
-        : category === "group2" ? group2
-          : category === "group3" ? group3
-            : group4;
-  const isCollapsibleCategory = category === "all";
+    category === "all"
+      ? allServices
+      : (activeGroup?.services || []).map((service) => ({ ...service, sectionKey: activeGroup?.id }));
+  const isCollapsibleCategory = category === "all" && serviceCategoryMode === "many";
   const visibleServices = useMemo(() => services, [services]);
+
+  const baseEnglish: Record<string, string> = {
+    "Услуги и цены": "Services & prices",
+    "О мастере": "About",
+    "Отзывы": "Reviews",
+    "Визит и запись": "Visit & booking",
+    "Портфолио": "Portfolio",
+    "Записаться онлайн": "Book online",
+    "Смотреть работы": "View work",
+    "Работы": "Work",
+    "Открыть галерею": "Open gallery",
+    "Выберите услугу": "Choose a service",
+    "Актуальная стоимость и продолжительность указаны для каждой процедуры. Онлайн-запись откроется в новой вкладке.": "Current price and duration are shown for each service. Online booking opens in a new tab.",
+    "Все": "All",
+    "Свернуть": "Collapse",
+    "Продолжить": "Continue",
+    "Подробнее": "More",
+    "Открыть все услуги": "Show all services",
+    "Свернуть услуги": "Collapse services",
+    "лет опыта": "years experience",
+    "рейтинг": "rating",
+    "услуги": "services",
+    "Дополнительно": "Additional",
+    "Полезно перед записью": "Useful before booking",
+    "Что говорят клиенты": "What clients say",
+    "Запись и связь": "Booking & contact",
+    "Позвонить": "Call",
+    "Локация": "Location",
+    "Яндекс Карты": "Yandex Maps",
+    "Адрес и маршрут": "Address & route",
+    "Выбрать время онлайн": "Choose a time online",
+    "Как вам удобнее записаться?": "How would you like to book?",
+    "Выберите удобный способ связи": "Choose a convenient contact method",
+    "Закрыть": "Close",
+    "Галерея": "Gallery",
+    "Открыто до": "Open until",
+    "Закрыто до": "Closed until",
+    "Создано в": "Created with",
+  };
+  const translatedText = (value: string) => {
+    if (!value) return value;
+    if (locale === "ru") return value;
+    const configured = (site.i18n?.translations as Record<string, Record<string, string>> | undefined)?.[locale]?.[value];
+    if (configured) return configured;
+    if (locale === "en" && baseEnglish[value]) return baseEnglish[value];
+    return value;
+  };
+  const bookingHref = siteBookingMode === "direct" ? bookingUrl : "#booking-options";
+  const handleBookingClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (siteBookingMode === "direct") return;
+    event.preventDefault();
+    setBookingOpen(true);
+  };
+  const serviceHref = (service: Service) => serviceBookingUrl(service, site) || "#booking-options";
+  const handleServiceClick = (event: React.MouseEvent<HTMLAnchorElement>, service: Service) => {
+    if (serviceBookingUrl(service, site)) return;
+    event.preventDefault();
+    setBookingOpen(true);
+  };
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -430,7 +497,7 @@ export default function MasterTemplate() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [galleryOpen, lightboxIndex]);
 
-  const switchCategory = (next: "all" | "group1" | "group2" | "group3" | "group4") => {
+  const switchCategory = (next: string) => {
     setCategory(next);
     setExpanded(false);
   };
