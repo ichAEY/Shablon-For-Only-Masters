@@ -5,13 +5,7 @@ import "@fontsource/cormorant-garamond/600.css";
 import "@fontsource/manrope/400.css";
 import "@fontsource/manrope/500.css";
 import "@fontsource/manrope/600.css";
-import "./globals.css";
-import "./desktop-claytone.css";
-import "./desktop-performance.css";
-import "./claytone-refinement.css";
-import "./site-tuning.css";
-import "./android-scroll-safety.css";
-import "./desktop-v2.css";
+import "./template.css";
 import site from "../site-data.mjs";
 
 export const metadata: Metadata = {
@@ -218,8 +212,7 @@ export default function RootLayout({
           aria-hidden="true"
           tabIndex={-1}
         />
-        <script src={`${site.basePath}/claytone-enhancements.js?v=20260917-9`} defer />
-        <script src={`${site.basePath}/android-scroll-fix.js?v=20260813-2`} defer />
+        <script src={`${site.basePath}/template-runtime.js`} defer />
         <script
           type="text/javascript"
           src={`${site.basePath}/noop.js`}
