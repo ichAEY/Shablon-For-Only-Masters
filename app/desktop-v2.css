@@ -1707,12 +1707,12 @@
 
 @media (min-width: 1024px) {
   /* Larger opening identity mark on desktop only. */
-  .mct-intro-mark-yulia {
+  .mct-intro-mark-master {
     width: min(84vw, 540px) !important;
     min-height: 190px !important;
   }
 
-  .mct-intro-logo-yulia {
+  .mct-intro-logo-master {
     width: min(80vw, 500px) !important;
     max-width: 500px !important;
     max-height: 270px !important;
