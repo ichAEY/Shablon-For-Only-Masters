@@ -29,14 +29,6 @@ body > a.yButton {
   display: none !important;
 }
 
-.yclients-booking-proxy {
-  position: fixed !important;
-  width: 1px !important;
-  height: 1px !important;
-  overflow: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
 
 .site-root {
   width: 100%;
@@ -9079,7 +9071,7 @@ html body .mct-map-wrap > a::after {
   }
 
   .mct-review-card.is-long i::after {
-    content: "Читать полностью в Dikidi \2192" !important;
+    content: "Читать полностью \2192" !important;
     font-size: 11px !important;
   }
 
