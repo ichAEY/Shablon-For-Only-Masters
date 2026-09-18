@@ -179,7 +179,8 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru">
-      <head>        <style dangerouslySetInnerHTML={{ __html: mapCleanupStyles }} />
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: mapCleanupStyles }} />
       </head>
       <body>
         {children}
@@ -199,7 +200,9 @@ export default function RootLayout({
               </div>
             </noscript>
           </>
-        ) : null}        <script src={`${site.basePath}/template-runtime.js`} defer />      </body>
+        ) : null}
+        <script src={`${site.basePath}/template-runtime.js`} defer />
+      </body>
     </html>
   );
 }
