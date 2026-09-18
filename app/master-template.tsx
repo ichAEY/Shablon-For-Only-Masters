@@ -1158,21 +1158,25 @@ export default function MasterTemplate() {
             <h2>Выберите <br />услугу</h2>
             <span>Актуальная стоимость и продолжительность указаны для каждой процедуры. Онлайн-запись откроется в новой вкладке.</span>
           </div>
-          <div className="mct-tabs-ribbon-wrap">
-            <span className="mct-tabs-swipe-cue" aria-hidden="true">
-              <svg viewBox="0 0 18 10" fill="none"><path d="M1 5h14M11 1.5 15 5l-4 3.5" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            </span>
-            <div className="mct-tabs mct-tabs-scroll" role="tablist" aria-label="Категории услуг">
-              <div className="mct-tabs-track" role="presentation">
-                <button className={`mct-tab mct-tab-all${category === "all" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "all"} onClick={() => switchCategory("all")}>Все</button>
-                
-                {serviceGroups.group1.services.length > 0 && <button className={`mct-tab${category === "group1" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "group1"} onClick={() => switchCategory("group1")}>{serviceGroups.group1.label}</button>}
-                {serviceGroups.group2.services.length > 0 && <button className={`mct-tab${category === "group2" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "group2"} onClick={() => switchCategory("group2")}>{serviceGroups.group2.label}</button>}
-                {serviceGroups.group3.services.length > 0 && <button className={`mct-tab${category === "group3" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "group3"} onClick={() => switchCategory("group3")}>{serviceGroups.group3.label}</button>}
-                {serviceGroups.group4.services.length > 0 && <button className={`mct-tab${category === "group4" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "group4"} onClick={() => switchCategory("group4")}>{serviceGroups.group4.label}</button>}
+          {serviceCategoryMode !== "single" ? (
+            <div className={`mct-tabs-ribbon-wrap is-${serviceCategoryMode}`}>
+              {serviceCategoryMode === "many" ? (
+                <span className="mct-tabs-swipe-cue" aria-hidden="true">
+                  <svg viewBox="0 0 18 10" fill="none"><path d="M1 5h14M11 1.5 15 5l-4 3.5" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </span>
+              ) : null}
+              <div className={`mct-tabs mct-tabs-scroll is-${serviceCategoryMode}`} role="tablist" aria-label="Категории услуг">
+                <div className="mct-tabs-track" role="presentation">
+                  {serviceCategoryMode === "many" ? (
+                    <button className={`mct-tab mct-tab-all${category === "all" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "all"} onClick={() => switchCategory("all")}>{translatedText("Все")}</button>
+                  ) : null}
+                  {serviceGroups.map((group) => (
+                    <button className={`mct-tab${category === group.id ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === group.id} onClick={() => switchCategory(group.id)} key={group.id}>{translatedText(group.label)}</button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
           <div className={`mct-service-list${isCollapsibleCategory && !expanded ? " is-collapsed" : " is-expanded"}`}>
             {visibleServices.map((service) => {
               const hasVariants = Boolean(service.variants?.length);
@@ -1181,7 +1185,7 @@ export default function MasterTemplate() {
               const descriptionIsLong = service.description.length > 100;
               const descriptionExpanded = Boolean(expandedDescriptions[serviceKey]);
               return (
-                <a className={`mct-service-row master-price-row master-service-link${service.sectionLabel ? " has-group-label" : ""}${hasVariants ? " has-variants" : ""}${hasDescription ? " has-description" : ""}${descriptionExpanded ? " description-expanded" : ""}`} href={service.url} target="_blank" rel="noopener noreferrer" aria-label={`${service.name} — открыть запись в ${site.template.bookingProvider}`} key={serviceKey}>
+                <a className={`mct-service-row master-price-row master-service-link${service.sectionLabel ? " has-group-label" : ""}${hasVariants ? " has-variants" : ""}${hasDescription ? " has-description" : ""}${descriptionExpanded ? " description-expanded" : ""}`} href={serviceHref(service)} target={serviceBookingUrl(service, site) ? "_blank" : undefined} rel={serviceBookingUrl(service, site) ? "noopener noreferrer" : undefined} onClick={(event) => handleServiceClick(event, service)} aria-label={`${service.name} — открыть запись`} key={serviceKey}>
                   {service.sectionLabel && <div className="mct-service-group-label">{service.sectionLabel}</div>}
                   <div className="master-service-body">
                     <div className="master-service-head">
@@ -1237,13 +1241,12 @@ export default function MasterTemplate() {
             })}
           </div>
           <div className="dct-service-groups" aria-label="Услуги по категориям на компьютере">
-            {(category === "all" ? visibleCategoryKeys : [category as CategoryKey]).map((groupKey) => {
-              const group = serviceGroups[groupKey];
+            {(category === "all" ? serviceGroups : serviceGroups.filter((group) => group.id === category)).map((group) => {
               const groupServices = category === "all" && !expanded ? group.services.slice(0, 2) : group.services;
               if (!groupServices.length) return null;
 
               return (
-                <section className="dct-service-category" key={`desktop-${groupKey}`}>
+                <section className="dct-service-category" key={`desktop-${group.id}`}>
                   {category === "all" && (
                     <div className="dct-service-category-heading">
                       <span>{group.label}</span><i aria-hidden="true" />
@@ -1252,7 +1255,7 @@ export default function MasterTemplate() {
                   <div className="dct-service-category-list">
                     {groupServices.map((service) => {
                       const hasVariants = Boolean(service.variants?.length);
-                      const serviceKey = `desktop-${groupKey}-${service.name}`;
+                      const serviceKey = `desktop-${group.id}-${service.name}`;
                       const hasDescription = Boolean(service.description);
                       const descriptionIsLong = service.description.length > 100;
                       const descriptionExpanded = Boolean(expandedDescriptions[serviceKey]);
@@ -1319,7 +1322,7 @@ export default function MasterTemplate() {
           </div>
           {isCollapsibleCategory && services.length > 6 && (
             <button className={`mct-more-services${expanded ? " is-open" : ""}`} type="button" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>
-              {expanded ? "Свернуть услуги" : "Открыть все услуги"}
+              {expanded ? translatedText("Свернуть услуги") : translatedText("Открыть все услуги")}
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           )}
