@@ -30,7 +30,7 @@ Its Pages workflow builds from:
 - `ichAEY/claytone-current@ce1bd42b44e76e1851af9e069c4cbcf06fc8eac2`
 - `ichAEY/tanem-master-template-v1@2c3590bdb8d4163532d126d67f27be1469a426c5`
 
-Use Nina only as a structural reference when experience is unavailable. Never copy Nina client data.
+Use Nina only as a structural reference for the user-approved no-experience layout. Important verification note: the current Nina data itself contains `experienceYears: "2+"`, so Nina is not treated as factual evidence that experience is unknown. When our source data has no experience, TANEM never invents a number: the template hides the experience badge and collapses the hero stats to rating + service count. Never copy Nina client data.
 
 ## Language switcher + no-direct-booking contact sheet
 Repository: `ichAEY/Beauty-Room-by-Esmeralda`
@@ -39,3 +39,13 @@ Use only:
 - mobile language switcher style and saved/system-language behavior from `mobile-beautyroom-i18n-v1.js`;
 - contact-sheet entrance, page scroll lock and contact-option styling from `mobile-beautyroom-booking-links-v2.js`.
 Desktop language-switch placement is implemented in this template; do not copy the Esmeralda desktop page.
+
+
+## Approved Hair asset handling
+The Hair hero decoration is the exact binary file from:
+`Shablon-Hair-Master@d9ce7e2cd6fa16ad900fce2568b584cbc5a84481/public/assets/yulia/tools/hero.png`.
+
+The template workflow checks out that pinned source commit during the build and copies only that binary to:
+`public/assets/template/hair-tools.png`.
+
+This prevents approximate redrawing and prevents client-specific Hair source folders from being copied into the clean template.
