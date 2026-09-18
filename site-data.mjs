@@ -13,10 +13,10 @@ export default {
     bookingProvider: "",
     reviewSource: "",
     categoryLabels: {
-      manicure: "",
-      pedicure: "",
-      podology: "",
-      training: "",
+      group1: "",
+      group2: "",
+      group3: "",
+      group4: "",
     },
   },
 
@@ -89,10 +89,10 @@ export default {
   },
 
   services: {
-    manicure: [],
-    pedicure: [],
-    podology: [],
-    training: [],
+    group1: [],
+    group2: [],
+    group3: [],
+    group4: [],
   },
 
   reviews: [],
