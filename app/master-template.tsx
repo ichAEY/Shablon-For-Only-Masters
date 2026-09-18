@@ -15,7 +15,7 @@ type Service = {
   detailClass?: string;
   displayName?: string;
 };
-type CategoryKey = "manicure" | "pedicure" | "podology" | "training";
+type CategoryKey = "group1" | "group2" | "group3" | "group4";
 
 const bookingUrl = site.links.bookingUrl;
 const reviewsUrl = site.links.reviewsUrl;
@@ -26,16 +26,16 @@ const desktopMapEmbedUrl = site.links.desktopMapEmbedUrl;
 const personalTelegramUrl = site.contacts.personalTelegramUrl;
 const vkUrl = site.contacts.vkUrl;
 
-const manicure = site.services.manicure as Service[];
-const pedicure = site.services.pedicure as Service[];
-const podology = site.services.podology as Service[];
-const training = site.services.training as Service[];
-const categoryKeys: CategoryKey[] = ["manicure", "pedicure", "podology", "training"];
+const group1 = site.services.group1 as Service[];
+const group2 = site.services.group2 as Service[];
+const group3 = site.services.group3 as Service[];
+const group4 = site.services.group4 as Service[];
+const categoryKeys: CategoryKey[] = ["group1", "group2", "group3", "group4"];
 const serviceGroups: Record<CategoryKey, { label: string; services: Service[] }> = {
-  manicure: { label: site.template.categoryLabels.manicure, services: manicure },
-  pedicure: { label: site.template.categoryLabels.pedicure, services: pedicure },
-  podology: { label: site.template.categoryLabels.podology, services: podology },
-  training: { label: site.template.categoryLabels.training, services: training },
+  group1: { label: site.template.categoryLabels.group1, services: group1 },
+  group2: { label: site.template.categoryLabels.group2, services: group2 },
+  group3: { label: site.template.categoryLabels.group3, services: group3 },
+  group4: { label: site.template.categoryLabels.group4, services: group4 },
 };
 const visibleCategoryKeys = categoryKeys.filter((key) => serviceGroups[key].services.length > 0);
 const allServices: Array<Service & { sectionLabel?: string; sectionKey?: string }> = visibleCategoryKeys.flatMap((key) =>
@@ -78,7 +78,7 @@ const paletteSamples = [
 ];
 
 export default function MasterTemplate() {
-  const [category, setCategory] = useState<"all" | "manicure" | "pedicure" | "podology" | "training">("all");
+  const [category, setCategory] = useState<"all" | "group1" | "group2" | "group3" | "group4">("all");
   const [expanded, setExpanded] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -133,10 +133,10 @@ export default function MasterTemplate() {
 
   const services: Array<Service & { sectionLabel?: string; sectionKey?: string }> =
     category === "all" ? allServices
-      : category === "manicure" ? manicure
-        : category === "pedicure" ? pedicure
-          : category === "podology" ? podology
-            : training;
+      : category === "group1" ? group1
+        : category === "group2" ? group2
+          : category === "group3" ? group3
+            : group4;
   const isCollapsibleCategory = category === "all";
   const visibleServices = useMemo(() => services, [services]);
 
@@ -424,7 +424,7 @@ export default function MasterTemplate() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [galleryOpen, lightboxIndex]);
 
-  const switchCategory = (next: "all" | "manicure" | "pedicure" | "podology" | "training") => {
+  const switchCategory = (next: "all" | "group1" | "group2" | "group3" | "group4") => {
     setCategory(next);
     setExpanded(false);
   };
@@ -1034,10 +1034,10 @@ export default function MasterTemplate() {
               <div className="mct-tabs-track" role="presentation">
                 <button className={`mct-tab mct-tab-all${category === "all" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "all"} onClick={() => switchCategory("all")}>Все</button>
                 
-                {serviceGroups.manicure.services.length > 0 && <button className={`mct-tab${category === "manicure" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "manicure"} onClick={() => switchCategory("manicure")}>{serviceGroups.manicure.label}</button>}
-                {serviceGroups.pedicure.services.length > 0 && <button className={`mct-tab${category === "pedicure" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "pedicure"} onClick={() => switchCategory("pedicure")}>{serviceGroups.pedicure.label}</button>}
-                {serviceGroups.podology.services.length > 0 && <button className={`mct-tab${category === "podology" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "podology"} onClick={() => switchCategory("podology")}>{serviceGroups.podology.label}</button>}
-                {serviceGroups.training.services.length > 0 && <button className={`mct-tab${category === "training" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "training"} onClick={() => switchCategory("training")}>{serviceGroups.training.label}</button>}
+                {serviceGroups.group1.services.length > 0 && <button className={`mct-tab${category === "group1" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "group1"} onClick={() => switchCategory("group1")}>{serviceGroups.group1.label}</button>}
+                {serviceGroups.group2.services.length > 0 && <button className={`mct-tab${category === "group2" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "group2"} onClick={() => switchCategory("group2")}>{serviceGroups.group2.label}</button>}
+                {serviceGroups.group3.services.length > 0 && <button className={`mct-tab${category === "group3" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "group3"} onClick={() => switchCategory("group3")}>{serviceGroups.group3.label}</button>}
+                {serviceGroups.group4.services.length > 0 && <button className={`mct-tab${category === "group4" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "group4"} onClick={() => switchCategory("group4")}>{serviceGroups.group4.label}</button>}
               </div>
             </div>
           </div>
