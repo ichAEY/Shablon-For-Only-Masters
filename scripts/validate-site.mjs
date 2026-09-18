@@ -78,6 +78,19 @@ if (messenger) {
   if (type === "instagram" || url.includes("instagram.com")) fail("Instagram is not allowed");
 }
 
+const publishedUrls = [
+  ...Object.values(site.links || {}),
+  site.contacts?.phoneHref,
+  site.contacts?.messenger?.url,
+  ...groups.flatMap((group) => group.services.map((service) => service?.url)),
+]
+  .filter((value) => typeof value === "string")
+  .map((value) => value.toLowerCase());
+
+if (publishedUrls.some((url) => url.includes("instagram.com") || url.includes("instagr.am"))) {
+  fail("Instagram links are forbidden anywhere in the published site data");
+}
+
 if (site.master.name && bookingMode(site) === "contact" && contactOptions(site).length === 0) {
   fail("published master without direct booking must have at least a phone/contact option");
 }
