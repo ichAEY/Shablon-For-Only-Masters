@@ -9,7 +9,7 @@
     "dev": "next dev",
     "build": "node scripts/validate-site.mjs && next build",
     "start": "next start",
-    "test": "npm run build && node --test tests/template.test.mjs",
+    "test": "npm run build && node --test tests/*.test.mjs",
     "lint": "eslint ."
   },
   "dependencies": {
