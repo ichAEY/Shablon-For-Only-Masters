@@ -12003,6 +12003,10 @@ html body .mct-map-wrap > a::after {
   white-space: nowrap;
 }
 
+.mct-lang-switch.is-desktop {
+  display: none;
+}
+
 .mct-lang-item {
   display: inline-flex;
   align-items: center;
@@ -12244,6 +12248,16 @@ html body .mct-map-wrap > a::after {
 }
 
 @media (min-width: 768px) {
+  .mct-lang-switch.is-mobile {
+    display: none !important;
+  }
+
+  .dct-top-actions .mct-lang-switch.is-desktop {
+    display: inline-flex !important;
+    margin-left: 7px;
+    margin-right: 0;
+  }
+
   .mct-master-tools,
   .mct-palette-stage {
     display: none !important;
