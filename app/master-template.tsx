@@ -1182,7 +1182,7 @@ export default function MasterTemplate() {
                 </span>
               ) : null}
               <div className={`mct-tabs mct-tabs-scroll is-${serviceCategoryMode}`} role="tablist" aria-label="Категории услуг">
-                <div className="mct-tabs-track" role="presentation">
+                <div className="mct-tabs-track" role="presentation" style={{ "--mct-category-count": Math.max(serviceGroups.length, 1) } as CSSProperties}>
                   {serviceCategoryMode === "many" ? (
                     <button className={`mct-tab mct-tab-all${category === "all" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "all"} onClick={() => switchCategory("all")}>{translatedText("Все")}</button>
                   ) : null}
@@ -1506,7 +1506,7 @@ export default function MasterTemplate() {
       </section>
       <a className="mct-tanem-footer" href="https://tanem.ru/" target="_blank" rel="noopener noreferrer"><span className="tanem-mark">T</span><span className="tanem-credit">Создано в <strong>TANEM.ru</strong></span></a>
 
-      <div className={`mct-sticky-wrap${stickyVisible && !galleryOpen ? " is-visible" : ""}`} aria-hidden={!stickyVisible || galleryOpen}>
+      <div className={`mct-sticky-wrap${stickyVisible && !galleryOpen && !bookingOpen ? " is-visible" : ""}`} aria-hidden={!stickyVisible || galleryOpen}>
         <a className="mct-sticky" href={bookingHref} target={siteBookingMode === "direct" ? "_blank" : undefined} rel={siteBookingMode === "direct" ? "noopener noreferrer" : undefined} onClick={handleBookingClick} tabIndex={stickyVisible && !galleryOpen && !bookingOpen ? 0 : -1}>
           <span className="mct-sticky-icon dct-sticky-mobile-mark">{site.brand.monogram}</span><span className="dct-sticky-live" aria-hidden="true"><i /></span><span className="mct-sticky-copy"><strong>{translatedText("Записаться онлайн")}</strong><small>{siteBookingMode === "direct" ? "Открыть свободное время" : translatedText("Выберите удобный способ связи")}</small></span><span className="mct-sticky-arrow" aria-hidden="true">→</span>
         </a>
