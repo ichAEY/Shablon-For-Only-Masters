@@ -3,21 +3,16 @@ const publicBase = process.env.NEXT_PUBLIC_BASE_PATH || "";
 export default {
   basePath: publicBase,
 
+  template: {
+    specialty: "",
+    bookingProvider: "",
+    reviewSource: "",
+  },
+
   brand: {
     name: "",
     subtitle: "",
     monogram: "",
-  },
-
-  template: {
-    bookingProvider: "",
-    reviewSource: "",
-    categoryLabels: {
-      group1: "",
-      group2: "",
-      group3: "",
-      group4: "",
-    },
   },
 
   master: {
@@ -32,7 +27,8 @@ export default {
     heroCaption: "",
     imageAlt: "",
     heroCopy: "",
-    experienceYears: "",
+    visitMotto: "",
+    experienceYears: null,
     experienceAria: "",
     aboutTitle: "",
     aboutLead: "",
@@ -41,6 +37,8 @@ export default {
   },
 
   location: {
+    country: "",
+    countryCode: "",
     city: "",
     metro: "",
     cityMetro: "",
@@ -55,17 +53,15 @@ export default {
 
   contacts: {
     phoneDisplay: "",
-    phoneHref: "#",
-    personalTelegramUrl: "#",
-    channelTelegramUrl: "#",
-    vkUrl: "#",
+    phoneHref: "",
+    messenger: null,
   },
 
   links: {
-    bookingUrl: "#",
-    reviewsUrl: "#",
-    mapUrl: "#",
-    routeUrl: "#",
+    bookingUrl: "",
+    reviewsUrl: "",
+    mapUrl: "",
+    routeUrl: "",
     mobileMapEmbedUrl: "about:blank",
     desktopMapEmbedUrl: "about:blank",
     yandexMapHrefMatch: "__tanem_map_not_configured__",
@@ -77,21 +73,28 @@ export default {
   },
 
   images: {
+    logo: "",
     portrait: `${publicBase}/placeholder.svg`,
     about: `${publicBase}/placeholder.svg`,
     favicon: `${publicBase}/placeholder.svg`,
-    introLogo: `${publicBase}/placeholder.svg`,
-    headerLogo: `${publicBase}/placeholder.svg`,
-    heroDecoration: `${publicBase}/placeholder.svg`,
+    heroDecoration: `${publicBase}/assets/template/hair-tools.png`,
     beforeAfter: [],
     gallery: [],
   },
 
   services: {
-    group1: [],
-    group2: [],
-    group3: [],
-    group4: [],
+    groups: [],
+  },
+
+  i18n: {
+    localLocale: "ru",
+    locales: [
+      { code: "ru", label: "RU" },
+      { code: "en", label: "EN" },
+    ],
+    translations: {
+      en: {},
+    },
   },
 
   reviews: [],

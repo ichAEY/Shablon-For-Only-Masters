@@ -1,8 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties, TouchEvent as ReactTouchEvent } from "react";
+import type { CSSProperties, MouseEvent as ReactMouseEvent, TouchEvent as ReactTouchEvent } from "react";
 import site from "../site-data.mjs";
+import {
+  bookingMode,
+  categoryMode,
+  chooseInitialLocale,
+  contactOptions,
+  experienceMode,
+  hasLogo,
+  normalizedLocales,
+  serviceBookingUrl,
+  specialtyMode,
+  visibleServiceGroups,
+} from "../template-rules.mjs";
 
 type ServiceVariant = { label: string; price: string; time?: string };
 type Service = {
@@ -10,15 +22,16 @@ type Service = {
   price: string;
   time: string;
   description: string;
-  url: string;
+  url?: string;
   variants?: ServiceVariant[];
   detailClass?: string;
   displayName?: string;
 };
-type CategoryKey = "group1" | "group2" | "group3" | "group4";
+type ServiceGroup = { id: string; label: string; services: Service[] };
 type GalleryItem = { src: string; alt: string };
 type Review = { author: string; text: string };
 type Amenity = { title: string; text: string };
+type LocaleOption = { code: string; label: string };
 
 const bookingUrl = site.links.bookingUrl;
 const reviewsUrl = site.links.reviewsUrl;
@@ -26,28 +39,21 @@ const mapUrl = site.links.mapUrl;
 const routeUrl = site.links.routeUrl;
 const mobileMapEmbedUrl = site.links.mobileMapEmbedUrl;
 const desktopMapEmbedUrl = site.links.desktopMapEmbedUrl;
-const personalTelegramUrl = site.contacts.personalTelegramUrl;
-const vkUrl = site.contacts.vkUrl;
 
-const group1 = site.services.group1 as Service[];
-const group2 = site.services.group2 as Service[];
-const group3 = site.services.group3 as Service[];
-const group4 = site.services.group4 as Service[];
-const categoryKeys: CategoryKey[] = ["group1", "group2", "group3", "group4"];
-const serviceGroups: Record<CategoryKey, { label: string; services: Service[] }> = {
-  group1: { label: site.template.categoryLabels.group1, services: group1 },
-  group2: { label: site.template.categoryLabels.group2, services: group2 },
-  group3: { label: site.template.categoryLabels.group3, services: group3 },
-  group4: { label: site.template.categoryLabels.group4, services: group4 },
-};
-const visibleCategoryKeys = categoryKeys.filter((key) => serviceGroups[key].services.length > 0);
-const allServices: Array<Service & { sectionLabel?: string; sectionKey?: string }> = visibleCategoryKeys.flatMap((key) =>
-  serviceGroups[key].services.map((service, index) => ({
+const serviceGroups = visibleServiceGroups(site) as ServiceGroup[];
+const allServices: Array<Service & { sectionLabel?: string; sectionKey?: string }> = serviceGroups.flatMap((group) =>
+  group.services.map((service, index) => ({
     ...service,
-    sectionLabel: index === 0 ? serviceGroups[key].label : undefined,
-    sectionKey: key,
+    sectionLabel: serviceGroups.length > 1 && index === 0 ? group.label : undefined,
+    sectionKey: group.id,
   })),
 );
+const serviceCategoryMode = categoryMode(site);
+const siteBookingMode = bookingMode(site);
+const siteExperienceMode = experienceMode(site);
+const siteSpecialtyMode = specialtyMode(site);
+const languages = normalizedLocales(site) as LocaleOption[];
+const bookingContacts = contactOptions(site);
 
 const beforeAfter = site.images.beforeAfter as unknown[];
 const galleryWorks = site.images.gallery as GalleryItem[];
@@ -84,8 +90,11 @@ const paletteSamples = [
 ];
 
 export default function MasterTemplate() {
-  const [category, setCategory] = useState<"all" | "group1" | "group2" | "group3" | "group4">("all");
+  const initialCategory = serviceCategoryMode === "two" ? (serviceGroups[0]?.id || "all") : "all";
+  const [category, setCategory] = useState<string>(initialCategory);
   const [expanded, setExpanded] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [locale, setLocale] = useState<string>(languages[0]?.code || "ru");
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -100,9 +109,8 @@ export default function MasterTemplate() {
   const [lightboxTransform, setLightboxTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [reviewsPaused, setReviewsPaused] = useState(false);
   const [desktopGalleryPaused, setDesktopGalleryPaused] = useState(false);
-  const [openStatus, setOpenStatus] = useState<{ isOpen: boolean | null; label: string }>({
+  const [openStatus, setOpenStatus] = useState<{ isOpen: boolean | null }>({
     isOpen: null,
-    label: site.location.scheduleCapitalized,
   });
   const heroRef = useRef<HTMLElement>(null);
   const finalBookRef = useRef<HTMLElement>(null);
@@ -137,14 +145,96 @@ export default function MasterTemplate() {
     startDistance: 0,
   });
 
+  const activeGroup = serviceGroups.find((group) => group.id === category);
   const services: Array<Service & { sectionLabel?: string; sectionKey?: string }> =
-    category === "all" ? allServices
-      : category === "group1" ? group1
-        : category === "group2" ? group2
-          : category === "group3" ? group3
-            : group4;
-  const isCollapsibleCategory = category === "all";
+    category === "all"
+      ? allServices
+      : (activeGroup?.services || []).map((service) => ({ ...service, sectionKey: activeGroup?.id }));
+  const isCollapsibleCategory = category === "all" && serviceCategoryMode === "many";
   const visibleServices = useMemo(() => services, [services]);
+
+  const baseEnglish: Record<string, string> = {
+    "Услуги и цены": "Services & prices",
+    "ваш": "your",
+    "Стоимость и продолжительность указаны для каждой процедуры. Нажмите на услугу, чтобы выбрать способ связи.": "Price and duration are shown for each service. Tap a service to choose how to contact the master.",
+    "О мастере": "About",
+    "Отзывы": "Reviews",
+    "Визит и запись": "Visit & booking",
+    "Портфолио": "Portfolio",
+    "Записаться онлайн": "Book online",
+    "Смотреть работы": "View work",
+    "Работы": "Work",
+    "Открыть галерею": "Open gallery",
+    "Выберите услугу": "Choose a service",
+    "Актуальная стоимость и продолжительность указаны для каждой процедуры. Онлайн-запись откроется в новой вкладке.": "Current price and duration are shown for each service. Online booking opens in a new tab.",
+    "Все": "All",
+    "Свернуть": "Collapse",
+    "Продолжить": "Continue",
+    "Подробнее": "More",
+    "Открыть все услуги": "Show all services",
+    "Свернуть услуги": "Collapse services",
+    "лет опыта": "years experience",
+    "рейтинг": "rating",
+    "услуги": "services",
+    "Дополнительно": "Additional",
+    "Полезно перед записью": "Useful before booking",
+    "Что говорят клиенты": "What clients say",
+    "Запись и связь": "Booking & contact",
+    "Позвонить": "Call",
+    "Локация": "Location",
+    "Яндекс Карты": "Yandex Maps",
+    "Адрес и маршрут": "Address & route",
+    "Выбрать время онлайн": "Choose a time online",
+    "Как вам удобнее записаться?": "How would you like to book?",
+    "Выберите удобный способ связи": "Choose a convenient contact method",
+    "Закрыть": "Close",
+    "Галерея": "Gallery",
+    "Открыто до": "Open until",
+    "Закрыто до": "Closed until",
+    "Создано в": "Created with",
+    "Открыть свободное время": "Open available times",
+    "Все отзывы": "All reviews",
+    "клиенты": "clients",
+    "Запишитесь онлайн": "Book online",
+    "или свяжитесь любым удобным способом": "or contact us in the way that works for you",
+    "По предварительной записи": "By appointment",
+    "Написать": "Message",
+    "Категории услуг": "Service categories",
+    "Разведите двумя пальцами, чтобы увеличить": "Pinch with two fingers to zoom",
+    "Предыдущая фотография": "Previous photo",
+    "Следующая фотография": "Next photo",
+    "Закрыть фотографию": "Close photo",
+    "Закрыть галерею": "Close gallery",
+    "Открыть меню": "Open menu",
+    "Закрыть меню": "Close menu",
+    "Свяжитесь удобным способом": "Contact in the way that works for you",
+    "Позвоните или напишите мастеру, чтобы согласовать услугу и время.": "Call or message the master to arrange the service and time.",
+    "Выберите свободное время онлайн. Если нужно уточнить услугу, свяжитесь с мастером напрямую.": "Choose an available time online. If you need help with a service, contact the master directly.",
+    "Запись через": "Booking via",
+    "по предварительной записи": "by appointment",
+    "Все отзывы в": "All reviews on",
+    "Зажмите ленту мышью и двигайте в любую сторону": "Hold and drag the review strip in either direction",
+  };
+  const translatedText = (value: string) => {
+    if (!value) return value;
+    if (locale === "ru") return value;
+    const configured = (site.i18n?.translations as Record<string, Record<string, string>> | undefined)?.[locale]?.[value];
+    if (configured) return configured;
+    if (locale === "en" && baseEnglish[value]) return baseEnglish[value];
+    return value;
+  };
+  const bookingHref = siteBookingMode === "direct" ? bookingUrl : "#booking-options";
+  const handleBookingClick = (event: ReactMouseEvent<HTMLAnchorElement>) => {
+    if (siteBookingMode === "direct") return;
+    event.preventDefault();
+    setBookingOpen(true);
+  };
+  const serviceHref = (service: Service) => serviceBookingUrl(service, site) || "#booking-options";
+  const handleServiceClick = (event: ReactMouseEvent<HTMLAnchorElement>, service: Service) => {
+    if (serviceBookingUrl(service, site)) return;
+    event.preventDefault();
+    setBookingOpen(true);
+  };
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -250,6 +340,8 @@ export default function MasterTemplate() {
   }, []);
 
   useEffect(() => {
+    if (!site.location.scheduleCapitalized || !site.location.openTime || !site.location.closeTime) return;
+
     const updateStatus = () => {
       const parts = new Intl.DateTimeFormat("ru-RU", {
         timeZone: site.location.timeZone,
@@ -260,25 +352,56 @@ export default function MasterTemplate() {
       const hours = Number(parts.find((part) => part.type === "hour")?.value ?? 0);
       const minutes = Number(parts.find((part) => part.type === "minute")?.value ?? 0);
       const minuteOfDay = hours * 60 + minutes;
-      const isOpen = minuteOfDay >= openMinutes && minuteOfDay < closeMinutes;
-
-      setOpenStatus({
-        isOpen,
-        label: isOpen ? `Открыто до ${site.location.closeTime}` : `Закрыто до ${site.location.openTime}`,
-      });
+      setOpenStatus({ isOpen: minuteOfDay >= openMinutes && minuteOfDay < closeMinutes });
     };
 
-    updateStatus();
+    const frame = window.requestAnimationFrame(updateStatus);
     const timer = window.setInterval(updateStatus, 60_000);
-    return () => window.clearInterval(timer);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearInterval(timer);
+    };
   }, []);
 
+  const overlayOpen = bookingOpen || galleryOpen || lightboxIndex !== null;
+
   useEffect(() => {
-    if (!galleryOpen && lightboxIndex === null) return;
-    const previous = document.body.style.overflow;
+    if (!overlayOpen) return;
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const previous = {
+      htmlOverflow: document.documentElement.style.overflow,
+      bodyPosition: document.body.style.position,
+      bodyTop: document.body.style.top,
+      bodyLeft: document.body.style.left,
+      bodyRight: document.body.style.right,
+      bodyWidth: document.body.style.width,
+      bodyOverflow: document.body.style.overflow,
+      scrollBehavior: document.documentElement.style.scrollBehavior,
+    };
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = previous };
-  }, [galleryOpen, lightboxIndex]);
+
+    return () => {
+      document.documentElement.style.scrollBehavior = "auto";
+      document.documentElement.style.overflow = previous.htmlOverflow;
+      document.body.style.position = previous.bodyPosition;
+      document.body.style.top = previous.bodyTop;
+      document.body.style.left = previous.bodyLeft;
+      document.body.style.right = previous.bodyRight;
+      document.body.style.width = previous.bodyWidth;
+      document.body.style.overflow = previous.bodyOverflow;
+      window.scrollTo({ top: scrollY, left: 0, behavior: "auto" });
+      requestAnimationFrame(() => {
+        document.documentElement.style.scrollBehavior = previous.scrollBehavior;
+      });
+    };
+  }, [overlayOpen]);
 
   useEffect(() => {
     const section = promotionSectionRef.current;
@@ -383,6 +506,26 @@ export default function MasterTemplate() {
   }, [menuOpen]);
 
   useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      let saved = "";
+      try { saved = localStorage.getItem("tanem-master-locale") || ""; } catch {}
+      const browserLanguages = navigator.languages?.length ? Array.from(navigator.languages) : [navigator.language || ""];
+      setLocale(chooseInitialLocale(site, browserLanguages, saved));
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    try { localStorage.setItem("tanem-master-locale", locale); } catch {}
+  }, [locale]);
+
+  const chooseLocale = (next: string) => {
+    if (!languages.some((item) => item.code === next)) return;
+    setLocale(next);
+  };
+
+  useEffect(() => {
     const elements = Array.from(document.querySelectorAll<HTMLElement>(".mct-reveal"));
     if (!elements.length) return;
 
@@ -407,12 +550,13 @@ export default function MasterTemplate() {
   }, []);
 
   useEffect(() => {
-    if (!galleryOpen && lightboxIndex === null) return;
+    if (!bookingOpen && !galleryOpen && lightboxIndex === null) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         if (lightboxIndex !== null) setLightboxIndex(null);
-        else setGalleryOpen(false);
+        else if (galleryOpen) setGalleryOpen(false);
+        else setBookingOpen(false);
       }
       if (lightboxIndex !== null && event.key === "ArrowLeft") {
         setLightboxTransform({ scale: 1, x: 0, y: 0 });
@@ -428,9 +572,9 @@ export default function MasterTemplate() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [galleryOpen, lightboxIndex]);
+  }, [bookingOpen, galleryOpen, lightboxIndex]);
 
-  const switchCategory = (next: "all" | "group1" | "group2" | "group3" | "group4") => {
+  const switchCategory = (next: string) => {
     setCategory(next);
     setExpanded(false);
   };
@@ -783,37 +927,69 @@ export default function MasterTemplate() {
     <div className="mct-mobile">
       {introVisible && (
         <div className="mct-intro" aria-hidden="true">
-          <div className="mct-intro-mark mct-intro-mark-master"><img className="mct-intro-logo-master" src={site.images.introLogo} alt="" /></div>
+          <div className="mct-intro-mark mct-intro-mark-master">
+            {hasLogo(site)
+              ? <img className="mct-intro-logo-master" src={site.images.logo} alt="" />
+              : <span className="mct-intro-text-master">{site.brand.name || site.master.name || "TANEM"}</span>}
+          </div>
         </div>
       )}
 
       <header className="mct-hero" id="mobile-top" ref={heroRef}>
         <div className="mct-shell">
           <div className="mct-topbar">
-            <a className="mct-brand mct-brand-master-image" href="#mobile-top" aria-label={`${site.master.name}, наверх`}><img src={site.images.headerLogo} alt="" /></a>
+            <a className={`mct-brand${hasLogo(site) ? " mct-brand-master-image" : " mct-brand-master-text"}`} href="#mobile-top" aria-label={`${site.master.name || site.brand.name}, наверх`}>
+              {hasLogo(site) ? <img src={site.images.logo} alt="" /> : <span>{site.brand.name || site.master.name || "TANEM"}</span>}
+            </a>
             <nav className="dct-navigation" aria-label="Основные разделы сайта">
-              <a href="#mobile-prices">Услуги и цены</a>
-              <a href="#mobile-about">О мастере</a>
-              <a href="#mobile-reviews">Отзывы</a>
-              <a href="#mobile-location">Визит и запись</a>
+              <a href="#mobile-prices">{translatedText("Услуги и цены")}</a>
+              <a href="#mobile-about">{translatedText("О мастере")}</a>
+              <a href="#mobile-reviews">{translatedText("Отзывы")}</a>
+              <a href="#mobile-location">{translatedText("Визит и запись")}</a>
             </nav>
             <div className="dct-top-actions" aria-label={`Быстрые способы связи с ${site.master.name}`}>
-              <a className="dct-top-phone" href={site.contacts.phoneHref} aria-label={`Позвонить ${site.master.dative} по номеру ${site.contacts.phoneDisplay}`}>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.1 3.5 9.3 8c.2.5.1 1-.3 1.4l-1.4 1.2c1 2.1 2.7 3.8 4.8 4.8l1.2-1.4c.4-.4.9-.5 1.4-.3l4.5 2.2c.5.2.8.8.6 1.4l-.6 2.3c-.2.7-.8 1.1-1.5 1.1C10 20.7 3.3 14 3.3 6c0-.7.4-1.3 1.1-1.5l2.3-.6c.6-.2 1.2.1 1.4.6Z" /></svg>
-                <span><small>Позвонить</small><strong>{site.contacts.phoneDisplay}</strong></span>
-              </a>
-              <a className="dct-top-icon" href={personalTelegramUrl} target="_blank" rel="noopener noreferrer" aria-label={`Написать ${site.master.dative} в Telegram`} title="Telegram">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
-              </a>
-              <a className="dct-top-icon" href={mapUrl} target="_blank" rel="noopener noreferrer" aria-label={`Открыть адрес ${site.master.genitive} в Яндекс Картах`} title="Яндекс Карты">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
-              </a>
+              {bookingContacts.find((item) => item.kind === "phone") ? (
+                <a className="dct-top-phone" href={bookingContacts.find((item) => item.kind === "phone")!.url} aria-label={`Позвонить ${site.master.dative} по номеру ${site.contacts.phoneDisplay}`}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.1 3.5 9.3 8c.2.5.1 1-.3 1.4l-1.4 1.2c1 2.1 2.7 3.8 4.8 4.8l1.2-1.4c.4-.4.9-.5 1.4-.3l4.5 2.2c.5.2.8.8.6 1.4l-.6 2.3c-.2.7-.8 1.1-1.5 1.1C10 20.7 3.3 14 3.3 6c0-.7.4-1.3 1.1-1.5l2.3-.6c.6-.2 1.2.1 1.4.6Z" /></svg>
+                  <span><small>{translatedText("Позвонить")}</small><strong>{site.contacts.phoneDisplay}</strong></span>
+                </a>
+              ) : null}
+              {bookingContacts.find((item) => item.kind !== "phone") ? (
+                <a className="dct-top-icon" href={bookingContacts.find((item) => item.kind !== "phone")!.url} target="_blank" rel="noopener noreferrer" aria-label={bookingContacts.find((item) => item.kind !== "phone")!.label} title={bookingContacts.find((item) => item.kind !== "phone")!.label}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>
+                </a>
+              ) : null}
+              {mapUrl ? (
+                <a className="dct-top-icon" href={mapUrl} target="_blank" rel="noopener noreferrer" aria-label={`Открыть адрес ${site.master.genitive} в Яндекс Картах`} title="Яндекс Карты">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
+                </a>
+              ) : null}
+              {languages.length > 1 ? (
+                <div className="mct-lang-switch is-desktop" role="group" aria-label="Language">
+                  {languages.map((item, index) => (
+                    <span className="mct-lang-item" key={`desktop-${item.code}`}>
+                      {index > 0 ? <span className="mct-lang-sep" aria-hidden="true">/</span> : null}
+                      <button type="button" className={locale === item.code ? "is-active" : ""} aria-pressed={locale === item.code} onClick={() => chooseLocale(item.code)}>{item.label}</button>
+                    </span>
+                  ))}
+                </div>
+              ) : null}
             </div>
+            {languages.length > 1 ? (
+              <div className="mct-lang-switch is-mobile" role="group" aria-label="Language">
+                {languages.map((item, index) => (
+                  <span className="mct-lang-item" key={item.code}>
+                    {index > 0 ? <span className="mct-lang-sep" aria-hidden="true">/</span> : null}
+                    <button type="button" className={locale === item.code ? "is-active" : ""} aria-pressed={locale === item.code} onClick={() => chooseLocale(item.code)}>{item.label}</button>
+                  </span>
+                ))}
+              </div>
+            ) : null}
             <div className="mct-menu-wrap" ref={menuRef}>
               <button
                 className={`mct-menu-button${menuOpen ? " is-open" : ""}`}
                 type="button"
-                aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
+                aria-label={translatedText(menuOpen ? "Закрыть меню" : "Открыть меню")}
                 aria-expanded={menuOpen}
                 aria-controls="mobile-navigation"
                 onClick={() => setMenuOpen((value) => !value)}
@@ -822,37 +998,41 @@ export default function MasterTemplate() {
               </button>
               {menuOpen && (
                 <nav className="mct-menu-panel" id="mobile-navigation" aria-label="Разделы сайта">
-                  <a href="#mobile-portfolio" onClick={() => setMenuOpen(false)}><span>•</span>Портфолио</a>
-                  <a href="#mobile-prices" onClick={() => setMenuOpen(false)}><span>•</span>Услуги и цены</a>
-                  <a href="#mobile-about" onClick={() => setMenuOpen(false)}><span>•</span>О мастере</a>
-                  <a href="#mobile-reviews" onClick={() => setMenuOpen(false)}><span>•</span>Отзывы</a>
-                  <a href="#mobile-location" onClick={() => setMenuOpen(false)}><span>•</span>Визит и запись</a>
+                  <a href="#mobile-portfolio" onClick={() => setMenuOpen(false)}><span>•</span>{translatedText("Портфолио")}</a>
+                  <a href="#mobile-prices" onClick={() => setMenuOpen(false)}><span>•</span>{translatedText("Услуги и цены")}</a>
+                  <a href="#mobile-about" onClick={() => setMenuOpen(false)}><span>•</span>{translatedText("О мастере")}</a>
+                  <a href="#mobile-reviews" onClick={() => setMenuOpen(false)}><span>•</span>{translatedText("Отзывы")}</a>
+                  <a href="#mobile-location" onClick={() => setMenuOpen(false)}><span>•</span>{translatedText("Визит и запись")}</a>
                 </nav>
               )}
             </div>
           </div>
           <div className="mct-hero-content">
             <div className="mct-hero-meta">
-              <span>{site.location.city}</span>
-              <a className="mct-hero-phone" href={site.contacts.phoneHref} aria-label={`Позвонить ${site.master.dative} по номеру ${site.contacts.phoneDisplay}`}>
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M7.1 3.5 9.3 8c.2.5.1 1-.3 1.4l-1.4 1.2c1 2.1 2.7 3.8 4.8 4.8l1.2-1.4c.4-.4.9-.5 1.4-.3l4.5 2.2c.5.2.8.8.6 1.4l-.6 2.3c-.2.7-.8 1.1-1.5 1.1C10 20.7 3.3 14 3.3 6c0-.7.4-1.3 1.1-1.5l2.3-.6c.6-.2 1.2.1 1.4.6Z" />
-                </svg>
-                <span>{site.contacts.phoneDisplay}</span>
-              </a>
+              <span>{translatedText(site.location.city)}</span>
+              {bookingContacts.find((item) => item.kind === "phone") ? (
+                <a className="mct-hero-phone" href={bookingContacts.find((item) => item.kind === "phone")!.url} aria-label={`Позвонить ${site.master.dative} по номеру ${site.contacts.phoneDisplay}`}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M7.1 3.5 9.3 8c.2.5.1 1-.3 1.4l-1.4 1.2c1 2.1 2.7 3.8 4.8 4.8l1.2-1.4c.4-.4.9-.5 1.4-.3l4.5 2.2c.5.2.8.8.6 1.4l-.6 2.3c-.2.7-.8 1.1-1.5 1.1C10 20.7 3.3 14 3.3 6c0-.7.4-1.3 1.1-1.5l2.3-.6c.6-.2 1.2.1 1.4.6Z" />
+                  </svg>
+                  <span>{site.contacts.phoneDisplay}</span>
+                </a>
+              ) : null}
             </div>
-            <h1>{site.master.name} — ваш <em>{site.master.heroEmphasis}</em></h1>
-            <p className="mct-hero-copy">{site.master.heroCopy}</p>
+            <h1>{site.master.name}{site.master.name ? " — " : ""}{translatedText("ваш")} <em>{translatedText(site.master.heroEmphasis)}</em></h1>
+            <p className="mct-hero-copy">{translatedText(site.master.heroCopy)}</p>
           </div>
           <div
             className="mct-hero-visual"
           >
-            <div className="mct-master-tools" aria-hidden="true"><img className="mct-master-hero-image" src={site.images.heroDecoration} alt="" /></div>
+            {siteSpecialtyMode === "hair" && site.images.heroDecoration ? (
+              <div className="mct-master-tools" aria-hidden="true"><img className="mct-master-hero-image" src={site.images.heroDecoration} alt="" /></div>
+            ) : null}
             <figure className="dct-hero-portrait">
               <img src={site.images.portrait} alt={`${site.master.name} — ${site.master.imageAlt}`} />
-              <figcaption><span>{site.master.name}</span><small>{site.master.heroCaption}</small></figcaption>
+              <figcaption><span>{site.master.name}</span><small>{translatedText(site.master.heroCaption)}</small></figcaption>
             </figure>
-            <div className="mct-palette-stage" aria-hidden="true">
+            {siteSpecialtyMode === "nails" ? <div className="mct-palette-stage" aria-hidden="true">
               <div className="mct-palette-set">
                 {paletteSamples.map((shade, index) => {
                   const leftAngle = -47 + (94 / (paletteSamples.length - 1)) * index;
@@ -934,17 +1114,17 @@ export default function MasterTemplate() {
                   );
                 })}
               </div>
-            </div>
+            </div> : null}
           </div>
           <div className="mct-hero-bottom">
             <div className="mct-hero-actions">
-              <a className="mct-main-cta" href={bookingUrl} target="_blank" rel="noopener noreferrer">Записаться онлайн&nbsp; →</a>
-              <a className="mct-quiet-link" href="#mobile-portfolio">Смотреть работы ↓</a>
+              <a className="mct-main-cta" href={bookingHref} target={siteBookingMode === "direct" ? "_blank" : undefined} rel={siteBookingMode === "direct" ? "noopener noreferrer" : undefined} onClick={handleBookingClick}>{translatedText("Записаться онлайн")}&nbsp; →</a>
+              <a className="mct-quiet-link" href="#mobile-portfolio">{translatedText("Смотреть работы")} ↓</a>
             </div>
-            <div className="mct-stats" aria-label="Опыт и рейтинг мастера">
-              <div className="mct-stat"><strong>{site.master.experienceYears}</strong><span>лет опыта</span></div>
-              <div className="mct-stat"><strong>{site.reputation.rating} <i className="mct-stat-star">★</i></strong><span>рейтинг</span></div>
-              <div className="mct-stat"><strong>{allServices.length}</strong><span>услуги</span></div>
+            <div className={`mct-stats${siteExperienceMode === "unknown" ? " is-two-stats" : ""}`} aria-label="Опыт и рейтинг мастера">
+              {siteExperienceMode === "known" ? <div className="mct-stat"><strong>{site.master.experienceYears}</strong><span>{translatedText("лет опыта")}</span></div> : null}
+              <div className="mct-stat"><strong>{site.reputation.rating} <i className="mct-stat-star">★</i></strong><span>{translatedText("рейтинг")}</span></div>
+              <div className="mct-stat"><strong>{allServices.length}</strong><span>{translatedText("услуги")}</span></div>
             </div>
           </div>
         </div>
@@ -953,7 +1133,7 @@ export default function MasterTemplate() {
       <section className="mct-section" id="mobile-portfolio">
         <div className="mct-shell mct-reveal">
           <div className="mct-section-head">
-            <div><p className="mct-section-kicker">Портфолио</p><h2>Работы</h2></div>
+            <div><p className="mct-section-kicker">{translatedText("Портфолио")}</p><h2>{translatedText("Работы")}</h2></div>
             
           </div>
         </div>
@@ -1021,32 +1201,38 @@ export default function MasterTemplate() {
               </div>
             </div>
           </div>
-          <button className="mct-gallery-button" type="button" onClick={() => setGalleryOpen(true)}><span>Открыть галерею</span><span aria-hidden="true">→</span></button>
+          <button className="mct-gallery-button" type="button" onClick={() => setGalleryOpen(true)}><span>{translatedText("Открыть галерею")}</span><span aria-hidden="true">→</span></button>
         </div>
       </section>
 
       <section className="mct-prices mct-reveal" id="mobile-prices">
         <div className="mct-shell">
           <div className="mct-price-head">
-            <p className="mct-section-kicker">Услуги и цены</p>
-            <h2>Выберите <br />услугу</h2>
-            <span>Актуальная стоимость и продолжительность указаны для каждой процедуры. Онлайн-запись откроется в новой вкладке.</span>
+            <p className="mct-section-kicker">{translatedText("Услуги и цены")}</p>
+            <h2>{translatedText("Выберите услугу")}</h2>
+            <span>{siteBookingMode === "direct"
+              ? translatedText("Актуальная стоимость и продолжительность указаны для каждой процедуры. Онлайн-запись откроется в новой вкладке.")
+              : translatedText("Стоимость и продолжительность указаны для каждой процедуры. Нажмите на услугу, чтобы выбрать способ связи.")}</span>
           </div>
-          <div className="mct-tabs-ribbon-wrap">
-            <span className="mct-tabs-swipe-cue" aria-hidden="true">
-              <svg viewBox="0 0 18 10" fill="none"><path d="M1 5h14M11 1.5 15 5l-4 3.5" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            </span>
-            <div className="mct-tabs mct-tabs-scroll" role="tablist" aria-label="Категории услуг">
-              <div className="mct-tabs-track" role="presentation">
-                <button className={`mct-tab mct-tab-all${category === "all" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "all"} onClick={() => switchCategory("all")}>Все</button>
-                
-                {serviceGroups.group1.services.length > 0 && <button className={`mct-tab${category === "group1" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "group1"} onClick={() => switchCategory("group1")}>{serviceGroups.group1.label}</button>}
-                {serviceGroups.group2.services.length > 0 && <button className={`mct-tab${category === "group2" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "group2"} onClick={() => switchCategory("group2")}>{serviceGroups.group2.label}</button>}
-                {serviceGroups.group3.services.length > 0 && <button className={`mct-tab${category === "group3" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "group3"} onClick={() => switchCategory("group3")}>{serviceGroups.group3.label}</button>}
-                {serviceGroups.group4.services.length > 0 && <button className={`mct-tab${category === "group4" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "group4"} onClick={() => switchCategory("group4")}>{serviceGroups.group4.label}</button>}
+          {serviceCategoryMode !== "single" ? (
+            <div className={`mct-tabs-ribbon-wrap is-${serviceCategoryMode}`}>
+              {serviceCategoryMode === "many" ? (
+                <span className="mct-tabs-swipe-cue" aria-hidden="true">
+                  <svg viewBox="0 0 18 10" fill="none"><path d="M1 5h14M11 1.5 15 5l-4 3.5" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </span>
+              ) : null}
+              <div className={`mct-tabs mct-tabs-scroll is-${serviceCategoryMode}`} role="tablist" aria-label="Категории услуг">
+                <div className="mct-tabs-track" role="presentation" style={{ "--mct-category-count": Math.max(serviceGroups.length, 1) } as CSSProperties}>
+                  {serviceCategoryMode === "many" ? (
+                    <button className={`mct-tab mct-tab-all${category === "all" ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === "all"} onClick={() => switchCategory("all")}>{translatedText("Все")}</button>
+                  ) : null}
+                  {serviceGroups.map((group) => (
+                    <button className={`mct-tab${category === group.id ? " is-active" : ""}`} type="button" role="tab" aria-selected={category === group.id} onClick={() => switchCategory(group.id)} key={group.id}>{translatedText(group.label)}</button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
           <div className={`mct-service-list${isCollapsibleCategory && !expanded ? " is-collapsed" : " is-expanded"}`}>
             {visibleServices.map((service) => {
               const hasVariants = Boolean(service.variants?.length);
@@ -1055,15 +1241,15 @@ export default function MasterTemplate() {
               const descriptionIsLong = service.description.length > 100;
               const descriptionExpanded = Boolean(expandedDescriptions[serviceKey]);
               return (
-                <a className={`mct-service-row master-price-row master-service-link${service.sectionLabel ? " has-group-label" : ""}${hasVariants ? " has-variants" : ""}${hasDescription ? " has-description" : ""}${descriptionExpanded ? " description-expanded" : ""}`} href={service.url} target="_blank" rel="noopener noreferrer" aria-label={`${service.name} — открыть запись в ${site.template.bookingProvider}`} key={serviceKey}>
+                <a className={`mct-service-row master-price-row master-service-link${service.sectionLabel ? " has-group-label" : ""}${hasVariants ? " has-variants" : ""}${hasDescription ? " has-description" : ""}${descriptionExpanded ? " description-expanded" : ""}`} href={serviceHref(service)} target={serviceBookingUrl(service, site) ? "_blank" : undefined} rel={serviceBookingUrl(service, site) ? "noopener noreferrer" : undefined} onClick={(event) => handleServiceClick(event, service)} aria-label={`${service.name} — открыть запись`} key={serviceKey}>
                   {service.sectionLabel && <div className="mct-service-group-label">{service.sectionLabel}</div>}
                   <div className="master-service-body">
                     <div className="master-service-head">
-                      <strong className="master-service-title">{service.displayName || service.name}</strong>
+                      <strong className="master-service-title">{translatedText(service.displayName || service.name)}</strong>
                       {!hasVariants && <b className="master-service-price mct-mobile-service-price">{service.price}</b>}
                     </div>
                     <div className={`dct-service-description-slot${hasDescription ? " has-copy" : " is-empty"}`}>
-                      {hasDescription && <p className={`dct-service-description master-service-description${service.detailClass === "contouring" ? " master-contouring-detail" : ""}`}>{service.description}</p>}
+                      {hasDescription && <p className={`dct-service-description master-service-description${service.detailClass === "contouring" ? " master-contouring-detail" : ""}`}>{translatedText(service.description)}</p>}
                       {descriptionIsLong && (
                         <span
                           className="dct-service-description-toggle"
@@ -1081,13 +1267,13 @@ export default function MasterTemplate() {
                             event.stopPropagation();
                             setExpandedDescriptions((current) => ({ ...current, [serviceKey]: !current[serviceKey] }));
                           }}
-                        >{descriptionExpanded ? "Свернуть" : "Продолжить"}</span>
+                        >{translatedText(descriptionExpanded ? "Свернуть" : "Продолжить")}</span>
                       )}
                     </div>
-                    {!hasVariants && service.time && <small className="master-service-time mct-mobile-service-time">{service.time}</small>}
+                    {!hasVariants && service.time && <small className="master-service-time mct-mobile-service-time">{translatedText(service.time)}</small>}
                     {!hasVariants && (
                       <div className="dct-service-meta" aria-hidden="true">
-                        {service.time && <small className="master-service-time">{service.time}</small>}
+                        {service.time && <small className="master-service-time">{translatedText(service.time)}</small>}
                         <b className="master-service-price">{service.price}</b>
                       </div>
                     )}
@@ -1095,10 +1281,10 @@ export default function MasterTemplate() {
                       <div className="master-service-variants">
                         {service.variants!.map((item) => (
                           <div className="master-service-variant" key={item.label}>
-                            <span>{item.label}{item.time ? <small className="mct-mobile-variant-time">{item.time}</small> : null}</span>
+                            <span>{translatedText(item.label)}{item.time ? <small className="mct-mobile-variant-time">{translatedText(item.time)}</small> : null}</span>
                             <b className="mct-mobile-variant-price">{item.price}</b>
                             <span className="dct-service-variant-meta" aria-hidden="true">
-                              {item.time ? <small>{item.time}</small> : null}
+                              {item.time ? <small>{translatedText(item.time)}</small> : null}
                               <b>{item.price}</b>
                             </span>
                           </div>
@@ -1111,13 +1297,12 @@ export default function MasterTemplate() {
             })}
           </div>
           <div className="dct-service-groups" aria-label="Услуги по категориям на компьютере">
-            {(category === "all" ? visibleCategoryKeys : [category as CategoryKey]).map((groupKey) => {
-              const group = serviceGroups[groupKey];
+            {(category === "all" ? serviceGroups : serviceGroups.filter((group) => group.id === category)).map((group) => {
               const groupServices = category === "all" && !expanded ? group.services.slice(0, 2) : group.services;
               if (!groupServices.length) return null;
 
               return (
-                <section className="dct-service-category" key={`desktop-${groupKey}`}>
+                <section className="dct-service-category" key={`desktop-${group.id}`}>
                   {category === "all" && (
                     <div className="dct-service-category-heading">
                       <span>{group.label}</span><i aria-hidden="true" />
@@ -1126,7 +1311,7 @@ export default function MasterTemplate() {
                   <div className="dct-service-category-list">
                     {groupServices.map((service) => {
                       const hasVariants = Boolean(service.variants?.length);
-                      const serviceKey = `desktop-${groupKey}-${service.name}`;
+                      const serviceKey = `desktop-${group.id}-${service.name}`;
                       const hasDescription = Boolean(service.description);
                       const descriptionIsLong = service.description.length > 100;
                       const descriptionExpanded = Boolean(expandedDescriptions[serviceKey]);
@@ -1141,9 +1326,9 @@ export default function MasterTemplate() {
                           key={serviceKey}
                         >
                           <div className="dct-service-card-body">
-                            <strong className="dct-service-card-title">{service.displayName || service.name}</strong>
+                            <strong className="dct-service-card-title">{translatedText(service.displayName || service.name)}</strong>
                             <div className={`dct-service-card-description${hasDescription ? " has-copy" : " is-empty"}`}>
-                              {hasDescription && <p>{service.description}</p>}
+                              {hasDescription && <p>{translatedText(service.description)}</p>}
                               {descriptionIsLong && (
                                 <span
                                   className="dct-service-description-toggle"
@@ -1161,16 +1346,16 @@ export default function MasterTemplate() {
                                     event.stopPropagation();
                                     setExpandedDescriptions((current) => ({ ...current, [serviceKey]: !current[serviceKey] }));
                                   }}
-                                >{descriptionExpanded ? "Свернуть" : "Подробнее"}</span>
+                                >{translatedText(descriptionExpanded ? "Свернуть" : "Подробнее")}</span>
                               )}
                             </div>
                             {hasVariants ? (
                               <div className="dct-service-card-variants">
                                 {service.variants!.map((item) => (
                                   <div className="dct-service-card-variant" key={item.label}>
-                                    <span>{item.label}</span>
+                                    <span>{translatedText(item.label)}</span>
                                     <span className="dct-service-card-variant-meta">
-                                      {item.time ? <small>{item.time}</small> : null}
+                                      {item.time ? <small>{translatedText(item.time)}</small> : null}
                                       <b>{item.price}</b>
                                     </span>
                                   </div>
@@ -1178,7 +1363,7 @@ export default function MasterTemplate() {
                               </div>
                             ) : (
                               <div className="dct-service-card-meta">
-                                {service.time ? <small>{service.time}</small> : <span aria-hidden="true" />}
+                                {service.time ? <small>{translatedText(service.time)}</small> : <span aria-hidden="true" />}
                                 <b>{service.price}</b>
                               </div>
                             )}
@@ -1193,7 +1378,7 @@ export default function MasterTemplate() {
           </div>
           {isCollapsibleCategory && services.length > 6 && (
             <button className={`mct-more-services${expanded ? " is-open" : ""}`} type="button" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>
-              {expanded ? "Свернуть услуги" : "Открыть все услуги"}
+              {expanded ? translatedText("Свернуть услуги") : translatedText("Открыть все услуги")}
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           )}
@@ -1203,7 +1388,7 @@ export default function MasterTemplate() {
       <section className="mct-about mct-reveal" id="mobile-about">
         <div className="mct-shell">
           <div className="mct-about-head">
-            <div><p className="mct-section-kicker">О мастере</p><h2>{site.master.aboutTitle}</h2></div>
+            <div><p className="mct-section-kicker">{translatedText("О мастере")}</p><h2>{translatedText(site.master.aboutTitle)}</h2></div>
             <span className="mct-about-monogram" aria-hidden="true">{site.master.monogram}</span>
           </div>
           <div className="mct-about-card">
@@ -1211,30 +1396,32 @@ export default function MasterTemplate() {
               <figure className="mct-about-portrait">
                 <img src={site.images.about} alt={`${site.master.name} — ${site.master.imageAlt}`} loading="lazy" />
               </figure>
-              <div className="mct-about-experience" aria-label={site.master.experienceAria}>
-                <strong>{site.master.experienceYears}</strong>
-                <span>лет<br />опыта</span>
-              </div>
+              {siteExperienceMode === "known" ? (
+                <div className="mct-about-experience" aria-label={site.master.experienceAria}>
+                  <strong>{site.master.experienceYears}</strong>
+                  <span>{translatedText("лет опыта")}</span>
+                </div>
+              ) : null}
             </div>
             <div className="mct-about-copy">
-              <p className="mct-about-lead">{site.master.aboutLead}</p>
-              <p>{aboutParagraphs[0]}</p>
-              <p>{aboutParagraphs[1]}</p>
-              {aboutParagraphs[2] && <p className="dct-about-extra-copy">{aboutParagraphs[2]}</p>}
-              <ul className="mct-about-list">{skills.map((skill) => <li key={skill}>{skill}</li>)}</ul>
+              <p className="mct-about-lead">{translatedText(site.master.aboutLead)}</p>
+              <p>{translatedText(aboutParagraphs[0] || "")}</p>
+              <p>{translatedText(aboutParagraphs[1] || "")}</p>
+              {aboutParagraphs[2] && <p className="dct-about-extra-copy">{translatedText(aboutParagraphs[2])}</p>}
+              <ul className="mct-about-list">{skills.map((skill) => <li key={skill}>{translatedText(skill)}</li>)}</ul>
               <div className="dct-about-amenities" aria-label={`Дополнительная информация о визите к ${site.master.dative}`}>
-                <div className="dct-about-amenities-head"><p className="mct-section-kicker">Дополнительно</p><span>Полезно перед записью</span></div>
+                <div className="dct-about-amenities-head"><p className="mct-section-kicker">{translatedText("Дополнительно")}</p><span>{translatedText("Полезно перед записью")}</span></div>
                 <div className="dct-about-amenities-grid">
-                  {amenities.map((item) => <article key={item.title}><strong>{item.title}</strong><span>{item.text}</span></article>)}
+                  {amenities.map((item) => <article key={item.title}><strong>{translatedText(item.title)}</strong><span>{translatedText(item.text)}</span></article>)}
                 </div>
               </div>
             </div>
           </div>
 
           <div className="mct-amenities mct-about-amenities-mobile" aria-label={`О визите к ${site.master.dative}`}>
-            <div className="mct-amenities-head"><p className="mct-section-kicker">Дополнительно</p><span>Полезно перед записью</span></div>
+            <div className="mct-amenities-head"><p className="mct-section-kicker">{translatedText("Дополнительно")}</p><span>{translatedText("Полезно перед записью")}</span></div>
             <div className="mct-amenities-grid">
-              {amenities.map((item) => <article key={item.title}><strong>{item.title}</strong><span>{item.text}</span></article>)}
+              {amenities.map((item) => <article key={item.title}><strong>{translatedText(item.title)}</strong><span>{translatedText(item.text)}</span></article>)}
             </div>
           </div>
         </div>
@@ -1242,9 +1429,9 @@ export default function MasterTemplate() {
 
       <section className="mct-reviews mct-reveal" id="mobile-reviews">
         <div className="mct-shell">
-          <p className="mct-section-kicker">Отзывы</p><h2>Что говорят<br />клиенты</h2>
-          <a className="mct-review-summary" href={reviewsUrl} target="_blank" rel="noopener noreferrer"><span>Все отзывы в {site.template.bookingProvider} →</span></a>
-          <p className="dct-review-drag-hint">Зажмите ленту мышью и двигайте в любую сторону</p>
+          <p className="mct-section-kicker">{translatedText("Отзывы")}</p><h2>{translatedText("Что говорят клиенты")}</h2>
+          {reviewsUrl ? <a className="mct-review-summary" href={reviewsUrl} target="_blank" rel="noopener noreferrer"><span>{translatedText("Все отзывы в")} {site.template.reviewSource || site.template.bookingProvider} →</span></a> : null}
+          <p className="dct-review-drag-hint">{translatedText("Зажмите ленту мышью и двигайте в любую сторону")}</p>
           <div className="dct-review-controls" aria-label="Управление лентой отзывов">
             <button type="button" onClick={() => stepReviews(-1)} aria-label="Показать предыдущие отзывы">←</button>
             <button type="button" onClick={() => stepReviews(1)} aria-label="Показать следующие отзывы">→</button>
@@ -1307,7 +1494,7 @@ export default function MasterTemplate() {
                               event.preventDefault();
                               reviewWasDraggedRef.current = false;
                             }}
-                          >Продолжить →</a>
+                          >{translatedText("Продолжить")} →</a>
                         )}
                       </article>
                     </div>
@@ -1323,50 +1510,91 @@ export default function MasterTemplate() {
         <div className="mct-shell">
           <div className="mct-visit-booking" id="mobile-booking">
             <div className="mct-visit-booking-top">
-              <p className="mct-section-kicker">Запись и связь</p>
-              <span className={`mct-open-status${openStatus.isOpen === true ? " is-open" : openStatus.isOpen === false ? " is-closed" : ""}`}>
-                <i aria-hidden="true" />{openStatus.label}
-              </span>
+              <p className="mct-section-kicker">{translatedText("Запись и связь")}</p>
+              {site.location.scheduleCapitalized ? (
+                <span className={`mct-open-status${openStatus.isOpen === true ? " is-open" : openStatus.isOpen === false ? " is-closed" : ""}`}>
+                  <i aria-hidden="true" />
+                  {openStatus.isOpen === true
+                    ? `${translatedText("Открыто до")} ${site.location.closeTime}`
+                    : openStatus.isOpen === false
+                      ? `${translatedText("Закрыто до")} ${site.location.openTime}`
+                      : translatedText(site.location.scheduleCapitalized)}
+                </span>
+              ) : null}
             </div>
-            <span className="dct-visit-motto" aria-hidden="true">Красивые волосы —<br />увереннее вы</span>
-            <h3>Запишитесь онлайн<br /><em>или свяжитесь любым удобным способом</em></h3>
-            <p>Выберите свободное время в {site.template.bookingProvider}. Если нужно уточнить услугу или подобрать процедуру, напишите {site.master.dative} напрямую.</p>
+            {site.master.visitMotto ? <span className="dct-visit-motto" aria-hidden="true">{translatedText(site.master.visitMotto)}</span> : null}
+            {siteBookingMode === "direct" ? (
+              <>
+                <h3>{translatedText("Запишитесь онлайн")}<br /><em>{translatedText("или свяжитесь любым удобным способом")}</em></h3>
+                <p>{translatedText("Выберите свободное время онлайн. Если нужно уточнить услугу, свяжитесь с мастером напрямую.")}</p>
+              </>
+            ) : (
+              <>
+                <h3>{translatedText("Свяжитесь удобным способом")}</h3>
+                <p>{translatedText("Позвоните или напишите мастеру, чтобы согласовать услугу и время.")}</p>
+              </>
+            )}
             <div className="mct-visit-actions">
-              <a className="mct-final-cta" href={bookingUrl} target="_blank" rel="noopener noreferrer"><span>Выбрать время онлайн</span><i className="mct-link-arrow" aria-hidden="true" /></a>
-              <div className="dct-booking-note" aria-hidden="true"><span>▢</span><small>Запись через {site.template.bookingProvider}<br />по предварительной записи</small></div>
+              <a className="mct-final-cta" href={bookingHref} target={siteBookingMode === "direct" ? "_blank" : undefined} rel={siteBookingMode === "direct" ? "noopener noreferrer" : undefined} onClick={handleBookingClick}><span>{siteBookingMode === "direct" ? translatedText("Выбрать время онлайн") : translatedText("Записаться онлайн")}</span><i className="mct-link-arrow" aria-hidden="true" /></a>
+              {siteBookingMode === "direct" && site.template.bookingProvider ? <div className="dct-booking-note" aria-hidden="true"><span>▢</span><small>{translatedText("Запись через")} {site.template.bookingProvider}<br />{translatedText("по предварительной записи")}</small></div> : null}
               <div className="mct-final-contact-grid" aria-label={`Способы связи с ${site.master.instrumental}`}>
-                <a className="mct-final-secondary" href={site.contacts.phoneHref}>
-                  <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg></span>
-                  <span className="mct-contact-copy"><strong>Позвонить</strong><small>{site.master.dative} · {site.contacts.phoneDisplay}</small></span><i className="mct-link-arrow" aria-hidden="true" />
-                </a>
-                <a className="mct-final-secondary" href={personalTelegramUrl} target="_blank" rel="noopener noreferrer">
-                  <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg></span>
-                  <span className="mct-contact-copy"><strong>Telegram</strong><small>Написать {site.master.dative}</small></span><i className="mct-link-arrow" aria-hidden="true" />
-                </a>
-                <a className="mct-final-secondary is-vk" href={vkUrl} target="_blank" rel="noopener noreferrer"><span className="mct-contact-icon" aria-hidden="true"><span className="mct-vk-letters">VK</span></span><span className="mct-contact-copy"><strong>ВКонтакте</strong><small>Написать {site.master.dative}</small></span><i className="mct-link-arrow" aria-hidden="true" /></a>
-                <a className="mct-final-secondary" href={mapUrl} target="_blank" rel="noopener noreferrer">
-                  <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span>
-                  <span className="mct-contact-copy"><strong className="mct-mobile-location-title">Яндекс Карты</strong><strong className="dct-location-title">Локация</strong><small className="mct-mobile-location-copy">Адрес и маршрут</small><small className="dct-location-copy">{site.location.city},<br />{site.location.mapCardAddress}</small></span><i className="mct-link-arrow" aria-hidden="true" />
-                </a>
+                {bookingContacts.map((item) => (
+                  <a className="mct-final-secondary" href={item.url} target={item.kind === "phone" ? undefined : "_blank"} rel={item.kind === "phone" ? undefined : "noopener noreferrer"} key={`${item.kind}-${item.url}`}>
+                    <span className="mct-contact-icon" aria-hidden="true">
+                      {item.kind === "phone"
+                        ? <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>
+                        : <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>}
+                    </span>
+                    <span className="mct-contact-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? site.contacts.phoneDisplay : `${translatedText("Написать")} ${locale === "ru" ? site.master.dative : site.master.name}`}</small></span><i className="mct-link-arrow" aria-hidden="true" />
+                  </a>
+                ))}
+                {mapUrl ? (
+                  <a className="mct-final-secondary" href={mapUrl} target="_blank" rel="noopener noreferrer">
+                    <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span>
+                    <span className="mct-contact-copy"><strong className="mct-mobile-location-title">{translatedText("Яндекс Карты")}</strong><strong className="dct-location-title">{translatedText("Локация")}</strong><small className="mct-mobile-location-copy">{translatedText("Адрес и маршрут")}</small><small className="dct-location-copy">{translatedText(site.location.city)},<br />{translatedText(site.location.mapCardAddress)}</small></span><i className="mct-link-arrow" aria-hidden="true" />
+                  </a>
+                ) : null}
               </div>
             </div>
           </div>
 
         </div>
       </section>
-      <a className="mct-tanem-footer" href="https://tanem.ru/" target="_blank" rel="noopener noreferrer"><span className="tanem-mark">T</span><span className="tanem-credit">Создано в <strong>TANEM.ru</strong></span></a>
+      <a className="mct-tanem-footer" href="https://tanem.ru/" target="_blank" rel="noopener noreferrer"><span className="tanem-mark">T</span><span className="tanem-credit">{translatedText("Создано в")} <strong>TANEM.ru</strong></span></a>
 
-      <div className={`mct-sticky-wrap${stickyVisible && !galleryOpen ? " is-visible" : ""}`} aria-hidden={!stickyVisible || galleryOpen}>
-        <a className="mct-sticky" href={bookingUrl} target="_blank" rel="noopener noreferrer" tabIndex={stickyVisible && !galleryOpen ? 0 : -1}>
-          <span className="mct-sticky-icon dct-sticky-mobile-mark">{site.brand.monogram}</span><span className="dct-sticky-live" aria-hidden="true"><i /></span><span className="mct-sticky-copy"><strong>Записаться онлайн</strong><small>Открыть свободное время</small></span><span className="mct-sticky-arrow" aria-hidden="true">→</span>
+      <div className={`mct-sticky-wrap${stickyVisible && !galleryOpen && !bookingOpen ? " is-visible" : ""}`} aria-hidden={!stickyVisible || galleryOpen}>
+        <a className="mct-sticky" href={bookingHref} target={siteBookingMode === "direct" ? "_blank" : undefined} rel={siteBookingMode === "direct" ? "noopener noreferrer" : undefined} onClick={handleBookingClick} tabIndex={stickyVisible && !galleryOpen && !bookingOpen ? 0 : -1}>
+          <span className="mct-sticky-icon dct-sticky-mobile-mark">{site.brand.monogram}</span><span className="dct-sticky-live" aria-hidden="true"><i /></span><span className="mct-sticky-copy"><strong>{translatedText("Записаться онлайн")}</strong><small>{siteBookingMode === "direct" ? translatedText("Открыть свободное время") : translatedText("Выберите удобный способ связи")}</small></span><span className="mct-sticky-arrow" aria-hidden="true">→</span>
         </a>
+      </div>
+
+      <div className={`mct-book-sheet${bookingOpen ? " is-open" : ""}`} id="booking-options" role="dialog" aria-modal="true" aria-hidden={!bookingOpen} aria-label={translatedText("Как вам удобнее записаться?")} onClick={() => setBookingOpen(false)}>
+        <div className="mct-book-panel" onClick={(event) => event.stopPropagation()}>
+          <button className="mct-book-close" type="button" onClick={() => setBookingOpen(false)} aria-label={translatedText("Закрыть")}>×</button>
+          <p className="mct-section-kicker">{translatedText("Запись и связь")}</p>
+          <h3>{translatedText("Как вам удобнее записаться?")}</h3>
+          <p className="mct-book-copy">{translatedText("Выберите удобный способ связи")}</p>
+          <div className="mct-book-options">
+            {bookingContacts.map((item) => (
+              <a className="mct-book-option" href={item.url} target={item.kind === "phone" ? undefined : "_blank"} rel={item.kind === "phone" ? undefined : "noopener noreferrer"} key={`sheet-${item.kind}-${item.url}`} onClick={() => setBookingOpen(false)}>
+                <span className="mct-book-icon" aria-hidden="true">
+                  {item.kind === "phone"
+                    ? <svg viewBox="0 0 24 24"><path d="M7 4h3l1.3 4-2 1.5c1 2 2.6 3.6 4.6 4.6l1.5-2L19 13.5v3c0 1.1-.9 2-2 2C10.4 18.5 5.5 13.6 5.5 7A2 2 0 0 1 7 4Z" /></svg>
+                    : <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>}
+                </span>
+                <span className="mct-book-option-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? site.contacts.phoneDisplay : `${translatedText("Написать")} ${locale === "ru" ? site.master.dative : site.master.name}`}</small></span>
+                <span className="mct-book-arrow" aria-hidden="true">→</span>
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
 
       {galleryOpen && (
         <div className="mct-gallery-overlay" role="dialog" aria-modal="true" aria-label={`Галерея ${site.master.genitive}`}>
-          <div className="mct-gallery-top"><strong>Галерея</strong><button className="mct-gallery-close" type="button" onClick={() => setGalleryOpen(false)} aria-label="Закрыть галерею">×</button></div>
+          <div className="mct-gallery-top"><strong>{translatedText("Галерея")}</strong><button className="mct-gallery-close" type="button" onClick={() => setGalleryOpen(false)} aria-label={translatedText("Закрыть галерею")}>×</button></div>
           <div className="mct-gallery-content">
-            <h3>Работы</h3>
+            <h3>{translatedText("Работы")}</h3>
             <div className="mct-gallery-works">
               {galleryWorks.map((item) => (
                 <button className="mct-gallery-image" type="button" key={item.src} onClick={() => openLightbox(item.src)} aria-label={`Открыть фотографию: ${item.alt}`}>
@@ -1381,7 +1609,7 @@ export default function MasterTemplate() {
       {lightboxIndex !== null && (
         <div className={`mct-lightbox${lightboxTransform.scale > 1.01 ? " is-zoomed" : ""}`} role="dialog" aria-modal="true" aria-label="Полноэкранный просмотр фотографии" onClick={() => setLightboxIndex(null)}>
           <button className="mct-lightbox-close" type="button" onClick={() => setLightboxIndex(null)} aria-label="Закрыть фотографию">×</button>
-          <span className="mct-lightbox-hint">Разведите двумя пальцами, чтобы увеличить</span>
+          <span className="mct-lightbox-hint">{translatedText("Разведите двумя пальцами, чтобы увеличить")}</span>
           <button className="mct-lightbox-nav mct-lightbox-prev" type="button" onClick={(event) => { event.stopPropagation(); stepLightbox(-1); }} aria-label="Предыдущая фотография" tabIndex={lightboxTransform.scale > 1.01 ? -1 : 0}>‹</button>
           <figure
             className="mct-lightbox-figure"
@@ -1410,7 +1638,7 @@ export default function MasterTemplate() {
                 setLightboxIndex(null);
                 setGalleryOpen(true);
               }}
-            >Открыть галерею</button>
+            >{translatedText("Открыть галерею")}</button>
           )}
           <button className="mct-lightbox-nav mct-lightbox-next" type="button" onClick={(event) => { event.stopPropagation(); stepLightbox(1); }} aria-label="Следующая фотография" tabIndex={lightboxTransform.scale > 1.01 ? -1 : 0}>›</button>
         </div>

@@ -25,6 +25,20 @@ jobs:
       NEXT_PUBLIC_BASE_PATH: /Shablon-For-Only-Masters
     steps:
       - uses: actions/checkout@v5
+      - name: Checkout approved Hair decoration source
+        uses: actions/checkout@v5
+        with:
+          repository: ichAEY/Shablon-Hair-Master
+          ref: d9ce7e2cd6fa16ad900fce2568b584cbc5a84481
+          path: .tanem-source-hair
+      - name: Prepare approved template assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/template
+          cp .tanem-source-hair/public/assets/yulia/tools/hero.png public/assets/template/hair-tools.png
+          rm -rf .tanem-source-hair
+          test -s public/assets/template/hair-tools.png
       - uses: actions/setup-node@v5
         with:
           node-version: 24
@@ -32,6 +46,8 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm test
+      - name: Render production scenarios
+        run: npm run qa:scenarios
       - id: pages-check
         name: Check whether Pages is enabled
         env:
@@ -52,7 +68,7 @@ jobs:
           path: out
 
   deploy:
-    if: needs.build.outputs.pages-ready == 'true'
+    if: github.event_name != 'pull_request' && needs.build.outputs.pages-ready == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
