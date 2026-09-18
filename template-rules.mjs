@@ -94,3 +94,52 @@ export function contactOptions(site) {
   }
   return result;
 }
+
+
+export function clientTranslationKeys(site) {
+  const values = [];
+  const add = (value) => {
+    const text = String(value || "").trim();
+    if (text) values.push(text);
+  };
+
+  add(site?.master?.profession);
+  add(site?.master?.heroEmphasis);
+  add(site?.master?.heroCaption);
+  add(site?.master?.imageAlt);
+  add(site?.master?.heroCopy);
+  add(site?.master?.visitMotto);
+  add(site?.master?.aboutTitle);
+  add(site?.master?.aboutLead);
+  for (const value of site?.master?.aboutParagraphs || []) add(value);
+  for (const value of site?.master?.skills || []) add(value);
+
+  add(site?.location?.city);
+  add(site?.location?.metro);
+  add(site?.location?.cityMetro);
+  add(site?.location?.address);
+  add(site?.location?.mapCardAddress);
+  add(site?.location?.schedule);
+  add(site?.location?.scheduleCapitalized);
+
+  for (const group of visibleServiceGroups(site)) {
+    add(group.label);
+    for (const service of group.services) {
+      add(service?.name);
+      add(service?.displayName);
+      add(service?.time);
+      add(service?.description);
+      for (const variant of service?.variants || []) {
+        add(variant?.label);
+        add(variant?.time);
+      }
+    }
+  }
+
+  for (const item of site?.amenities || []) {
+    add(item?.title);
+    add(item?.text);
+  }
+
+  return [...new Set(values)];
+}
