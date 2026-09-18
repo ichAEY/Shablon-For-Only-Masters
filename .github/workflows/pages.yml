@@ -52,7 +52,7 @@ jobs:
           path: out
 
   deploy:
-    if: needs.build.outputs.pages-ready == 'true'
+    if: github.event_name != 'pull_request' && needs.build.outputs.pages-ready == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
