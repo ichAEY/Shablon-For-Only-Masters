@@ -1,1 +1,2 @@
 Temporary CI verification marker.
+Retry after template type cleanup.
