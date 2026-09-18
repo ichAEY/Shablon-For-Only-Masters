@@ -44,7 +44,7 @@ const serviceGroups = visibleServiceGroups(site) as ServiceGroup[];
 const allServices: Array<Service & { sectionLabel?: string; sectionKey?: string }> = serviceGroups.flatMap((group) =>
   group.services.map((service, index) => ({
     ...service,
-    sectionLabel: index === 0 ? group.label : undefined,
+    sectionLabel: serviceGroups.length > 1 && index === 0 ? group.label : undefined,
     sectionKey: group.id,
   })),
 );
