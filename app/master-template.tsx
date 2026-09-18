@@ -922,17 +922,33 @@ export default function MasterTemplate() {
               <a href="#mobile-location">Визит и запись</a>
             </nav>
             <div className="dct-top-actions" aria-label={`Быстрые способы связи с ${site.master.name}`}>
-              <a className="dct-top-phone" href={site.contacts.phoneHref} aria-label={`Позвонить ${site.master.dative} по номеру ${site.contacts.phoneDisplay}`}>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.1 3.5 9.3 8c.2.5.1 1-.3 1.4l-1.4 1.2c1 2.1 2.7 3.8 4.8 4.8l1.2-1.4c.4-.4.9-.5 1.4-.3l4.5 2.2c.5.2.8.8.6 1.4l-.6 2.3c-.2.7-.8 1.1-1.5 1.1C10 20.7 3.3 14 3.3 6c0-.7.4-1.3 1.1-1.5l2.3-.6c.6-.2 1.2.1 1.4.6Z" /></svg>
-                <span><small>Позвонить</small><strong>{site.contacts.phoneDisplay}</strong></span>
-              </a>
-              <a className="dct-top-icon" href={personalTelegramUrl} target="_blank" rel="noopener noreferrer" aria-label={`Написать ${site.master.dative} в Telegram`} title="Telegram">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
-              </a>
-              <a className="dct-top-icon" href={mapUrl} target="_blank" rel="noopener noreferrer" aria-label={`Открыть адрес ${site.master.genitive} в Яндекс Картах`} title="Яндекс Карты">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
-              </a>
+              {bookingContacts.find((item) => item.kind === "phone") ? (
+                <a className="dct-top-phone" href={bookingContacts.find((item) => item.kind === "phone")!.url} aria-label={`Позвонить ${site.master.dative} по номеру ${site.contacts.phoneDisplay}`}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.1 3.5 9.3 8c.2.5.1 1-.3 1.4l-1.4 1.2c1 2.1 2.7 3.8 4.8 4.8l1.2-1.4c.4-.4.9-.5 1.4-.3l4.5 2.2c.5.2.8.8.6 1.4l-.6 2.3c-.2.7-.8 1.1-1.5 1.1C10 20.7 3.3 14 3.3 6c0-.7.4-1.3 1.1-1.5l2.3-.6c.6-.2 1.2.1 1.4.6Z" /></svg>
+                  <span><small>{translatedText("Позвонить")}</small><strong>{site.contacts.phoneDisplay}</strong></span>
+                </a>
+              ) : null}
+              {bookingContacts.find((item) => item.kind !== "phone") ? (
+                <a className="dct-top-icon" href={bookingContacts.find((item) => item.kind !== "phone")!.url} target="_blank" rel="noopener noreferrer" aria-label={bookingContacts.find((item) => item.kind !== "phone")!.label} title={bookingContacts.find((item) => item.kind !== "phone")!.label}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>
+                </a>
+              ) : null}
+              {mapUrl ? (
+                <a className="dct-top-icon" href={mapUrl} target="_blank" rel="noopener noreferrer" aria-label={`Открыть адрес ${site.master.genitive} в Яндекс Картах`} title="Яндекс Карты">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
+                </a>
+              ) : null}
             </div>
+            {languages.length > 1 ? (
+              <div className="mct-lang-switch" role="group" aria-label="Language">
+                {languages.map((item, index) => (
+                  <span className="mct-lang-item" key={item.code}>
+                    {index > 0 ? <span className="mct-lang-sep" aria-hidden="true">/</span> : null}
+                    <button type="button" className={locale === item.code ? "is-active" : ""} aria-pressed={locale === item.code} onClick={() => chooseLocale(item.code)}>{item.label}</button>
+                  </span>
+                ))}
+              </div>
+            ) : null}
             <div className="mct-menu-wrap" ref={menuRef}>
               <button
                 className={`mct-menu-button${menuOpen ? " is-open" : ""}`}
@@ -1064,7 +1080,7 @@ export default function MasterTemplate() {
           </div>
           <div className="mct-hero-bottom">
             <div className="mct-hero-actions">
-              <a className="mct-main-cta" href={bookingUrl} target="_blank" rel="noopener noreferrer">Записаться онлайн&nbsp; →</a>
+              <a className="mct-main-cta" href={bookingHref} target={siteBookingMode === "direct" ? "_blank" : undefined} rel={siteBookingMode === "direct" ? "noopener noreferrer" : undefined} onClick={handleBookingClick}>{translatedText("Записаться онлайн")}&nbsp; →</a>
               <a className="mct-quiet-link" href="#mobile-portfolio">Смотреть работы ↓</a>
             </div>
             <div className={`mct-stats${siteExperienceMode === "unknown" ? " is-two-stats" : ""}`} aria-label="Опыт и рейтинг мастера">
@@ -1463,22 +1479,25 @@ export default function MasterTemplate() {
             <h3>Запишитесь онлайн<br /><em>или свяжитесь любым удобным способом</em></h3>
             <p>Выберите свободное время в {site.template.bookingProvider}. Если нужно уточнить услугу или подобрать процедуру, напишите {site.master.dative} напрямую.</p>
             <div className="mct-visit-actions">
-              <a className="mct-final-cta" href={bookingUrl} target="_blank" rel="noopener noreferrer"><span>Выбрать время онлайн</span><i className="mct-link-arrow" aria-hidden="true" /></a>
+              <a className="mct-final-cta" href={bookingHref} target={siteBookingMode === "direct" ? "_blank" : undefined} rel={siteBookingMode === "direct" ? "noopener noreferrer" : undefined} onClick={handleBookingClick}><span>{siteBookingMode === "direct" ? translatedText("Выбрать время онлайн") : translatedText("Записаться онлайн")}</span><i className="mct-link-arrow" aria-hidden="true" /></a>
               <div className="dct-booking-note" aria-hidden="true"><span>▢</span><small>Запись через {site.template.bookingProvider}<br />по предварительной записи</small></div>
               <div className="mct-final-contact-grid" aria-label={`Способы связи с ${site.master.instrumental}`}>
-                <a className="mct-final-secondary" href={site.contacts.phoneHref}>
-                  <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg></span>
-                  <span className="mct-contact-copy"><strong>Позвонить</strong><small>{site.master.dative} · {site.contacts.phoneDisplay}</small></span><i className="mct-link-arrow" aria-hidden="true" />
-                </a>
-                <a className="mct-final-secondary" href={personalTelegramUrl} target="_blank" rel="noopener noreferrer">
-                  <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg></span>
-                  <span className="mct-contact-copy"><strong>Telegram</strong><small>Написать {site.master.dative}</small></span><i className="mct-link-arrow" aria-hidden="true" />
-                </a>
-                <a className="mct-final-secondary is-vk" href={vkUrl} target="_blank" rel="noopener noreferrer"><span className="mct-contact-icon" aria-hidden="true"><span className="mct-vk-letters">VK</span></span><span className="mct-contact-copy"><strong>ВКонтакте</strong><small>Написать {site.master.dative}</small></span><i className="mct-link-arrow" aria-hidden="true" /></a>
-                <a className="mct-final-secondary" href={mapUrl} target="_blank" rel="noopener noreferrer">
-                  <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span>
-                  <span className="mct-contact-copy"><strong className="mct-mobile-location-title">Яндекс Карты</strong><strong className="dct-location-title">Локация</strong><small className="mct-mobile-location-copy">Адрес и маршрут</small><small className="dct-location-copy">{site.location.city},<br />{site.location.mapCardAddress}</small></span><i className="mct-link-arrow" aria-hidden="true" />
-                </a>
+                {bookingContacts.map((item) => (
+                  <a className="mct-final-secondary" href={item.url} target={item.kind === "phone" ? undefined : "_blank"} rel={item.kind === "phone" ? undefined : "noopener noreferrer"} key={`${item.kind}-${item.url}`}>
+                    <span className="mct-contact-icon" aria-hidden="true">
+                      {item.kind === "phone"
+                        ? <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>
+                        : <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>}
+                    </span>
+                    <span className="mct-contact-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? site.contacts.phoneDisplay : `Написать ${site.master.dative}`}</small></span><i className="mct-link-arrow" aria-hidden="true" />
+                  </a>
+                ))}
+                {mapUrl ? (
+                  <a className="mct-final-secondary" href={mapUrl} target="_blank" rel="noopener noreferrer">
+                    <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span>
+                    <span className="mct-contact-copy"><strong className="mct-mobile-location-title">{translatedText("Яндекс Карты")}</strong><strong className="dct-location-title">{translatedText("Локация")}</strong><small className="mct-mobile-location-copy">{translatedText("Адрес и маршрут")}</small><small className="dct-location-copy">{site.location.city},<br />{site.location.mapCardAddress}</small></span><i className="mct-link-arrow" aria-hidden="true" />
+                  </a>
+                ) : null}
               </div>
             </div>
           </div>
@@ -1488,9 +1507,31 @@ export default function MasterTemplate() {
       <a className="mct-tanem-footer" href="https://tanem.ru/" target="_blank" rel="noopener noreferrer"><span className="tanem-mark">T</span><span className="tanem-credit">Создано в <strong>TANEM.ru</strong></span></a>
 
       <div className={`mct-sticky-wrap${stickyVisible && !galleryOpen ? " is-visible" : ""}`} aria-hidden={!stickyVisible || galleryOpen}>
-        <a className="mct-sticky" href={bookingUrl} target="_blank" rel="noopener noreferrer" tabIndex={stickyVisible && !galleryOpen ? 0 : -1}>
-          <span className="mct-sticky-icon dct-sticky-mobile-mark">{site.brand.monogram}</span><span className="dct-sticky-live" aria-hidden="true"><i /></span><span className="mct-sticky-copy"><strong>Записаться онлайн</strong><small>Открыть свободное время</small></span><span className="mct-sticky-arrow" aria-hidden="true">→</span>
+        <a className="mct-sticky" href={bookingHref} target={siteBookingMode === "direct" ? "_blank" : undefined} rel={siteBookingMode === "direct" ? "noopener noreferrer" : undefined} onClick={handleBookingClick} tabIndex={stickyVisible && !galleryOpen && !bookingOpen ? 0 : -1}>
+          <span className="mct-sticky-icon dct-sticky-mobile-mark">{site.brand.monogram}</span><span className="dct-sticky-live" aria-hidden="true"><i /></span><span className="mct-sticky-copy"><strong>{translatedText("Записаться онлайн")}</strong><small>{siteBookingMode === "direct" ? "Открыть свободное время" : translatedText("Выберите удобный способ связи")}</small></span><span className="mct-sticky-arrow" aria-hidden="true">→</span>
         </a>
+      </div>
+
+      <div className={`mct-book-sheet${bookingOpen ? " is-open" : ""}`} id="booking-options" role="dialog" aria-modal="true" aria-hidden={!bookingOpen} aria-label={translatedText("Как вам удобнее записаться?")} onClick={() => setBookingOpen(false)}>
+        <div className="mct-book-panel" onClick={(event) => event.stopPropagation()}>
+          <button className="mct-book-close" type="button" onClick={() => setBookingOpen(false)} aria-label={translatedText("Закрыть")}>×</button>
+          <p className="mct-section-kicker">{translatedText("Запись и связь")}</p>
+          <h3>{translatedText("Как вам удобнее записаться?")}</h3>
+          <p className="mct-book-copy">{translatedText("Выберите удобный способ связи")}</p>
+          <div className="mct-book-options">
+            {bookingContacts.map((item) => (
+              <a className="mct-book-option" href={item.url} target={item.kind === "phone" ? undefined : "_blank"} rel={item.kind === "phone" ? undefined : "noopener noreferrer"} key={`sheet-${item.kind}-${item.url}`} onClick={() => setBookingOpen(false)}>
+                <span className="mct-book-icon" aria-hidden="true">
+                  {item.kind === "phone"
+                    ? <svg viewBox="0 0 24 24"><path d="M7 4h3l1.3 4-2 1.5c1 2 2.6 3.6 4.6 4.6l1.5-2L19 13.5v3c0 1.1-.9 2-2 2C10.4 18.5 5.5 13.6 5.5 7A2 2 0 0 1 7 4Z" /></svg>
+                    : <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>}
+                </span>
+                <span className="mct-book-option-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? site.contacts.phoneDisplay : `Написать ${site.master.dative}`}</small></span>
+                <span className="mct-book-arrow" aria-hidden="true">→</span>
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
 
       {galleryOpen && (
