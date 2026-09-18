@@ -109,9 +109,8 @@ export default function MasterTemplate() {
   const [lightboxTransform, setLightboxTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [reviewsPaused, setReviewsPaused] = useState(false);
   const [desktopGalleryPaused, setDesktopGalleryPaused] = useState(false);
-  const [openStatus, setOpenStatus] = useState<{ isOpen: boolean | null; label: string }>({
+  const [openStatus, setOpenStatus] = useState<{ isOpen: boolean | null }>({
     isOpen: null,
-    label: site.location.scheduleCapitalized,
   });
   const heroRef = useRef<HTMLElement>(null);
   const finalBookRef = useRef<HTMLElement>(null);
@@ -340,6 +339,8 @@ export default function MasterTemplate() {
   }, []);
 
   useEffect(() => {
+    if (!site.location.scheduleCapitalized || !site.location.openTime || !site.location.closeTime) return;
+
     const updateStatus = () => {
       const parts = new Intl.DateTimeFormat("ru-RU", {
         timeZone: site.location.timeZone,
@@ -350,17 +351,15 @@ export default function MasterTemplate() {
       const hours = Number(parts.find((part) => part.type === "hour")?.value ?? 0);
       const minutes = Number(parts.find((part) => part.type === "minute")?.value ?? 0);
       const minuteOfDay = hours * 60 + minutes;
-      const isOpen = minuteOfDay >= openMinutes && minuteOfDay < closeMinutes;
-
-      setOpenStatus({
-        isOpen,
-        label: isOpen ? `Открыто до ${site.location.closeTime}` : `Закрыто до ${site.location.openTime}`,
-      });
+      setOpenStatus({ isOpen: minuteOfDay >= openMinutes && minuteOfDay < closeMinutes });
     };
 
-    updateStatus();
+    const frame = window.requestAnimationFrame(updateStatus);
     const timer = window.setInterval(updateStatus, 60_000);
-    return () => window.clearInterval(timer);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearInterval(timer);
+    };
   }, []);
 
   const overlayOpen = bookingOpen || galleryOpen || lightboxIndex !== null;
@@ -1000,12 +999,14 @@ export default function MasterTemplate() {
           <div className="mct-hero-content">
             <div className="mct-hero-meta">
               <span>{translatedText(site.location.city)}</span>
-              <a className="mct-hero-phone" href={site.contacts.phoneHref} aria-label={`Позвонить ${site.master.dative} по номеру ${site.contacts.phoneDisplay}`}>
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="M7.1 3.5 9.3 8c.2.5.1 1-.3 1.4l-1.4 1.2c1 2.1 2.7 3.8 4.8 4.8l1.2-1.4c.4-.4.9-.5 1.4-.3l4.5 2.2c.5.2.8.8.6 1.4l-.6 2.3c-.2.7-.8 1.1-1.5 1.1C10 20.7 3.3 14 3.3 6c0-.7.4-1.3 1.1-1.5l2.3-.6c.6-.2 1.2.1 1.4.6Z" />
-                </svg>
-                <span>{site.contacts.phoneDisplay}</span>
-              </a>
+              {bookingContacts.find((item) => item.kind === "phone") ? (
+                <a className="mct-hero-phone" href={bookingContacts.find((item) => item.kind === "phone")!.url} aria-label={`Позвонить ${site.master.dative} по номеру ${site.contacts.phoneDisplay}`}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M7.1 3.5 9.3 8c.2.5.1 1-.3 1.4l-1.4 1.2c1 2.1 2.7 3.8 4.8 4.8l1.2-1.4c.4-.4.9-.5 1.4-.3l4.5 2.2c.5.2.8.8.6 1.4l-.6 2.3c-.2.7-.8 1.1-1.5 1.1C10 20.7 3.3 14 3.3 6c0-.7.4-1.3 1.1-1.5l2.3-.6c.6-.2 1.2.1 1.4.6Z" />
+                  </svg>
+                  <span>{site.contacts.phoneDisplay}</span>
+                </a>
+              ) : null}
             </div>
             <h1>{translatedText(site.master.heroTitle || site.master.name)}<em>{translatedText(site.master.heroEmphasis)}</em></h1>
             <p className="mct-hero-copy">{translatedText(site.master.heroCopy)}</p>
@@ -1497,9 +1498,16 @@ export default function MasterTemplate() {
           <div className="mct-visit-booking" id="mobile-booking">
             <div className="mct-visit-booking-top">
               <p className="mct-section-kicker">{translatedText("Запись и связь")}</p>
-              <span className={`mct-open-status${openStatus.isOpen === true ? " is-open" : openStatus.isOpen === false ? " is-closed" : ""}`}>
-                <i aria-hidden="true" />{openStatus.label}
-              </span>
+              {site.location.scheduleCapitalized ? (
+                <span className={`mct-open-status${openStatus.isOpen === true ? " is-open" : openStatus.isOpen === false ? " is-closed" : ""}`}>
+                  <i aria-hidden="true" />
+                  {openStatus.isOpen === true
+                    ? `${translatedText("Открыто до")} ${site.location.closeTime}`
+                    : openStatus.isOpen === false
+                      ? `${translatedText("Закрыто до")} ${site.location.openTime}`
+                      : translatedText(site.location.scheduleCapitalized)}
+                </span>
+              ) : null}
             </div>
             {site.master.visitMotto ? <span className="dct-visit-motto" aria-hidden="true">{translatedText(site.master.visitMotto)}</span> : null}
             {siteBookingMode === "direct" ? (
