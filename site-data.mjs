@@ -3,21 +3,16 @@ const publicBase = process.env.NEXT_PUBLIC_BASE_PATH || "";
 export default {
   basePath: publicBase,
 
+  template: {
+    specialty: "",
+    bookingProvider: "",
+    reviewSource: "",
+  },
+
   brand: {
     name: "",
     subtitle: "",
     monogram: "",
-  },
-
-  template: {
-    bookingProvider: "",
-    reviewSource: "",
-    categoryLabels: {
-      group1: "",
-      group2: "",
-      group3: "",
-      group4: "",
-    },
   },
 
   master: {
@@ -32,7 +27,7 @@ export default {
     heroCaption: "",
     imageAlt: "",
     heroCopy: "",
-    experienceYears: "",
+    experienceYears: null,
     experienceAria: "",
     aboutTitle: "",
     aboutLead: "",
@@ -41,6 +36,8 @@ export default {
   },
 
   location: {
+    country: "",
+    countryCode: "",
     city: "",
     metro: "",
     cityMetro: "",
@@ -55,20 +52,18 @@ export default {
 
   contacts: {
     phoneDisplay: "",
-    phoneHref: "#",
-    personalTelegramUrl: "#",
-    channelTelegramUrl: "#",
-    vkUrl: "#",
+    phoneHref: "",
+    messenger: null,
   },
 
   links: {
-    bookingUrl: "#",
-    reviewsUrl: "#",
-    mapUrl: "#",
-    routeUrl: "#",
-    mobileMapEmbedUrl: "about:blank",
-    desktopMapEmbedUrl: "about:blank",
-    yandexMapHrefMatch: "__tanem_map_not_configured__",
+    bookingUrl: "",
+    reviewsUrl: "",
+    mapUrl: "",
+    routeUrl: "",
+    mobileMapEmbedUrl: "",
+    desktopMapEmbedUrl: "",
+    yandexMapHrefMatch: "",
   },
 
   reputation: {
@@ -77,21 +72,27 @@ export default {
   },
 
   images: {
+    logo: "",
     portrait: `${publicBase}/placeholder.svg`,
     about: `${publicBase}/placeholder.svg`,
     favicon: `${publicBase}/placeholder.svg`,
-    introLogo: `${publicBase}/placeholder.svg`,
-    headerLogo: `${publicBase}/placeholder.svg`,
-    heroDecoration: `${publicBase}/placeholder.svg`,
+    heroDecoration: "",
     beforeAfter: [],
     gallery: [],
   },
 
   services: {
-    group1: [],
-    group2: [],
-    group3: [],
-    group4: [],
+    groups: [],
+  },
+
+  i18n: {
+    locales: [
+      { code: "ru", label: "RU" },
+      { code: "en", label: "EN" },
+    ],
+    translations: {
+      en: {},
+    },
   },
 
   reviews: [],
