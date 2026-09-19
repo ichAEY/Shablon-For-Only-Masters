@@ -118,6 +118,7 @@ Layout:
   - `Пожелания` — `Покажите пример результата.`
   - `Перенос записи` — `Предупредите заранее.`
 - These three cards are template-owned defaults and are not replaced with schedules, addresses or invented client policies.
+- On mobile, all three card titles use identical typography; no card may receive a smaller title size.
 
 ## Reviews
 - Publish at most 9 verified five-star reviews from the supplied source, such as Yandex Maps or DIKIDI.
@@ -134,8 +135,9 @@ Layout:
 - Desktop booking/contact remains unchanged unless separately approved.
 - The primary mobile booking CTA spans the full available action width.
 - The live `Открыто / Закрыто` badge is shown at the right of `Запись и связь` and recalculates from the client's configured timezone and schedule data.
-- A verified address and work schedule are displayed below the mobile contact actions as plain text, never as a white card or separate route button.
-- The mobile location action is the only map link in this block and uses the verified route/map URL; the provider must come from client/source data rather than being invented.
+- A verified address and work schedule are displayed below the mobile contact actions as plain-text styling, never as a white card or separate route button.
+- The displayed mobile address itself is clickable and opens the same verified route/map URL. If the source is Yandex Maps, keep the Yandex link; if the source is Google Maps, keep the Google link. Never substitute the provider or invent a route URL.
+- The mobile location action uses that same verified route/map URL.
 - When the location action is the unpaired final action on mobile, it spans the full contact-grid width.
 - If a direct booking URL exists, generic booking CTAs open it.
 - If a service-specific URL exists, that service opens its own URL.

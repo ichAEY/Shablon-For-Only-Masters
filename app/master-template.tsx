@@ -1669,10 +1669,17 @@ export default function MasterTemplate() {
 
           {site.location.address ? (
             <div className="mct-visit-details mct-visit-details-mobile-julia">
-              <p className="mct-visit-address">
-                {translatedText(site.location.address)}
-                {site.location.schedule ? <span>{translatedText(site.location.schedule)}</span> : null}
-              </p>
+              {routeUrl || mapUrl ? (
+                <a className="mct-visit-address mct-visit-address-link" href={routeUrl || mapUrl} target="_blank" rel="noopener noreferrer">
+                  {translatedText(site.location.address)}
+                  {site.location.schedule ? <span>{translatedText(site.location.schedule)}</span> : null}
+                </a>
+              ) : (
+                <p className="mct-visit-address">
+                  {translatedText(site.location.address)}
+                  {site.location.schedule ? <span>{translatedText(site.location.schedule)}</span> : null}
+                </p>
+              )}
             </div>
           ) : null}
 

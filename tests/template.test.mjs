@@ -143,6 +143,7 @@ test("additional block always uses the three compact approved cards", () => {
   assert.match(component, /title: "Пожелания", text: "Покажите пример результата\."/);
   assert.match(component, /title: "Перенос записи", text: "Предупредите заранее\."/);
   assert.doesNotMatch(component, /const amenities = site\.amenities/);
+  assert.doesNotMatch(css, /mct-amenities-grid article:nth-child\(2\) strong/);
 });
 
 test("approved gallery and service limits cannot regress", () => {
@@ -169,7 +170,8 @@ test("Julia booking structure replaces only the mobile block", () => {
   assert.match(css, /\.mct-visit-booking-mobile-julia,[\s\S]*?display: none !important/);
   assert.match(css, /@media \(max-width: 767px\)[\s\S]*?\.mct-visit-booking-desktop-current[\s\S]*?display: none !important[\s\S]*?\.mct-visit-booking-mobile-julia[\s\S]*?display: block !important/);
   const mobileDetails = component.match(/<div className="mct-visit-details mct-visit-details-mobile-julia">([\s\S]*?)<\/div>/)?.[1] || "";
-  assert.match(mobileDetails, /<p className="mct-visit-address">/);
+  assert.match(mobileDetails, /mct-visit-address mct-visit-address-link/);
+  assert.match(mobileDetails, /href=\{routeUrl \|\| mapUrl\}/);
   assert.match(mobileDetails, /site\.location\.schedule/);
-  assert.doesNotMatch(mobileDetails, /<a |mct-mobile-route-card|mct-map-wrap/);
+  assert.doesNotMatch(mobileDetails, /mct-mobile-route-card|mct-map-wrap/);
 });
