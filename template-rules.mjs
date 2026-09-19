@@ -141,14 +141,19 @@ export function collapsedServiceCounts(site) {
   };
 }
 
+export function masterFirstName(site) {
+  const fullName = String(site?.master?.name || site?.brand?.name || "").trim();
+  return fullName.split(/\s+/).filter(Boolean)[0] || "";
+}
+
 export function masterInitial(site) {
-  const name = String(site?.master?.name || site?.brand?.name || "T").trim();
+  const name = masterFirstName(site) || "T";
   return Array.from(name)[0]?.toUpperCase() || "T";
 }
 
 export function aboutPreset(site) {
   const mode = specialtyMode(site);
-  const name = String(site?.master?.name || "").trim();
+  const name = masterFirstName(site);
   const experience = site?.master?.experienceYears;
   const hasExperience = experience !== null && experience !== undefined && String(experience).trim() !== "";
   const experienceYears = String(experience ?? "").trim().replace(/\s*лет$/i, "").replace(/\+$/, "").trim();
