@@ -10,7 +10,8 @@ This repository is the single production template for individual masters. It is 
 
 ## Immutable visual policy
 - Base colors, typography, spacing, cards, responsive behavior and overall visual language come from the approved Hair master design.
-- Reference sites contribute only explicitly approved mechanics; their client data, photos, branding and unrelated blocks must never be copied.
+- Approved mechanics are taken only from `Shablon-Hair-Master`. Do not invent replacement mechanics when an approved Hair Master implementation already exists.
+- Client data, photos, branding and unrelated blocks from reference sites must never be copied.
 - Instagram links are never published.
 
 ## Specialty
@@ -41,8 +42,9 @@ Generic/unsupported specialties use verified client copy.
 - Portfolio is a permanent structural section on both mobile and desktop.
 - Missing client photos must not remove the Portfolio section or the hero link to it.
 - The approved CTA wording is `Смотреть все работы`.
-- If no photos are loaded yet, the template keeps neutral reserved portfolio slots and does not invent or download substitute client photos.
-- The full gallery opens only when real gallery items exist.
+- The gallery control is always active. With zero client photos it opens the approved Hair Master gallery shell with no photographs inside.
+- When the operator later uploads real client photos, the mobile and desktop gallery behavior remains the approved `Shablon-Hair-Master` behavior.
+- Never invent, generate or download substitute client photos.
 
 ## Services
 Every service uses one of the three approved Hair structures:
@@ -57,13 +59,33 @@ Categories:
 - Categories are dynamic and are never limited to four or five groups.
 
 Many services:
-- collapsed lists expose an automatic `Открыть ещё N услуг` count;
-- the count is derived from the actual hidden items for the active responsive layout;
-- no client-specific count is written by hand.
+- up to 7 services are shown immediately;
+- from the 8th service onward, show the first 7 and the automatic `Открыть ещё N услуг` control;
+- mobile and desktop use the same visible count and the same hidden count;
+- the count is derived from the actual hidden items, never written by hand.
+
+## About the master
+The standard copy is written in first person and is deterministic.
+
+Hair:
+- unknown experience lead: `Я <Имя> — эксперт по волосам.`
+- known experience lead: `Я <Имя> — эксперт по волосам со стажем более <N> лет.`
+- paragraph 1: `Специализируюсь на стрижках и окрашивании, blond и сложных техниках, уходе и реконструкции волос.`
+- paragraph 2: `Работаю с формой, цветом и состоянием волос, чтобы результат выглядел цельно и подходил именно вам.`
+- skills: `Стрижки и окрашивание`; `Blond и сложные техники`; `Уход и реконструкция волос`.
+
+Nails:
+- unknown experience lead: `Я <Имя> — эксперт по маникюру и педикюру.`
+- known experience lead: `Я <Имя> — эксперт по маникюру и педикюру со стажем более <N> лет.`
+- paragraph 1: `Выполняю маникюр и педикюр, наращивание и коррекцию ногтей.`
+- paragraph 2: `Работаю со стерильными инструментами и уделяю внимание аккуратности, форме и качеству результата.`
+- skills: `Маникюр и педикюр`; `Наращивание и коррекция`; `Стерильные инструменты`.
+
+The round monogram in About is mobile-only and always uses the first letter of the master's first name. Schedule, address and unrelated facts never enter the three skills.
 
 ## Experience
-- Known experience: show the approved experience stat/badge.
-- Unknown experience: never invent it; collapse hero stats to rating + service count and hide the empty experience badge.
+- Known experience: show the approved experience stat/badge and include it in the standard first-person About lead.
+- Unknown experience: never invent it; omit the experience phrase, collapse hero stats to rating + service count and hide the empty experience badge.
 
 ## Languages
 Russia:
@@ -90,8 +112,17 @@ Layout:
 - desktop language switch is visibly larger and sits immediately before the phone;
 - the phone remains the rightmost desktop contact element.
 
+## Reviews
+- Publish at most 9 verified reviews.
+- Review structure on mobile and desktop follows `Shablon-Hair-Master`.
+- Review text must be copied verbatim from the verified source. Never summarize, rewrite, shorten, correct or fabricate review wording.
+- If fewer than 9 verified reviews are available, publish only the verified reviews that exist.
+
 ## Booking and contact
 - The booking block always uses: `Запишитесь онлайн или свяжитесь любым удобным способом.`
+- Mobile booking/contact structure follows `Shablon-Hair-Master`.
+- A verified address is displayed below the mobile contact actions.
+- When the location action is the unpaired final action on mobile, it spans the full contact-grid width.
 - If a direct booking URL exists, generic booking CTAs open it.
 - If a service-specific URL exists, that service opens its own URL.
 - Otherwise the service inherits the direct booking URL when one exists.
