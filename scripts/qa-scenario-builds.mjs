@@ -136,7 +136,7 @@ const scenarios = [
       assert.match(html, /Стрижки, окрашивание, блонд, уход и укладки с вниманием к состоянию волос, оттенку и вашему образу\./);
       assert.match(html, /Смотреть все работы/);
       assert.match(html, /mct-work-placeholder/);
-      assert.match(html, /Открыть ещё<!-- --> <!-- -->3<!-- --> <!-- -->услуги|Открыть ещё 3 услуги/);
+      assert.match(html, /Открыть ещё<!-- --> <!-- -->2<!-- --> <!-- -->услуги|Открыть ещё 2 услуги/);
       assert.match(html, /Стрижки/);
       assert.match(html, /Окрашивание/);
       assert.match(html, /Уход/);
