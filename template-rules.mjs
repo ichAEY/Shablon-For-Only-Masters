@@ -257,9 +257,10 @@ export function clientTranslationKeys(site) {
   add(preset.copy);
   add(site?.master?.visitMotto);
   add(site?.master?.aboutTitle);
-  add(site?.master?.aboutLead);
-  for (const value of site?.master?.aboutParagraphs || []) add(value);
-  for (const value of site?.master?.skills || []) add(value);
+  const approvedAbout = aboutPreset(site);
+  add(approvedAbout.lead);
+  for (const value of approvedAbout.paragraphs || []) add(value);
+  for (const value of approvedAbout.skills || []) add(value);
 
   add(site?.location?.city);
   add(site?.location?.metro);
