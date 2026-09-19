@@ -13,6 +13,7 @@ import {
 
 const html = fs.readFileSync("out/index.html", "utf8");
 const css = fs.readFileSync("app/template.css", "utf8");
+const component = fs.readFileSync("app/master-template.tsx", "utf8");
 
 test("static export builds from the empty template", () => {
   assert.match(html, /site-root/);
@@ -119,12 +120,18 @@ test("approved About copy and skills are deterministic", () => {
     brand: { name: "" },
   };
   assert.equal(aboutPreset(nails).lead, "Я Наталья — эксперт по маникюру и педикюру со стажем более 14 лет.");
+  assert.equal(aboutPreset({ ...nails, master: { ...nails.master, experienceYears: "14+" } }).lead, "Я Наталья — эксперт по маникюру и педикюру со стажем более 14 лет.");
   assert.deepEqual(aboutPreset(nails).skills, [
     "Маникюр и педикюр",
     "Наращивание и коррекция",
     "Стерильные инструменты",
   ]);
   assert.equal(masterInitial(nails), "Н");
+});
+
+test("reviews are capped at nine and rendered without rewriting their text", () => {
+  assert.match(component, /site\.reviews as Review\[\]\)\.slice\(0, 9\)/);
+  assert.match(component, /<blockquote>«\{review\.text\}»<\/blockquote>/);
 });
 
 test("final CSS locks Nails to mobile and many categories to one horizontal ribbon", () => {
