@@ -111,15 +111,32 @@ const scenarios = [
       site.master.experienceAria = "8 лет опыта";
       site.links.bookingUrl = "https://booking.example/master";
       site.services.groups = [
-        { id: "cuts", label: "Стрижки", services: [service("Стрижка женская", { url: "https://booking.example/service/42" })] },
-        { id: "color", label: "Окрашивание", services: [service("Окрашивание тон в тон", { variants: [{ label: "Короткие волосы", price: "3 000 ₽", time: "90 мин" }, { label: "Длинные волосы", price: "5 000 ₽", time: "120 мин" }] })] },
-        { id: "care", label: "Уход", services: [service("Уход для волос", { description: "Описание процедуры" })] },
+        { id: "cuts", label: "Стрижки", services: [
+          service("Стрижка женская", { url: "https://booking.example/service/42" }),
+          service("Стрижка каскад"),
+          service("Стрижка челки"),
+        ] },
+        { id: "color", label: "Окрашивание", services: [
+          service("Окрашивание тон в тон", { variants: [{ label: "Короткие волосы", price: "3 000 ₽", time: "90 мин" }, { label: "Длинные волосы", price: "5 000 ₽", time: "120 мин" }] }),
+          service("Блонд"),
+          service("Airtouch"),
+        ] },
+        { id: "care", label: "Уход", services: [
+          service("Уход для волос", { description: "Описание процедуры" }),
+          service("Восстановление"),
+          service("Укладка"),
+        ] },
       ];
       return fillTranslations(site);
     })(),
     check(html) {
       assert.match(html, /mct-master-tools/);
       assert.doesNotMatch(html, /mct-palette-stage/);
+      assert.match(html, /эксперт по волосам/);
+      assert.match(html, /Стрижки, окрашивание, блонд, уход и укладки с вниманием к состоянию волос, оттенку и вашему образу\./);
+      assert.match(html, /Смотреть все работы/);
+      assert.match(html, /mct-work-placeholder/);
+      assert.match(html, /Открыть ещё<!-- --> <!-- -->3<!-- --> <!-- -->услуги|Открыть ещё 3 услуги/);
       assert.match(html, /Стрижки/);
       assert.match(html, /Окрашивание/);
       assert.match(html, /Уход/);
@@ -145,12 +162,16 @@ const scenarios = [
     check(html) {
       assert.match(html, /mct-palette-stage/);
       assert.doesNotMatch(html, /mct-master-tools/);
+      assert.match(html, /эксперт по маникюру и педикюру/);
+      assert.match(html, /Смотреть все работы/);
+      assert.match(html, /mct-work-placeholder/);
       assert.match(html, /is-two-stats/);
       assert.match(html, /mct-tabs mct-tabs-scroll is-two/);
       assert.doesNotMatch(html, /mct-tab-all/);
       assert.match(html, /href="#booking-options"/);
       assert.match(html, /tel:\+70000000000/);
       assert.doesNotMatch(html, /instagram\.com/i);
+      assert.ok(html.indexOf("mct-lang-switch is-desktop") < html.indexOf("dct-top-phone"));
     },
   },
   {

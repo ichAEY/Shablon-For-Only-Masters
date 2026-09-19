@@ -6,6 +6,7 @@ export const UI_TRANSLATION_KEYS = [
   "Портфолио",
   "Записаться онлайн",
   "Смотреть работы",
+  "Смотреть все работы",
   "Работы",
   "Открыть галерею",
   "Выберите услугу",
@@ -16,6 +17,9 @@ export const UI_TRANSLATION_KEYS = [
   "Продолжить",
   "Подробнее",
   "Открыть все услуги",
+  "Открыть ещё",
+  "услугу",
+  "услуг",
   "Свернуть услуги",
   "лет опыта",
   "рейтинг",
@@ -40,6 +44,10 @@ export const UI_TRANSLATION_KEYS = [
   "Открыть свободное время",
   "Запишитесь онлайн",
   "или свяжитесь любым удобным способом",
+  "Запишитесь онлайн или свяжитесь любым удобным способом.",
+  "эксперт по волосам",
+  "эксперт по маникюру и педикюру",
+  "Стрижки, окрашивание, блонд, уход и укладки с вниманием к состоянию волос, оттенку и вашему образу.",
   "Свяжитесь удобным способом",
   "Позвоните или напишите мастеру, чтобы согласовать услугу и время.",
   "Выберите свободное время онлайн. Если нужно уточнить услугу, свяжитесь с мастером напрямую.",
@@ -97,6 +105,38 @@ export function specialtyMode(site) {
   const specialty = String(site?.template?.specialty || "").toLowerCase();
   if (specialty === "hair" || specialty === "nails") return specialty;
   return "generic";
+}
+
+export function heroPreset(site) {
+  const mode = specialtyMode(site);
+  if (mode === "hair") {
+    return {
+      emphasis: "эксперт по волосам",
+      copy: "Стрижки, окрашивание, блонд, уход и укладки с вниманием к состоянию волос, оттенку и вашему образу.",
+    };
+  }
+  if (mode === "nails") {
+    return {
+      emphasis: "эксперт по маникюру и педикюру",
+      copy: String(site?.master?.heroCopy || "").trim(),
+    };
+  }
+  return {
+    emphasis: String(site?.master?.heroEmphasis || "").trim(),
+    copy: String(site?.master?.heroCopy || "").trim(),
+  };
+}
+
+export function collapsedServiceCounts(site) {
+  const groups = visibleServiceGroups(site);
+  const total = groups.reduce((sum, group) => sum + group.services.length, 0);
+  const mobileVisible = Math.min(total, 6);
+  const desktopVisible = groups.reduce((sum, group) => sum + Math.min(group.services.length, 2), 0);
+  return {
+    total,
+    mobileHidden: Math.max(total - mobileVisible, 0),
+    desktopHidden: Math.max(total - desktopVisible, 0),
+  };
 }
 
 export function hasLogo(site) {
@@ -160,6 +200,9 @@ export function clientTranslationKeys(site) {
   add(site?.master?.heroCaption);
   add(site?.master?.imageAlt);
   add(site?.master?.heroCopy);
+  const preset = heroPreset(site);
+  add(preset.emphasis);
+  add(preset.copy);
   add(site?.master?.visitMotto);
   add(site?.master?.aboutTitle);
   add(site?.master?.aboutLead);
