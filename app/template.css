@@ -12349,15 +12349,6 @@ html body .mct-map-wrap > a::after {
   border-radius: inherit;
   content: "";
 }
-.mct-gallery-button:disabled {
-  cursor: default !important;
-  opacity: .58 !important;
-  pointer-events: none !important;
-}
-.mct-gallery-button:disabled::after {
-  display: none !important;
-}
-
 /* The responsive service count uses the count that matches each layout. */
 .mct-more-services-desktop-copy {
   display: none;
@@ -12468,7 +12459,7 @@ html body .mct-map-wrap > a::after {
 
 /* Hair Master mobile contact grid: a lone location action fills the row; the verified address sits below the actions. */
 @media (max-width: 767px) {
-  .mct-final-contact-grid .mct-final-secondary.is-location {
+  .mct-final-contact-grid .mct-final-secondary.is-location.is-full-row {
     grid-column: 1 / -1 !important;
   }
   .mct-visit-address-mobile {
