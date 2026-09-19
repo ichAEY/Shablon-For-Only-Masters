@@ -12306,3 +12306,142 @@ html body .mct-map-wrap > a::after {
     font-size: 46px;
   }
 }
+
+
+/* TANEM master engine rules v2: mass-production invariants */
+
+/* Long text intro must stay centered and fit every client name. */
+.mct-intro-text-master {
+  display: block !important;
+  width: min(92vw, 760px) !important;
+  max-width: min(92vw, 760px) !important;
+  margin-inline: auto !important;
+  text-align: center !important;
+  white-space: normal !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  text-wrap: balance;
+}
+.mct-intro-text-master.is-long {
+  font-size: clamp(44px, 12vw, 70px) !important;
+  line-height: .94 !important;
+}
+.mct-intro-text-master.is-very-long {
+  font-size: clamp(36px, 10vw, 58px) !important;
+  line-height: .92 !important;
+}
+
+/* Portfolio is structural: missing client photos reserve the approved layout. */
+#mobile-portfolio .mct-work-grid.is-empty {
+  opacity: .72;
+}
+#mobile-portfolio .mct-work-placeholder {
+  cursor: default !important;
+  pointer-events: none !important;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.58), rgba(229,218,210,.86)),
+    #e8ddd6 !important;
+}
+#mobile-portfolio .mct-work-placeholder::after {
+  position: absolute;
+  inset: 18%;
+  border: 1px solid rgba(94,70,62,.08);
+  border-radius: inherit;
+  content: "";
+}
+.mct-gallery-button:disabled {
+  cursor: default !important;
+  opacity: .58 !important;
+  pointer-events: none !important;
+}
+.mct-gallery-button:disabled::after {
+  display: none !important;
+}
+
+/* The responsive service count uses the count that matches each layout. */
+.mct-more-services-desktop-copy {
+  display: none;
+}
+.mct-more-services-mobile-copy {
+  display: inline;
+}
+
+/* Nails palette is a mobile-only specialty decoration and keeps a stable gap to booking actions. */
+@media (max-width: 767px) {
+  .mct-hero-visual .mct-palette-stage {
+    --palette-cta-gap: clamp(18px, 2.4svh, 26px);
+    display: block !important;
+    inset: 0 0 var(--palette-cta-gap) 0 !important;
+  }
+}
+
+/* Desktop invariants: languages before phone, and 3+ categories never wrap into rows. */
+@media (min-width: 768px) {
+  .mct-palette-stage {
+    display: none !important;
+  }
+
+  .dct-top-actions .mct-lang-switch.is-desktop {
+    order: 1 !important;
+    display: inline-flex !important;
+    margin: 0 18px 0 0 !important;
+  }
+  .dct-top-actions .dct-top-phone {
+    order: 2 !important;
+    margin-left: 0 !important;
+  }
+  .dct-top-actions .mct-lang-switch.is-desktop button {
+    min-width: 42px !important;
+    height: 52px !important;
+    padding: 0 4px !important;
+    font-size: 20px !important;
+    font-weight: 650 !important;
+    letter-spacing: .02em !important;
+  }
+  .dct-top-actions .mct-lang-switch.is-desktop .mct-lang-sep {
+    font-size: 15px !important;
+  }
+
+  .mct-tabs-ribbon-wrap.is-many .mct-tabs.is-many {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    overscroll-behavior-x: contain !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mct-tabs-ribbon-wrap.is-many .mct-tabs.is-many::-webkit-scrollbar {
+    display: none !important;
+  }
+  .mct-tabs-ribbon-wrap.is-many .mct-tabs-track {
+    display: flex !important;
+    width: max-content !important;
+    min-width: 100% !important;
+    grid-template-columns: none !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+  }
+  .mct-tabs-ribbon-wrap.is-many .mct-tab,
+  .mct-tabs-ribbon-wrap.is-many .mct-tab-all {
+    display: inline-flex !important;
+    width: auto !important;
+    min-width: max-content !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+
+  .mct-more-services-mobile-copy {
+    display: none !important;
+  }
+  .mct-more-services-desktop-copy {
+    display: inline !important;
+  }
+
+  .mct-intro-text-master.is-long {
+    font-size: clamp(52px, 5.4vw, 76px) !important;
+  }
+  .mct-intro-text-master.is-very-long {
+    font-size: clamp(44px, 4.8vw, 66px) !important;
+  }
+}
