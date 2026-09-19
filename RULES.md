@@ -54,7 +54,7 @@ Every service uses one of the three approved Hair structures:
 
 Categories:
 - 1 visible category: no category switcher.
-- exactly 2: two-button Nonna/Nails switcher; no synthetic `Все` tab.
+- exactly 2: two-button mode using the approved Hair Master tab mechanics; no synthetic `Все` tab.
 - 3 or more: one Hair-style horizontal ribbon including `Все`; it never wraps to a second row. Overflow continues horizontally and is scrollable.
 - Categories are dynamic and are never limited to four or five groups.
 
@@ -65,7 +65,7 @@ Many services:
 - the count is derived from the actual hidden items, never written by hand.
 
 ## About the master
-The standard copy is written in first person and is deterministic.
+The standard copy is written in first person and is deterministic. Only the master's first name is inserted into this standard lead.
 
 Hair:
 - unknown experience lead: `Я <Имя> — эксперт по волосам.`
@@ -113,9 +113,9 @@ Layout:
 - the phone remains the rightmost desktop contact element.
 
 ## Reviews
-- Publish at most 9 verified reviews.
+- Publish at most 9 verified reviews from Yandex Maps.
 - Review structure on mobile and desktop follows `Shablon-Hair-Master`.
-- Review text must be copied verbatim from the verified source. Never summarize, rewrite, shorten, correct or fabricate review wording.
+- Review text must be copied verbatim from Yandex Maps. Never summarize, rewrite, shorten, correct or fabricate review wording.
 - If fewer than 9 verified reviews are available, publish only the verified reviews that exist.
 
 ## Booking and contact
