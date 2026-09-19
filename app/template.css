@@ -12513,7 +12513,12 @@ html body .mct-map-wrap > a::after {
   }
 
   .mct-visit-booking-mobile-julia .mct-visit-booking-top .mct-open-status {
+    display: inline-flex !important;
+    min-height: 28.35px !important;
+    padding-inline: 12.96px !important;
     margin-top: 0 !important;
+    font-size: 9.4px !important;
+    font-weight: 650 !important;
   }
 
   .mct-visit-booking-mobile-julia h3 {
@@ -12544,7 +12549,7 @@ html body .mct-map-wrap > a::after {
   }
 
   .mct-visit-booking-mobile-julia .mct-final-cta {
-    width: min(100%, 280px) !important;
+    width: 100% !important;
     min-width: 0 !important;
     min-height: 50px !important;
     align-self: flex-start !important;
@@ -12651,8 +12656,8 @@ html body .mct-map-wrap > a::after {
   .mct-visit-details-mobile-julia {
     display: block !important;
     min-height: 0 !important;
-    margin-top: 19px !important;
-    padding-top: 17px !important;
+    margin-top: 24px !important;
+    padding-top: 20px !important;
     border-top: 1px solid rgba(255, 255, 255, .12) !important;
   }
 
@@ -12668,6 +12673,11 @@ html body .mct-map-wrap > a::after {
     color: rgba(249, 243, 238, .58) !important;
     font: 500 9px/1.4 "Manrope", Arial, sans-serif !important;
     letter-spacing: .02em !important;
+  }
+
+  .mct-visit-details-mobile-julia .mct-visit-address-link {
+    color: #fff8f3 !important;
+    text-decoration: none !important;
   }
 
   html body .mct-visit-details-mobile-julia .mct-map-wrap {

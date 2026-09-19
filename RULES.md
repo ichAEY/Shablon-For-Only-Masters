@@ -120,8 +120,12 @@ Layout:
 
 ## Booking and contact
 - The booking block always uses: `Запишитесь онлайн или свяжитесь любым удобным способом.`
-- Mobile booking/contact structure follows `Shablon-Hair-Master`.
-- A verified address is displayed below the mobile contact actions.
+- Mobile booking/contact structure is frozen to the approved `TAN-0074` mobile `Запись и связь` block.
+- Desktop booking/contact remains unchanged unless separately approved.
+- The primary mobile booking CTA spans the full available action width.
+- The live `Открыто / Закрыто` badge is shown at the right of `Запись и связь` and recalculates from the client's configured timezone and schedule data.
+- A verified address is displayed below the mobile contact actions as normal clickable text, not as a large route card.
+- The address link uses the configured route/map URL; the provider must come from verified client/source data rather than being invented.
 - When the location action is the unpaired final action on mobile, it spans the full contact-grid width.
 - If a direct booking URL exists, generic booking CTAs open it.
 - If a service-specific URL exists, that service opens its own URL.
