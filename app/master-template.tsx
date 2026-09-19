@@ -59,6 +59,7 @@ const siteSpecialtyMode = specialtyMode(site);
 const siteHeroPreset = heroPreset(site);
 const languages = normalizedLocales(site) as LocaleOption[];
 const bookingContacts = contactOptions(site);
+const locationFillsContactRow = Boolean(mapUrl && bookingContacts.length % 2 === 0);
 
 const beforeAfter = site.images.beforeAfter as unknown[];
 const galleryWorks = site.images.gallery as GalleryItem[];
@@ -1587,7 +1588,7 @@ export default function MasterTemplate() {
                   </a>
                 ))}
                 {mapUrl ? (
-                  <a className="mct-final-secondary is-location" href={mapUrl} target="_blank" rel="noopener noreferrer">
+                  <a className={`mct-final-secondary is-location${locationFillsContactRow ? " is-full-row" : ""}`} href={mapUrl} target="_blank" rel="noopener noreferrer">
                     <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span>
                     <span className="mct-contact-copy"><strong className="mct-mobile-location-title">{translatedText("Яндекс Карты")}</strong><strong className="dct-location-title">{translatedText("Локация")}</strong><small className="mct-mobile-location-copy">{translatedText("Адрес и маршрут")}</small><small className="dct-location-copy">{translatedText(site.location.city)},<br />{translatedText(site.location.mapCardAddress)}</small></span><i className="mct-link-arrow" aria-hidden="true" />
                   </a>
