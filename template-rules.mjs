@@ -151,7 +151,8 @@ export function aboutPreset(site) {
   const name = String(site?.master?.name || "").trim();
   const experience = site?.master?.experienceYears;
   const hasExperience = experience !== null && experience !== undefined && String(experience).trim() !== "";
-  const experienceCopy = hasExperience ? ` со стажем более ${String(experience).trim()} лет` : "";
+  const experienceYears = String(experience ?? "").trim().replace(/\s*лет$/i, "").replace(/\+$/, "").trim();
+  const experienceCopy = hasExperience && experienceYears ? ` со стажем более ${experienceYears} лет` : "";
 
   if (mode === "hair") {
     return {
