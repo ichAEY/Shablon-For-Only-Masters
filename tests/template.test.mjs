@@ -97,7 +97,7 @@ test("hidden service counts are computed from the responsive layouts", () => {
 test("approved About copy and skills are deterministic", () => {
   const hair = {
     template: { specialty: "hair" },
-    master: { name: "Ксения", experienceYears: null },
+    master: { name: "Ксения Шаповалова", experienceYears: null },
     brand: { name: "" },
   };
   assert.deepEqual(aboutPreset(hair), {
@@ -132,6 +132,14 @@ test("approved About copy and skills are deterministic", () => {
 test("reviews are capped at nine and rendered without rewriting their text", () => {
   assert.match(component, /site\.reviews as Review\[\]\)\.slice\(0, 9\)/);
   assert.match(component, /<blockquote>«\{review\.text\}»<\/blockquote>/);
+});
+
+test("approved gallery and service limits cannot regress", () => {
+  assert.match(component, /\{galleryOpen && \(/);
+  assert.doesNotMatch(component, /galleryOpen && galleryWorks\.length > 0/);
+  assert.doesNotMatch(component, /group\.services\.slice\(0,\s*2\)/);
+  assert.match(css, /nth-child\(n \+ 8\)/);
+  assert.match(component, /locationFillsContactRow/);
 });
 
 test("final CSS locks Nails to mobile and many categories to one horizontal ribbon", () => {
