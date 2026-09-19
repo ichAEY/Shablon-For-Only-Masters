@@ -2,6 +2,12 @@
 
 Verified before integration on 2026-09-19.
 
+## Current mechanics rule
+
+For all new changes and refinements after this point, `ichAEY/Shablon-Hair-Master` is the only approved mechanics reference. Do not copy or invent mechanics from Nina, ClayTone, Esmeralda or other client repositories.
+
+The older sections below are retained only as historical provenance for mechanics that were already integrated and tested before this rule was approved. They are not sources for future changes.
+
 ## Base design + service structures + Hair mobile decoration
 Repository: `ichAEY/Shablon-Hair-Master`
 Verified commit: `d9ce7e2cd6fa16ad900fce2568b584cbc5a84481`
