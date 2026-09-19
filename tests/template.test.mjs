@@ -149,3 +149,12 @@ test("final CSS locks Nails to mobile and many categories to one horizontal ribb
   assert.match(css, /\.mct-tabs-ribbon-wrap\.is-many \.mct-tabs-track[\s\S]*?display: flex !important[\s\S]*?flex-wrap: nowrap !important/);
   assert.match(css, /\.dct-top-actions \.mct-lang-switch\.is-desktop button[\s\S]*?font-size: 20px !important/);
 });
+
+test("Julia booking structure replaces only the mobile block", () => {
+  assert.match(component, /mct-visit-booking-desktop-current/);
+  assert.match(component, /mct-visit-booking-mobile-julia/);
+  assert.match(component, /Запишитесь онлайн"\)}<br \/><em>/);
+  assert.match(component, /mct-visit-details-mobile-julia/);
+  assert.match(css, /\.mct-visit-booking-mobile-julia,[\s\S]*?display: none !important/);
+  assert.match(css, /@media \(max-width: 767px\)[\s\S]*?\.mct-visit-booking-desktop-current[\s\S]*?display: none !important[\s\S]*?\.mct-visit-booking-mobile-julia[\s\S]*?display: block !important/);
+});

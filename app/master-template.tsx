@@ -219,6 +219,7 @@ export default function MasterTemplate() {
     "Локация": "Location",
     "Яндекс Карты": "Yandex Maps",
     "Адрес и маршрут": "Address & route",
+    "Построить маршрут": "Build route",
     "Выбрать время онлайн": "Choose a time online",
     "Как вам удобнее записаться?": "How would you like to book?",
     "Выберите удобный способ связи": "Choose a convenient contact method",
@@ -1564,7 +1565,7 @@ export default function MasterTemplate() {
 
       <section className="mct-visit mct-reveal" id="mobile-location" ref={finalBookRef} style={{ "--dct-visit-image": `url(${site.images.about})` } as CSSProperties}>
         <div className="mct-shell">
-          <div className="mct-visit-booking" id="mobile-booking">
+          <div className="mct-visit-booking mct-visit-booking-desktop-current" id="mobile-booking">
             <div className="mct-visit-booking-top">
               <p className="mct-section-kicker">{translatedText("Запись и связь")}</p>
               {site.location.scheduleCapitalized ? (
@@ -1612,6 +1613,62 @@ export default function MasterTemplate() {
               ) : null}
             </div>
           </div>
+
+          <div className="mct-visit-booking mct-visit-booking-mobile-julia">
+            <div className="mct-visit-booking-top">
+              <p className="mct-section-kicker">{translatedText("Запись и связь")}</p>
+              {site.location.scheduleCapitalized ? (
+                <span className={`mct-open-status${openStatus.isOpen === true ? " is-open" : openStatus.isOpen === false ? " is-closed" : ""}`}>
+                  <i aria-hidden="true" />
+                  {openStatus.isOpen === true
+                    ? `${translatedText("Открыто до")} ${site.location.closeTime}`
+                    : openStatus.isOpen === false
+                      ? `${translatedText("Закрыто до")} ${site.location.openTime}`
+                      : translatedText(site.location.scheduleCapitalized)}
+                </span>
+              ) : null}
+            </div>
+            <h3>{translatedText("Запишитесь онлайн")}<br /><em>{translatedText("или свяжитесь любым удобным способом")}</em></h3>
+            <p>{siteBookingMode === "direct"
+              ? translatedText("Выберите свободное время онлайн. Если нужно уточнить услугу, свяжитесь с мастером напрямую.")
+              : translatedText("Позвоните или напишите мастеру, чтобы согласовать услугу и время.")}</p>
+            <div className="mct-visit-actions">
+              <a className="mct-final-cta" href={bookingHref} target={siteBookingMode === "direct" ? "_blank" : undefined} rel={siteBookingMode === "direct" ? "noopener noreferrer" : undefined} onClick={handleBookingClick}><span>{siteBookingMode === "direct" ? translatedText("Выбрать время онлайн") : translatedText("Записаться онлайн")}</span><i className="mct-link-arrow" aria-hidden="true" /></a>
+              <div className="mct-final-contact-grid" aria-label={`Способы связи с ${site.master.instrumental}`}>
+                {bookingContacts.map((item) => (
+                  <a className="mct-final-secondary" href={item.url} target={item.kind === "phone" ? undefined : "_blank"} rel={item.kind === "phone" ? undefined : "noopener noreferrer"} key={`mobile-julia-${item.kind}-${item.url}`}>
+                    <span className="mct-contact-icon" aria-hidden="true">
+                      {item.kind === "phone"
+                        ? <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>
+                        : <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>}
+                    </span>
+                    <span className="mct-contact-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? `${locale === "ru" ? site.master.dative : site.master.name} · ${site.contacts.phoneDisplay}` : `${translatedText("Написать")} ${locale === "ru" ? site.master.dative : site.master.name}`}</small></span><i className="mct-link-arrow" aria-hidden="true" />
+                  </a>
+                ))}
+                {mapUrl ? (
+                  <a className={`mct-final-secondary is-location${locationFillsContactRow ? " is-full-row" : ""}`} href={mapUrl} target="_blank" rel="noopener noreferrer">
+                    <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span>
+                    <span className="mct-contact-copy"><strong>{translatedText("Яндекс Карты")}</strong><small>{translatedText("Адрес и маршрут")}</small></span><i className="mct-link-arrow" aria-hidden="true" />
+                  </a>
+                ) : null}
+              </div>
+            </div>
+          </div>
+
+          {site.location.address ? (
+            <div className="mct-visit-details mct-visit-details-mobile-julia">
+              <p className="mct-visit-address">{translatedText(site.location.address)}{site.location.schedule ? <span>{translatedText(site.location.schedule)}</span> : null}</p>
+              {(routeUrl || mapUrl) ? (
+                <div className="mct-map-wrap">
+                  {mobileMapEmbedUrl && mobileMapEmbedUrl !== "about:blank" ? <iframe className="mct-map-mobile" src={mobileMapEmbedUrl} title={`${site.master.name} на Яндекс Картах`} loading="lazy" allowFullScreen /> : null}
+                  <a className="mct-mobile-route-card" href={routeUrl || mapUrl} target="_blank" rel="noopener noreferrer" aria-label={`Построить маршрут к ${site.master.dative} в Яндекс Картах`}>
+                    <span className="mct-mobile-route-icon" aria-hidden="true">⌖</span>
+                    <span className="mct-mobile-route-copy"><strong>{translatedText(site.location.address)}</strong><small>{translatedText("Построить маршрут")} →</small></span>
+                  </a>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
         </div>
       </section>
