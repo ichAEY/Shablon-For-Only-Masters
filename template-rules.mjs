@@ -127,15 +127,67 @@ export function heroPreset(site) {
   };
 }
 
+export const SERVICE_PREVIEW_LIMIT = 7;
+
 export function collapsedServiceCounts(site) {
   const groups = visibleServiceGroups(site);
   const total = groups.reduce((sum, group) => sum + group.services.length, 0);
-  const mobileVisible = Math.min(total, 6);
-  const desktopVisible = groups.reduce((sum, group) => sum + Math.min(group.services.length, 2), 0);
+  const visible = Math.min(total, SERVICE_PREVIEW_LIMIT);
+  const hidden = Math.max(total - visible, 0);
   return {
     total,
-    mobileHidden: Math.max(total - mobileVisible, 0),
-    desktopHidden: Math.max(total - desktopVisible, 0),
+    mobileHidden: hidden,
+    desktopHidden: hidden,
+  };
+}
+
+export function masterInitial(site) {
+  const name = String(site?.master?.name || site?.brand?.name || "T").trim();
+  return Array.from(name)[0]?.toUpperCase() || "T";
+}
+
+export function aboutPreset(site) {
+  const mode = specialtyMode(site);
+  const name = String(site?.master?.name || "").trim();
+  const experience = site?.master?.experienceYears;
+  const hasExperience = experience !== null && experience !== undefined && String(experience).trim() !== "";
+  const experienceYears = String(experience ?? "").trim().replace(/\s*лет$/i, "").replace(/\+$/, "").trim();
+  const experienceCopy = hasExperience && experienceYears ? ` со стажем более ${experienceYears} лет` : "";
+
+  if (mode === "hair") {
+    return {
+      lead: `Я ${name} — эксперт по волосам${experienceCopy}.`,
+      paragraphs: [
+        "Специализируюсь на стрижках и окрашивании, blond и сложных техниках, уходе и реконструкции волос.",
+        "Работаю с формой, цветом и состоянием волос, чтобы результат выглядел цельно и подходил именно вам.",
+      ],
+      skills: [
+        "Стрижки и окрашивание",
+        "Blond и сложные техники",
+        "Уход и реконструкция волос",
+      ],
+    };
+  }
+
+  if (mode === "nails") {
+    return {
+      lead: `Я ${name} — эксперт по маникюру и педикюру${experienceCopy}.`,
+      paragraphs: [
+        "Выполняю маникюр и педикюр, наращивание и коррекцию ногтей.",
+        "Работаю со стерильными инструментами и уделяю внимание аккуратности, форме и качеству результата.",
+      ],
+      skills: [
+        "Маникюр и педикюр",
+        "Наращивание и коррекция",
+        "Стерильные инструменты",
+      ],
+    };
+  }
+
+  return {
+    lead: String(site?.master?.aboutLead || "").trim(),
+    paragraphs: Array.isArray(site?.master?.aboutParagraphs) ? site.master.aboutParagraphs : [],
+    skills: Array.isArray(site?.master?.skills) ? site.master.skills : [],
   };
 }
 
@@ -205,9 +257,10 @@ export function clientTranslationKeys(site) {
   add(preset.copy);
   add(site?.master?.visitMotto);
   add(site?.master?.aboutTitle);
-  add(site?.master?.aboutLead);
-  for (const value of site?.master?.aboutParagraphs || []) add(value);
-  for (const value of site?.master?.skills || []) add(value);
+  const approvedAbout = aboutPreset(site);
+  add(approvedAbout.lead);
+  for (const value of approvedAbout.paragraphs || []) add(value);
+  for (const value of approvedAbout.skills || []) add(value);
 
   add(site?.location?.city);
   add(site?.location?.metro);

@@ -4,15 +4,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, MouseEvent as ReactMouseEvent, TouchEvent as ReactTouchEvent } from "react";
 import site from "../site-data.mjs";
 import {
+  aboutPreset,
   bookingMode,
   categoryMode,
-  collapsedServiceCounts,
   chooseInitialLocale,
   contactOptions,
   experienceMode,
   hasLogo,
   heroPreset,
+  masterInitial,
   normalizedLocales,
+  SERVICE_PREVIEW_LIMIT,
   serviceBookingUrl,
   specialtyMode,
   visibleServiceGroups,
@@ -55,7 +57,6 @@ const siteBookingMode = bookingMode(site);
 const siteExperienceMode = experienceMode(site);
 const siteSpecialtyMode = specialtyMode(site);
 const siteHeroPreset = heroPreset(site);
-const serviceCollapse = collapsedServiceCounts(site);
 const languages = normalizedLocales(site) as LocaleOption[];
 const bookingContacts = contactOptions(site);
 
@@ -65,11 +66,13 @@ const desktopGalleryModules = [galleryWorks.slice(0, 4), galleryWorks.slice(4, 8
 const desktopGallerySetCount = 3;
 const featuredWorks = galleryWorks.slice(0, 7);
 const lightboxItems = [...galleryWorks];
-const reviews = site.reviews as Review[];
+const reviews = (site.reviews as Review[]).slice(0, 9);
 const reviewSetCount = 5;
 const promotions = site.promotions as unknown[];
-const aboutParagraphs = site.master.aboutParagraphs as string[];
-const skills = site.master.skills as string[];
+const approvedAbout = aboutPreset(site);
+const aboutParagraphs = approvedAbout.paragraphs as string[];
+const skills = approvedAbout.skills as string[];
+const approvedMasterInitial = masterInitial(site);
 const amenities = site.amenities as Amenity[];
 
 const toMinutes = (value: string) => {
@@ -154,8 +157,21 @@ export default function MasterTemplate() {
     category === "all"
       ? allServices
       : (activeGroup?.services || []).map((service) => ({ ...service, sectionKey: activeGroup?.id }));
-  const isCollapsibleCategory = category === "all" && serviceCategoryMode === "many";
+  const isCollapsibleCategory = services.length > SERVICE_PREVIEW_LIMIT;
+  const hiddenServiceCount = Math.max(services.length - SERVICE_PREVIEW_LIMIT, 0);
   const visibleServices = useMemo(() => services, [services]);
+  const desktopServiceGroups = (() => {
+    const groups = category === "all" ? serviceGroups : serviceGroups.filter((group) => group.id === category);
+    if (expanded || hiddenServiceCount === 0) return groups;
+    let remaining = SERVICE_PREVIEW_LIMIT;
+    return groups
+      .map((group) => {
+        const groupServices = group.services.slice(0, Math.max(remaining, 0));
+        remaining -= groupServices.length;
+        return { ...group, services: groupServices };
+      })
+      .filter((group) => group.services.length > 0);
+  })();
   const introText = String(site.brand.name || site.master.name || "TANEM").trim();
   const introTextLengthClass = introText.length > 28 ? " is-very-long" : introText.length > 18 ? " is-long" : "";
   const serviceCountNoun = (count: number) => {
@@ -1225,7 +1241,7 @@ export default function MasterTemplate() {
               </div>
             </div>
           </div>
-          <button className="mct-gallery-button" type="button" disabled={galleryWorks.length === 0} aria-disabled={galleryWorks.length === 0} onClick={() => { if (galleryWorks.length > 0) setGalleryOpen(true); }}><span>{translatedText("Смотреть все работы")}</span><span aria-hidden="true">→</span></button>
+          <button className="mct-gallery-button" type="button" onClick={() => setGalleryOpen(true)}><span>{translatedText("Смотреть все работы")}</span><span aria-hidden="true">→</span></button>
         </div>
       </section>
 
@@ -1321,8 +1337,8 @@ export default function MasterTemplate() {
             })}
           </div>
           <div className="dct-service-groups" aria-label="Услуги по категориям на компьютере">
-            {(category === "all" ? serviceGroups : serviceGroups.filter((group) => group.id === category)).map((group) => {
-              const groupServices = category === "all" && !expanded ? group.services.slice(0, 2) : group.services;
+            {desktopServiceGroups.map((group) => {
+              const groupServices = group.services;
               if (!groupServices.length) return null;
 
               return (
@@ -1400,12 +1416,12 @@ export default function MasterTemplate() {
               );
             })}
           </div>
-          {isCollapsibleCategory && (serviceCollapse.mobileHidden > 0 || serviceCollapse.desktopHidden > 0) && (
+          {isCollapsibleCategory && hiddenServiceCount > 0 && (
             <button className={`mct-more-services${expanded ? " is-open" : ""}`} type="button" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>
               {expanded ? translatedText("Свернуть услуги") : (
                 <>
-                  <span className="mct-more-services-mobile-copy">{translatedText("Открыть ещё")} {serviceCollapse.mobileHidden} {serviceCountNoun(serviceCollapse.mobileHidden)}</span>
-                  <span className="mct-more-services-desktop-copy">{translatedText("Открыть ещё")} {serviceCollapse.desktopHidden} {serviceCountNoun(serviceCollapse.desktopHidden)}</span>
+                  <span className="mct-more-services-mobile-copy">{translatedText("Открыть ещё")} {hiddenServiceCount} {serviceCountNoun(hiddenServiceCount)}</span>
+                  <span className="mct-more-services-desktop-copy">{translatedText("Открыть ещё")} {hiddenServiceCount} {serviceCountNoun(hiddenServiceCount)}</span>
                 </>
               )}
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -1418,7 +1434,7 @@ export default function MasterTemplate() {
         <div className="mct-shell">
           <div className="mct-about-head">
             <div><p className="mct-section-kicker">{translatedText("О мастере")}</p><h2>{translatedText(site.master.aboutTitle)}</h2></div>
-            <span className="mct-about-monogram" aria-hidden="true">{site.master.monogram}</span>
+            <span className="mct-about-monogram" aria-hidden="true">{approvedMasterInitial}</span>
           </div>
           <div className="mct-about-card">
             <div className="mct-about-portrait-wrap">
@@ -1433,7 +1449,7 @@ export default function MasterTemplate() {
               ) : null}
             </div>
             <div className="mct-about-copy">
-              <p className="mct-about-lead">{translatedText(site.master.aboutLead)}</p>
+              <p className="mct-about-lead">{translatedText(approvedAbout.lead)}</p>
               <p>{translatedText(aboutParagraphs[0] || "")}</p>
               <p>{translatedText(aboutParagraphs[1] || "")}</p>
               {aboutParagraphs[2] && <p className="dct-about-extra-copy">{translatedText(aboutParagraphs[2])}</p>}
@@ -1571,12 +1587,18 @@ export default function MasterTemplate() {
                   </a>
                 ))}
                 {mapUrl ? (
-                  <a className="mct-final-secondary" href={mapUrl} target="_blank" rel="noopener noreferrer">
+                  <a className="mct-final-secondary is-location" href={mapUrl} target="_blank" rel="noopener noreferrer">
                     <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span>
                     <span className="mct-contact-copy"><strong className="mct-mobile-location-title">{translatedText("Яндекс Карты")}</strong><strong className="dct-location-title">{translatedText("Локация")}</strong><small className="mct-mobile-location-copy">{translatedText("Адрес и маршрут")}</small><small className="dct-location-copy">{translatedText(site.location.city)},<br />{translatedText(site.location.mapCardAddress)}</small></span><i className="mct-link-arrow" aria-hidden="true" />
                   </a>
                 ) : null}
               </div>
+              {site.location.address ? (
+                <p className="mct-visit-address mct-visit-address-mobile">
+                  {translatedText(site.location.address)}
+                  {site.location.schedule ? <span>{translatedText(site.location.schedule)}</span> : null}
+                </p>
+              ) : null}
             </div>
           </div>
 
@@ -1612,7 +1634,7 @@ export default function MasterTemplate() {
         </div>
       </div>
 
-      {galleryOpen && galleryWorks.length > 0 && (
+      {galleryOpen && (
         <div className="mct-gallery-overlay" role="dialog" aria-modal="true" aria-label={`Галерея ${site.master.genitive}`}>
           <div className="mct-gallery-top"><strong>{translatedText("Галерея")}</strong><button className="mct-gallery-close" type="button" onClick={() => setGalleryOpen(false)} aria-label={translatedText("Закрыть галерею")}>×</button></div>
           <div className="mct-gallery-content">

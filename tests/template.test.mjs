@@ -3,13 +3,17 @@ import fs from "node:fs";
 import test from "node:test";
 import site from "../site-data.mjs";
 import {
+  aboutPreset,
   categoryMode,
   collapsedServiceCounts,
   heroPreset,
+  masterInitial,
+  SERVICE_PREVIEW_LIMIT,
 } from "../template-rules.mjs";
 
 const html = fs.readFileSync("out/index.html", "utf8");
 const css = fs.readFileSync("app/template.css", "utf8");
+const component = fs.readFileSync("app/master-template.tsx", "utf8");
 
 test("static export builds from the empty template", () => {
   assert.match(html, /site-root/);
@@ -29,10 +33,11 @@ test("the clean template uses one canonical stylesheet and runtime", () => {
   assert.ok(fs.existsSync("public/template-runtime.js"));
 });
 
-test("portfolio remains structural without client photos", () => {
+test("portfolio and full gallery remain structural without client photos", () => {
   assert.match(html, /id="mobile-portfolio"/);
   assert.match(html, /Смотреть все работы/);
   assert.match(html, /mct-work-placeholder/);
+  assert.doesNotMatch(html, /disabled=""[^>]*Смотреть все работы/);
 });
 
 test("specialty hero copy is deterministic", () => {
@@ -80,11 +85,53 @@ test("hidden service counts are computed from the responsive layouts", () => {
       ],
     },
   };
+  assert.equal(SERVICE_PREVIEW_LIMIT, 7);
   assert.deepEqual(collapsedServiceCounts(testSite), {
     total: 9,
-    mobileHidden: 3,
-    desktopHidden: 3,
+    mobileHidden: 2,
+    desktopHidden: 2,
   });
+});
+
+
+test("approved About copy and skills are deterministic", () => {
+  const hair = {
+    template: { specialty: "hair" },
+    master: { name: "Ксения", experienceYears: null },
+    brand: { name: "" },
+  };
+  assert.deepEqual(aboutPreset(hair), {
+    lead: "Я Ксения — эксперт по волосам.",
+    paragraphs: [
+      "Специализируюсь на стрижках и окрашивании, blond и сложных техниках, уходе и реконструкции волос.",
+      "Работаю с формой, цветом и состоянием волос, чтобы результат выглядел цельно и подходил именно вам.",
+    ],
+    skills: [
+      "Стрижки и окрашивание",
+      "Blond и сложные техники",
+      "Уход и реконструкция волос",
+    ],
+  });
+  assert.equal(masterInitial(hair), "К");
+
+  const nails = {
+    template: { specialty: "nails" },
+    master: { name: "Наталья", experienceYears: "14" },
+    brand: { name: "" },
+  };
+  assert.equal(aboutPreset(nails).lead, "Я Наталья — эксперт по маникюру и педикюру со стажем более 14 лет.");
+  assert.equal(aboutPreset({ ...nails, master: { ...nails.master, experienceYears: "14+" } }).lead, "Я Наталья — эксперт по маникюру и педикюру со стажем более 14 лет.");
+  assert.deepEqual(aboutPreset(nails).skills, [
+    "Маникюр и педикюр",
+    "Наращивание и коррекция",
+    "Стерильные инструменты",
+  ]);
+  assert.equal(masterInitial(nails), "Н");
+});
+
+test("reviews are capped at nine and rendered without rewriting their text", () => {
+  assert.match(component, /site\.reviews as Review\[\]\)\.slice\(0, 9\)/);
+  assert.match(component, /<blockquote>«\{review\.text\}»<\/blockquote>/);
 });
 
 test("final CSS locks Nails to mobile and many categories to one horizontal ribbon", () => {
