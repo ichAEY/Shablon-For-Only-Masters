@@ -29,6 +29,15 @@ for (const [label, value] of arrays) {
   if (!Array.isArray(value)) fail(`${label} must be an array`);
 }
 
+if (site.reviews.length > 9) fail("publish at most 9 verified reviews");
+for (const [index, review] of site.reviews.entries()) {
+  if (!String(review?.author || "").trim()) fail(`review ${index + 1} must have the verified author`);
+  if (!String(review?.text || "").trim()) fail(`review ${index + 1} must have the verbatim source text`);
+}
+if (site.reviews.length > 0 && !String(site.template?.reviewSource || "").trim()) {
+  fail("published reviews must identify their verified source");
+}
+
 const groups = visibleServiceGroups(site);
 const groupIds = groups.map((group) => group.id);
 if (new Set(groupIds).size !== groupIds.length) fail("service group ids must be unique");
