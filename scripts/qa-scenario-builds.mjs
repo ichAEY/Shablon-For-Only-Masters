@@ -134,6 +134,7 @@ const scenarios = [
       assert.doesNotMatch(html, /mct-palette-stage/);
       assert.match(html, /эксперт по волосам/);
       assert.match(html, /Стрижки, окрашивание, блонд, уход и укладки с вниманием к состоянию волос, оттенку и вашему образу\./);
+      assert.match(html, /Я Тест — эксперт по волосам со стажем более 8 лет\./);
       assert.match(html, /Смотреть все работы/);
       assert.match(html, /mct-work-placeholder/);
       assert.match(html, /Открыть ещё<!-- --> <!-- -->2<!-- --> <!-- -->услуги|Открыть ещё 2 услуги/);
@@ -185,6 +186,7 @@ const scenarios = [
       site.contacts.phoneDisplay = "+374 00 000000";
       site.contacts.phoneHref = "tel:+37400000000";
       site.contacts.messenger = { type: "telegram", label: "Telegram", url: "https://t.me/tanem_test" };
+      site.links.mapUrl = "https://yandex.example/maps/master";
       site.services.groups = [{ id: "hair", label: "Волосы", services: [service("Стрижка")] }];
       site.i18n.localLocale = "hy";
       site.i18n.locales = [{ code: "hy", label: "HY" }, { code: "ru", label: "RU" }, { code: "en", label: "EN" }];
@@ -198,6 +200,8 @@ const scenarios = [
       assert.match(html, /HY:Портфолио/);
       assert.doesNotMatch(html, /role="tablist"/);
       assert.match(html, /https:\/\/t\.me\/tanem_test/);
+      assert.match(html, /is-location is-full-row/);
+      assert.match(html, /Тестовый адрес/);
       assert.match(html, /href="#booking-options"/);
     },
   },
