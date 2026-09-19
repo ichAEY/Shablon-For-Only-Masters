@@ -147,6 +147,13 @@ Layout:
 - Never invent a booking URL, phone or messenger.
 - Never expose Instagram as a booking/contact option.
 
+## System favicon
+- `favicon-source.png` is the canonical source image for the site's system favicon/identity icon.
+- It is not a client logo and must never be rendered inside the page, hero, header, intro or content blocks.
+- New `TAN-xxxx` sites use this source to produce the browser/system icon assets, including `favicon.ico`, `favicon-32x32.png` and `apple-touch-icon.png` (180×180).
+- Keep `favicon-source.png` in the template as the reusable source asset; derived favicon files belong to the generated site output.
+- Do not replace this system icon with a master's logo unless a separate favicon rule is explicitly approved.
+
 ## Images
 - The operator uploads client photos into the target client repository.
 - Missing photos never delete major structural sections.
