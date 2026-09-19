@@ -33,9 +33,9 @@ if (site.reviews.length > 9) fail("publish at most 9 verified reviews");
 for (const [index, review] of site.reviews.entries()) {
   if (!String(review?.author || "").trim()) fail(`review ${index + 1} must have the verified author`);
   if (!String(review?.text || "").trim()) fail(`review ${index + 1} must have the verbatim source text`);
-}
-if (site.reviews.length > 0 && !String(site.template?.reviewSource || "").trim()) {
-  fail("published reviews must identify their verified source");
+  if (!String(review?.source || site.template?.reviewSource || "").trim()) {
+    fail(`review ${index + 1} must identify its verified source`);
+  }
 }
 
 const groups = visibleServiceGroups(site);

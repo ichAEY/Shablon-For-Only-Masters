@@ -113,9 +113,11 @@ Layout:
 - the phone remains the rightmost desktop contact element.
 
 ## Reviews
-- Publish at most 9 verified reviews from Yandex Maps.
+- Publish at most 9 verified five-star reviews from the supplied source, such as Yandex Maps or DIKIDI.
 - Review structure on mobile and desktop follows `Shablon-Hair-Master`.
-- Review text must be copied verbatim from Yandex Maps. Never summarize, rewrite, shorten, correct or fabricate review wording.
+- Keep the real author, exact source and verbatim text of every review. Never summarize, rewrite, shorten, correct or fabricate review wording.
+- Store `source` on an individual review when sources differ. A site-wide `reviewSource` may be used only when all published reviews come from the same source.
+- Review cards always show five stars because only verified five-star reviews are allowed; do not add or infer a separate rating.
 - If fewer than 9 verified reviews are available, publish only the verified reviews that exist.
 
 ## Booking and contact

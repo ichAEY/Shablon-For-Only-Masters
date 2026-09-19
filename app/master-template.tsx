@@ -33,7 +33,7 @@ type Service = {
 };
 type ServiceGroup = { id: string; label: string; services: Service[] };
 type GalleryItem = { src: string; alt: string };
-type Review = { author: string; text: string };
+type Review = { author: string; text: string; source?: string };
 type Amenity = { title: string; text: string };
 type LocaleOption = { code: string; label: string };
 
@@ -1535,7 +1535,7 @@ export default function MasterTemplate() {
                     <div className="mct-review-pair" key={`${setIndex}-${review.author}`}>
                       <article className={`mct-review-card dct-review-card${reviewIsLong ? " is-long" : ""}`}>
                         <div className="dct-review-card-head">
-                          <strong>{review.author} <small>{site.template.reviewSource}</small></strong>
+                          <strong>{review.author} <small>{review.source || site.template.reviewSource}</small></strong>
                           <span aria-label="5 из 5">★★★★★</span>
                         </div>
                         <blockquote>«{review.text}»</blockquote>
