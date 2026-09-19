@@ -7,7 +7,6 @@ import {
   aboutPreset,
   bookingMode,
   categoryMode,
-  collapsedServiceCounts,
   chooseInitialLocale,
   contactOptions,
   experienceMode,
@@ -58,7 +57,6 @@ const siteBookingMode = bookingMode(site);
 const siteExperienceMode = experienceMode(site);
 const siteSpecialtyMode = specialtyMode(site);
 const siteHeroPreset = heroPreset(site);
-const serviceCollapse = collapsedServiceCounts(site);
 const languages = normalizedLocales(site) as LocaleOption[];
 const bookingContacts = contactOptions(site);
 
