@@ -112,6 +112,13 @@ Layout:
 - desktop language switch is visibly larger and sits immediately before the phone;
 - the phone remains the rightmost desktop contact element.
 
+## Additional
+- Every master site shows exactly three compact standard cards in `Дополнительно`:
+  - `Выбор услуги` — `Мастер поможет определиться.`
+  - `Пожелания` — `Покажите пример результата.`
+  - `Перенос записи` — `Предупредите заранее.`
+- These three cards are template-owned defaults and are not replaced with schedules, addresses or invented client policies.
+
 ## Reviews
 - Publish at most 9 verified five-star reviews from the supplied source, such as Yandex Maps or DIKIDI.
 - Review structure on mobile and desktop follows `Shablon-Hair-Master`.
@@ -119,6 +126,7 @@ Layout:
 - Store `source` on an individual review when sources differ. A site-wide `reviewSource` may be used only when all published reviews come from the same source.
 - Review cards always show five stars because only verified five-star reviews are allowed; do not add or infer a separate rating.
 - If fewer than 9 verified reviews are available, publish only the verified reviews that exist.
+- When there are no verified reviews, render no review section at all. Never use placeholder, sample or invented reviews.
 
 ## Booking and contact
 - The booking block always uses: `Запишитесь онлайн или свяжитесь любым удобным способом.`

@@ -74,7 +74,11 @@ const approvedAbout = aboutPreset(site);
 const aboutParagraphs = approvedAbout.paragraphs as string[];
 const skills = approvedAbout.skills as string[];
 const approvedMasterInitial = masterInitial(site);
-const amenities = site.amenities as Amenity[];
+const amenities: Amenity[] = [
+  { title: "Выбор услуги", text: "Мастер поможет определиться." },
+  { title: "Пожелания", text: "Покажите пример результата." },
+  { title: "Перенос записи", text: "Предупредите заранее." },
+];
 
 const toMinutes = (value: string) => {
   const [hours, minutes] = value.split(":").map(Number);
@@ -213,6 +217,12 @@ export default function MasterTemplate() {
     "услуги": "services",
     "Дополнительно": "Additional",
     "Полезно перед записью": "Useful before booking",
+    "Выбор услуги": "Choosing a service",
+    "Мастер поможет определиться.": "The specialist will help you choose.",
+    "Пожелания": "Preferences",
+    "Покажите пример результата.": "Show an example of the result you want.",
+    "Перенос записи": "Rescheduling",
+    "Предупредите заранее.": "Please let the specialist know in advance.",
     "Что говорят клиенты": "What clients say",
     "Запись и связь": "Booking & contact",
     "Позвонить": "Call",
@@ -1484,84 +1494,86 @@ export default function MasterTemplate() {
         </div>
       </section>
 
-      <section className="mct-reviews mct-reveal" id="mobile-reviews">
-        <div className="mct-shell">
-          <p className="mct-section-kicker">{translatedText("Отзывы")}</p><h2>{translatedText("Что говорят клиенты")}</h2>
-          {reviewsUrl ? <a className="mct-review-summary" href={reviewsUrl} target="_blank" rel="noopener noreferrer"><span>{translatedText("Все отзывы в")} {site.template.reviewSource || site.template.bookingProvider} →</span></a> : null}
-          <p className="dct-review-drag-hint">{translatedText("Зажмите ленту мышью и двигайте в любую сторону")}</p>
-          <div className="dct-review-controls" aria-label="Управление лентой отзывов">
-            <button type="button" onClick={() => stepReviews(-1)} aria-label="Показать предыдущие отзывы">←</button>
-            <button type="button" onClick={() => stepReviews(1)} aria-label="Показать следующие отзывы">→</button>
+      {reviews.length > 0 && (
+        <section className="mct-reviews mct-reveal" id="mobile-reviews">
+          <div className="mct-shell">
+            <p className="mct-section-kicker">{translatedText("Отзывы")}</p><h2>{translatedText("Что говорят клиенты")}</h2>
+            {reviewsUrl ? <a className="mct-review-summary" href={reviewsUrl} target="_blank" rel="noopener noreferrer"><span>{translatedText("Все отзывы в")} {site.template.reviewSource || site.template.bookingProvider} →</span></a> : null}
+            <p className="dct-review-drag-hint">{translatedText("Зажмите ленту мышью и двигайте в любую сторону")}</p>
+            <div className="dct-review-controls" aria-label="Управление лентой отзывов">
+              <button type="button" onClick={() => stepReviews(-1)} aria-label="Показать предыдущие отзывы">←</button>
+              <button type="button" onClick={() => stepReviews(1)} aria-label="Показать следующие отзывы">→</button>
+            </div>
           </div>
-        </div>
-        <div
-          className={`mct-review-viewport${reviewsPaused ? " is-paused" : ""}`}
-          ref={reviewViewportRef}
-          aria-label={`Настоящие отзывы клиентов ${site.master.genitive}. Лента движется автоматически, при касании останавливается.`}
-          onPointerDown={(event) => {
-            if (!event.isPrimary) return;
-            pauseReviews(event.clientX);
-            if (event.pointerType === "mouse" && window.matchMedia("(min-width: 768px)").matches && !event.currentTarget.hasPointerCapture(event.pointerId)) {
-              event.currentTarget.setPointerCapture(event.pointerId);
-            }
-          }}
-          onPointerMove={(event) => {
-            if (!event.isPrimary || !reviewsPausedRef.current) return;
-            if (reviewPointerStartRef.current !== null && Math.abs(event.clientX - reviewPointerStartRef.current) > 7 && !event.currentTarget.hasPointerCapture(event.pointerId)) {
-              event.currentTarget.setPointerCapture(event.pointerId);
-            }
-            moveReviews(event.clientX);
-          }}
-          onPointerUp={(event) => {
-            if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-            resumeReviews();
-          }}
-          onPointerCancel={resumeReviews}
-          onWheel={(event) => {
-            const horizontalDelta = event.shiftKey ? event.deltaY : event.deltaX;
-            if (Math.abs(horizontalDelta) < 1 || Math.abs(horizontalDelta) < Math.abs(event.deltaY) * .55) return;
-            event.preventDefault();
-            pauseReviews();
-            setReviewOffset(reviewOffsetRef.current - horizontalDelta * 1.12);
-            scheduleReviewsResume();
-          }}
-        >
-          <div className="mct-review-track" ref={reviewTrackRef}>
-            {Array.from({ length: reviewSetCount }, (_, setIndex) => (
-              <div className="mct-review-set" key={setIndex} aria-hidden={setIndex !== 2}>
-                {reviews.map((review) => {
-                  const reviewIsLong = review.text.length > 245;
-                  return (
-                    <div className="mct-review-pair" key={`${setIndex}-${review.author}`}>
-                      <article className={`mct-review-card dct-review-card${reviewIsLong ? " is-long" : ""}`}>
-                        <div className="dct-review-card-head">
-                          <strong>{review.author} <small>{review.source || site.template.reviewSource}</small></strong>
-                          <span aria-label="5 из 5">★★★★★</span>
-                        </div>
-                        <blockquote>«{review.text}»</blockquote>
-                        {reviewIsLong && (
-                          <a
-                            className="dct-review-continue"
-                            href={reviewsUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            tabIndex={setIndex === 2 ? 0 : -1}
-                            onClick={(event) => {
-                              if (!reviewWasDraggedRef.current) return;
-                              event.preventDefault();
-                              reviewWasDraggedRef.current = false;
-                            }}
-                          >{translatedText("Продолжить")} →</a>
-                        )}
-                      </article>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+          <div
+            className={`mct-review-viewport${reviewsPaused ? " is-paused" : ""}`}
+            ref={reviewViewportRef}
+            aria-label={`Настоящие отзывы клиентов ${site.master.genitive}. Лента движется автоматически, при касании останавливается.`}
+            onPointerDown={(event) => {
+              if (!event.isPrimary) return;
+              pauseReviews(event.clientX);
+              if (event.pointerType === "mouse" && window.matchMedia("(min-width: 768px)").matches && !event.currentTarget.hasPointerCapture(event.pointerId)) {
+                event.currentTarget.setPointerCapture(event.pointerId);
+              }
+            }}
+            onPointerMove={(event) => {
+              if (!event.isPrimary || !reviewsPausedRef.current) return;
+              if (reviewPointerStartRef.current !== null && Math.abs(event.clientX - reviewPointerStartRef.current) > 7 && !event.currentTarget.hasPointerCapture(event.pointerId)) {
+                event.currentTarget.setPointerCapture(event.pointerId);
+              }
+              moveReviews(event.clientX);
+            }}
+            onPointerUp={(event) => {
+              if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+              resumeReviews();
+            }}
+            onPointerCancel={resumeReviews}
+            onWheel={(event) => {
+              const horizontalDelta = event.shiftKey ? event.deltaY : event.deltaX;
+              if (Math.abs(horizontalDelta) < 1 || Math.abs(horizontalDelta) < Math.abs(event.deltaY) * .55) return;
+              event.preventDefault();
+              pauseReviews();
+              setReviewOffset(reviewOffsetRef.current - horizontalDelta * 1.12);
+              scheduleReviewsResume();
+            }}
+          >
+            <div className="mct-review-track" ref={reviewTrackRef}>
+              {Array.from({ length: reviewSetCount }, (_, setIndex) => (
+                <div className="mct-review-set" key={setIndex} aria-hidden={setIndex !== 2}>
+                  {reviews.map((review) => {
+                    const reviewIsLong = review.text.length > 245;
+                    return (
+                      <div className="mct-review-pair" key={`${setIndex}-${review.author}`}>
+                        <article className={`mct-review-card dct-review-card${reviewIsLong ? " is-long" : ""}`}>
+                          <div className="dct-review-card-head">
+                            <strong>{review.author} <small>{review.source || site.template.reviewSource}</small></strong>
+                            <span aria-label="5 из 5">★★★★★</span>
+                          </div>
+                          <blockquote>«{review.text}»</blockquote>
+                          {reviewIsLong && (
+                            <a
+                              className="dct-review-continue"
+                              href={reviewsUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              tabIndex={setIndex === 2 ? 0 : -1}
+                              onClick={(event) => {
+                                if (!reviewWasDraggedRef.current) return;
+                                event.preventDefault();
+                                reviewWasDraggedRef.current = false;
+                              }}
+                            >{translatedText("Продолжить")} →</a>
+                          )}
+                        </article>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="mct-visit mct-reveal" id="mobile-location" ref={finalBookRef} style={{ "--dct-visit-image": `url(${site.images.about})` } as CSSProperties}>
         <div className="mct-shell">

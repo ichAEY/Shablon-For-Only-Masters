@@ -135,6 +135,14 @@ test("reviews are capped at nine and preserve author, source and verbatim text",
   assert.match(component, /review\.source \|\| site\.template\.reviewSource/);
   assert.match(component, /aria-label="5 из 5">★★★★★/);
   assert.match(component, /<blockquote>«\{review\.text\}»<\/blockquote>/);
+  assert.match(component, /\{reviews\.length > 0 && \(\s*<section className="mct-reviews/);
+});
+
+test("additional block always uses the three compact approved cards", () => {
+  assert.match(component, /title: "Выбор услуги", text: "Мастер поможет определиться\."/);
+  assert.match(component, /title: "Пожелания", text: "Покажите пример результата\."/);
+  assert.match(component, /title: "Перенос записи", text: "Предупредите заранее\."/);
+  assert.doesNotMatch(component, /const amenities = site\.amenities/);
 });
 
 test("approved gallery and service limits cannot regress", () => {
