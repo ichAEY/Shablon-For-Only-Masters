@@ -157,4 +157,8 @@ test("Julia booking structure replaces only the mobile block", () => {
   assert.match(component, /mct-visit-details-mobile-julia/);
   assert.match(css, /\.mct-visit-booking-mobile-julia,[\s\S]*?display: none !important/);
   assert.match(css, /@media \(max-width: 767px\)[\s\S]*?\.mct-visit-booking-desktop-current[\s\S]*?display: none !important[\s\S]*?\.mct-visit-booking-mobile-julia[\s\S]*?display: block !important/);
+  const mobileDetails = component.match(/<div className="mct-visit-details mct-visit-details-mobile-julia">([\s\S]*?)<\/div>/)?.[1] || "";
+  assert.match(mobileDetails, /<p className="mct-visit-address">/);
+  assert.match(mobileDetails, /site\.location\.schedule/);
+  assert.doesNotMatch(mobileDetails, /<a |mct-mobile-route-card|mct-map-wrap/);
 });

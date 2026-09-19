@@ -1657,16 +1657,10 @@ export default function MasterTemplate() {
 
           {site.location.address ? (
             <div className="mct-visit-details mct-visit-details-mobile-julia">
-              <p className="mct-visit-address">{translatedText(site.location.address)}{site.location.schedule ? <span>{translatedText(site.location.schedule)}</span> : null}</p>
-              {(routeUrl || mapUrl) ? (
-                <div className="mct-map-wrap">
-                  {mobileMapEmbedUrl && mobileMapEmbedUrl !== "about:blank" ? <iframe className="mct-map-mobile" src={mobileMapEmbedUrl} title={`${site.master.name} на Яндекс Картах`} loading="lazy" allowFullScreen /> : null}
-                  <a className="mct-mobile-route-card" href={routeUrl || mapUrl} target="_blank" rel="noopener noreferrer" aria-label={`Построить маршрут к ${site.master.dative} в Яндекс Картах`}>
-                    <span className="mct-mobile-route-icon" aria-hidden="true">⌖</span>
-                    <span className="mct-mobile-route-copy"><strong>{translatedText(site.location.address)}</strong><small>{translatedText("Построить маршрут")} →</small></span>
-                  </a>
-                </div>
-              ) : null}
+              <p className="mct-visit-address">
+                {translatedText(site.location.address)}
+                {site.location.schedule ? <span>{translatedText(site.location.schedule)}</span> : null}
+              </p>
             </div>
           ) : null}
 
