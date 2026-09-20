@@ -12749,3 +12749,91 @@ html body .mct-map-wrap > a::after {
     font: 600 10px/1.4 "Manrope", Arial, sans-serif;
   }
 }
+
+/* TANEM approved mobile review architecture */
+@media (max-width: 767px) {
+  .mct-review-card-mobile,
+  .mct-review-card-mobile.is-long {
+    position: relative !important;
+    display: flex !important;
+    height: 238px !important;
+    min-height: 238px !important;
+    max-height: 238px !important;
+    flex-direction: column !important;
+    padding: 16px 16px 40px !important;
+    overflow: hidden !important;
+  }
+
+  .mct-review-card-mobile .mct-mobile-review-head {
+    display: flex !important;
+    min-height: 28px !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+  }
+
+  .mct-review-card-mobile .mct-mobile-review-head > strong {
+    display: inline-flex !important;
+    min-width: 0 !important;
+    align-items: center !important;
+    gap: 6px !important;
+    color: #332d2a !important;
+    font-family: "Manrope", Arial, sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+  }
+
+  .mct-review-card-mobile .mct-mobile-review-stars {
+    flex: 0 0 auto !important;
+    color: #8a6659 !important;
+    font-size: 9.5px !important;
+    font-weight: 600 !important;
+    letter-spacing: .05em !important;
+    white-space: nowrap !important;
+  }
+
+  .mct-review-card-mobile .mct-mobile-review-source {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    color: #857871 !important;
+    font-family: "Manrope", Arial, sans-serif !important;
+    font-size: 8.5px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+    transform: translateY(4px) !important;
+  }
+
+  .mct-review-card-mobile blockquote,
+  .mct-review-card-mobile.is-long blockquote {
+    display: -webkit-box !important;
+    margin: 11px 0 0 !important;
+    max-height: 144px !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 7 !important;
+  }
+
+  .mct-review-card-mobile i,
+  .mct-review-card-mobile.is-long i,
+  .mct-review-card-mobile:not(.is-long) i {
+    position: absolute !important;
+    right: 16px !important;
+    bottom: 15px !important;
+    display: inline-flex !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #76594f !important;
+    font-family: "Manrope", Arial, sans-serif !important;
+    font-size: 9.6px !important;
+    line-height: 1.15 !important;
+    font-style: normal !important;
+    font-weight: 700 !important;
+  }
+
+  .mct-review-card-mobile.is-long i::after {
+    content: none !important;
+  }
+}

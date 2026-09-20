@@ -1558,9 +1558,11 @@ export default function MasterTemplate() {
                             reviewWasDraggedRef.current = false;
                           }}
                         >
-                          <span aria-label="5 из 5">★★★★★</span>
-                          <blockquote>«{review.text}»</blockquote>
-                          <small>{review.author} · {review.source || site.template.reviewSource}</small>
+                          <div className="dct-review-card-head mct-mobile-review-head">
+                            <strong><span className="mct-mobile-review-name">{review.author}</span><span className="mct-mobile-review-stars" aria-label="5 из 5">★★★★★</span></strong>
+                            <small className="mct-mobile-review-source">{review.source || site.template.reviewSource}</small>
+                          </div>
+                          <blockquote>{review.text}</blockquote>
                           <i>{translatedText("Подробнее")} →</i>
                         </a>
 

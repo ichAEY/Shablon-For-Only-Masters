@@ -146,6 +146,18 @@ test("reviews keep separate approved mobile and desktop renderers", () => {
   assert.match(css, /@media \(min-width: 1024px\)[\s\S]*?\.dct-review-card\s*\{\s*display:\s*flex !important;/);
 });
 
+test("approved mobile review architecture is locked without changing desktop reviews", () => {
+  assert.match(component, /mct-review-card mct-review-card-mobile[\s\S]*?mct-mobile-review-stars[\s\S]*?mct-mobile-review-source/);
+  assert.match(component, /mct-review-card mct-review-card-mobile[\s\S]*?<blockquote>\{review\.text\}<\/blockquote>/);
+  assert.match(component, /mct-review-card dct-review-card[\s\S]*?<blockquote>«\{review\.text\}»<\/blockquote>/);
+  assert.match(css, /TANEM approved mobile review architecture/);
+  assert.match(css, /mct-review-card-mobile[\s\S]*?-webkit-line-clamp:\s*7 !important/);
+  assert.match(css, /mct-review-card-mobile[\s\S]*?padding:\s*16px 16px 40px !important/);
+  assert.match(css, /mct-review-card-mobile[\s\S]*?max-height:\s*144px !important/);
+  assert.match(css, /mct-review-card-mobile[\s\S]*?position:\s*absolute !important[\s\S]*?right:\s*16px !important[\s\S]*?bottom:\s*15px !important/);
+  assert.match(css, /mct-mobile-review-source[\s\S]*?translateY\(4px\)/);
+});
+
 test("additional block always uses the three compact approved cards", () => {
   assert.match(component, /title: "Выбор услуги", text: "Мастер поможет определиться\."/);
   assert.match(component, /title: "Пожелания", text: "Покажите пример результата\."/);
