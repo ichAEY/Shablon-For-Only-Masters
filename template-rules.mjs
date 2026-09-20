@@ -269,6 +269,8 @@ export function clientTranslationKeys(site) {
     if (text) values.push(text);
   };
 
+  add(site?.brand?.name);
+  add(site?.master?.name);
   add(site?.master?.profession);
   add(site?.master?.heroEmphasis);
   add(site?.master?.heroCaption);
