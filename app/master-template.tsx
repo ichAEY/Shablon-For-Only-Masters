@@ -1544,6 +1544,26 @@ export default function MasterTemplate() {
                     const reviewIsLong = review.text.length > 245;
                     return (
                       <div className="mct-review-pair" key={`${setIndex}-${review.author}`}>
+                        <a
+                          className={`mct-review-card mct-review-card-mobile${reviewIsLong ? " is-long" : ""}`}
+                          href={reviewsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          tabIndex={setIndex === 2 ? 0 : -1}
+                          draggable={false}
+                          onDragStart={(event) => event.preventDefault()}
+                          onClick={(event) => {
+                            if (!reviewWasDraggedRef.current) return;
+                            event.preventDefault();
+                            reviewWasDraggedRef.current = false;
+                          }}
+                        >
+                          <span aria-label="5 из 5">★★★★★</span>
+                          <blockquote>«{review.text}»</blockquote>
+                          <small>{review.author} · {review.source || site.template.reviewSource}</small>
+                          <i>{translatedText("Подробнее")} →</i>
+                        </a>
+
                         <article className={`mct-review-card dct-review-card${reviewIsLong ? " is-long" : ""}`}>
                           <div className="dct-review-card-head">
                             <strong>{review.author} <small>{review.source || site.template.reviewSource}</small></strong>

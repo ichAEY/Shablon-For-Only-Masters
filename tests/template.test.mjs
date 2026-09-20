@@ -138,6 +138,14 @@ test("reviews are capped at nine and preserve author, source and verbatim text",
   assert.match(component, /\{reviews\.length > 0 && \(\s*<section className="mct-reviews/);
 });
 
+test("reviews keep separate approved mobile and desktop renderers", () => {
+  assert.match(component, /mct-review-card mct-review-card-mobile/);
+  assert.match(component, /mct-review-card dct-review-card/);
+  assert.match(css, /\.dct-review-card\s*\{\s*display:\s*none !important;/);
+  assert.match(css, /@media \(min-width: 1024px\)[\s\S]*?\.mct-review-card-mobile\s*\{\s*display:\s*none !important;/);
+  assert.match(css, /@media \(min-width: 1024px\)[\s\S]*?\.dct-review-card\s*\{\s*display:\s*flex !important;/);
+});
+
 test("additional block always uses the three compact approved cards", () => {
   assert.match(component, /title: "Выбор услуги", text: "Мастер поможет определиться\."/);
   assert.match(component, /title: "Пожелания", text: "Покажите пример результата\."/);

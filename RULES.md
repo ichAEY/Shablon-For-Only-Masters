@@ -123,6 +123,7 @@ Layout:
 ## Reviews
 - Publish at most 9 verified five-star reviews from the supplied source, such as Yandex Maps or DIKIDI.
 - Review structure on mobile and desktop follows `Shablon-Hair-Master`.
+- Keep both approved review renderers: `mct-review-card-mobile` for widths below 1024px and `dct-review-card` for desktop. Both render the same verified review data; never remove one renderer while leaving the CSS split in place.
 - Keep the real author, exact source and verbatim text of every review. Never summarize, rewrite, shorten, correct or fabricate review wording.
 - Store `source` on an individual review when sources differ. A site-wide `reviewSource` may be used only when all published reviews come from the same source.
 - Review cards always show five stars because only verified five-star reviews are allowed; do not add or infer a separate rating.
