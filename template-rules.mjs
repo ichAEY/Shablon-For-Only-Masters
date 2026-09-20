@@ -232,16 +232,32 @@ export function chooseInitialLocale(site, browserLanguages = [], savedLocale = "
 
 export function contactOptions(site) {
   const result = [];
+  const seen = new Set();
+
   if (hasUsableLink(site?.contacts?.phoneHref)) {
-    result.push({ kind: "phone", label: String(site?.contacts?.phoneDisplay || "Phone"), url: site.contacts.phoneHref });
+    const url = String(site.contacts.phoneHref);
+    result.push({ kind: "phone", label: String(site?.contacts?.phoneDisplay || "Phone"), url });
+    seen.add(`phone|${url}`);
   }
-  const messenger = site?.contacts?.messenger;
-  if (messenger && hasUsableLink(messenger.url)) {
-    const kind = String(messenger.type || "messenger").toLowerCase();
-    if (kind !== "instagram" && !String(messenger.url).toLowerCase().includes("instagram.com")) {
-      result.push({ kind, label: String(messenger.label || "Messenger"), url: messenger.url });
-    }
-  }
+
+  const pushChannel = (channel) => {
+    if (!channel || !hasUsableLink(channel.url)) return;
+    const kind = String(channel.type || "messenger").trim().toLowerCase() || "messenger";
+    const url = String(channel.url).trim();
+    if (kind === "instagram" || url.toLowerCase().includes("instagram.com")) return;
+
+    const key = `${kind}|${url}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    result.push({ kind, label: String(channel.label || "Messenger"), url });
+  };
+
+  const channels = Array.isArray(site?.contacts?.channels) ? site.contacts.channels : [];
+  for (const channel of channels) pushChannel(channel);
+
+  // Backward compatibility for older TAN-xxxx repositories.
+  pushChannel(site?.contacts?.messenger);
+
   return result;
 }
 

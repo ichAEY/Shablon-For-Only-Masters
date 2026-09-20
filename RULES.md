@@ -146,6 +146,9 @@ Layout:
 - Otherwise the service inherits the direct booking URL when one exists.
 - Without a direct booking URL, booking CTAs use the approved contact sheet.
 - Phone alone is a valid contact configuration; messenger is optional.
+- `contacts.channels` may contain multiple verified contact channels (for example WhatsApp, Telegram and VK). They render after the phone in the supplied order.
+- Legacy `contacts.messenger` remains supported for existing TAN-xxxx sites and is deduplicated against `contacts.channels`.
+- The booking/contact grid renders every verified channel dynamically; its existing paired/full-row layout logic must not be hard-coded to a fixed number of contacts.
 - Never invent a booking URL, phone or messenger.
 - Never expose Instagram as a booking/contact option.
 

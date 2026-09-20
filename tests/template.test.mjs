@@ -6,6 +6,7 @@ import {
   aboutPreset,
   categoryMode,
   collapsedServiceCounts,
+  contactOptions,
   heroPreset,
   masterInitial,
   SERVICE_PREVIEW_LIMIT,
@@ -73,6 +74,55 @@ test("category mechanics stay 1 / 2 / 3+ without a hard cap", () => {
   assert.equal(categoryMode(makeSite(2)), "two");
   assert.equal(categoryMode(makeSite(3)), "many");
   assert.equal(categoryMode(makeSite(8)), "many");
+});
+
+test("contact options support multiple verified channels and legacy messenger data", () => {
+  const phoneOnly = {
+    contacts: {
+      phoneDisplay: "+7 (900) 000-00-00",
+      phoneHref: "tel:+79000000000",
+      channels: [],
+      messenger: null,
+    },
+  };
+  assert.deepEqual(contactOptions(phoneOnly).map((item) => item.kind), ["phone"]);
+
+  const multi = {
+    contacts: {
+      phoneDisplay: "+7 (900) 000-00-00",
+      phoneHref: "tel:+79000000000",
+      channels: [
+        { type: "whatsapp", label: "WhatsApp", url: "https://wa.me/79000000000" },
+        { type: "telegram", label: "Telegram", url: "https://t.me/+79000000000" },
+        { type: "vk", label: "VK", url: "https://vk.ru/example" },
+      ],
+      messenger: null,
+    },
+  };
+  assert.deepEqual(contactOptions(multi).map((item) => item.kind), ["phone", "whatsapp", "telegram", "vk"]);
+
+  const legacy = {
+    contacts: {
+      phoneDisplay: "+7 (900) 000-00-00",
+      phoneHref: "tel:+79000000000",
+      messenger: { type: "telegram", label: "Telegram", url: "https://t.me/example" },
+    },
+  };
+  assert.deepEqual(contactOptions(legacy).map((item) => item.kind), ["phone", "telegram"]);
+
+  const mixed = {
+    contacts: {
+      phoneDisplay: "+7 (900) 000-00-00",
+      phoneHref: "tel:+79000000000",
+      channels: [
+        { type: "whatsapp", label: "WhatsApp", url: "https://wa.me/79000000000" },
+        { type: "telegram", label: "Telegram", url: "https://t.me/example" },
+        { type: "instagram", label: "Instagram", url: "https://instagram.com/example" },
+      ],
+      messenger: { type: "telegram", label: "Telegram", url: "https://t.me/example" },
+    },
+  };
+  assert.deepEqual(contactOptions(mixed).map((item) => item.kind), ["phone", "whatsapp", "telegram"]);
 });
 
 test("hidden service counts are computed from the responsive layouts", () => {

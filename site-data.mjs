@@ -54,6 +54,7 @@ export default {
   contacts: {
     phoneDisplay: "",
     phoneHref: "",
+    channels: [],
     messenger: null,
   },
 
