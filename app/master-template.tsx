@@ -177,8 +177,6 @@ export default function MasterTemplate() {
       })
       .filter((group) => group.services.length > 0);
   })();
-  const introText = String(site.brand.name || site.master.name || "TANEM").trim();
-  const introTextLengthClass = introText.length > 28 ? " is-very-long" : introText.length > 18 ? " is-long" : "";
   const serviceCountNoun = (count: number) => {
     if (locale !== "ru") return translatedText("услуг");
     const mod10 = count % 10;
@@ -283,6 +281,10 @@ export default function MasterTemplate() {
     if (locale === "en" && baseEnglish[value]) return baseEnglish[value];
     return value;
   };
+  const localizedBrandName = translatedText(site.brand.name || site.master.name || "TANEM");
+  const localizedMasterName = translatedText(site.master.name || site.brand.name || "TANEM");
+  const introText = String(localizedBrandName).trim();
+  const introTextLengthClass = introText.length > 28 ? " is-very-long" : introText.length > 18 ? " is-long" : "";
   const bookingHref = siteBookingMode === "direct" ? bookingUrl : "#booking-options";
   const handleBookingClick = (event: ReactMouseEvent<HTMLAnchorElement>) => {
     if (siteBookingMode === "direct") return;
@@ -998,8 +1000,8 @@ export default function MasterTemplate() {
       <header className="mct-hero" id="mobile-top" ref={heroRef}>
         <div className="mct-shell">
           <div className="mct-topbar">
-            <a className={`mct-brand${hasLogo(site) ? " mct-brand-master-image" : " mct-brand-master-text"}`} href="#mobile-top" aria-label={`${site.master.name || site.brand.name}, наверх`}>
-              {hasLogo(site) ? <img src={site.images.logo} alt="" /> : <span>{site.brand.name || site.master.name || "TANEM"}</span>}
+            <a className={`mct-brand${hasLogo(site) ? " mct-brand-master-image" : " mct-brand-master-text"}`} href="#mobile-top" aria-label={`${localizedMasterName}, наверх`}>
+              {hasLogo(site) ? <img src={site.images.logo} alt="" /> : <span>{localizedBrandName}</span>}
             </a>
             <nav className="dct-navigation" aria-label="Основные разделы сайта">
               <a href="#mobile-prices">{translatedText("Услуги и цены")}</a>
@@ -1007,7 +1009,7 @@ export default function MasterTemplate() {
               <a href="#mobile-reviews">{translatedText("Отзывы")}</a>
               <a href="#mobile-location">{translatedText("Визит и запись")}</a>
             </nav>
-            <div className="dct-top-actions" aria-label={`Быстрые способы связи с ${site.master.name}`}>
+            <div className="dct-top-actions" aria-label={`Быстрые способы связи с ${localizedMasterName}`}>
               {languages.length > 1 ? (
                 <div className="mct-lang-switch is-desktop" role="group" aria-label="Language">
                   {languages.map((item, index) => (
@@ -1079,7 +1081,7 @@ export default function MasterTemplate() {
                 </a>
               ) : null}
             </div>
-            <h1>{site.master.name}{site.master.name ? " — " : ""}{translatedText("ваш")} <em>{translatedText(siteHeroPreset.emphasis)}</em></h1>
+            <h1>{localizedMasterName}{site.master.name ? " — " : ""}{translatedText("ваш")} <em>{translatedText(siteHeroPreset.emphasis)}</em></h1>
             <p className="mct-hero-copy">{translatedText(siteHeroPreset.copy)}</p>
           </div>
           <div
@@ -1089,8 +1091,8 @@ export default function MasterTemplate() {
               <div className="mct-master-tools" aria-hidden="true"><img className="mct-master-hero-image" src={site.images.heroDecoration} alt="" /></div>
             ) : null}
             <figure className="dct-hero-portrait">
-              <img src={site.images.portrait} alt={`${site.master.name} — ${site.master.imageAlt}`} />
-              <figcaption><span>{site.master.name}</span><small>{translatedText(site.master.heroCaption)}</small></figcaption>
+              <img src={site.images.portrait} alt={`${localizedMasterName} — ${translatedText(site.master.imageAlt)}`} />
+              <figcaption><span>{localizedMasterName}</span><small>{translatedText(site.master.heroCaption)}</small></figcaption>
             </figure>
             {siteSpecialtyMode === "nails" ? <div className="mct-palette-stage" aria-hidden="true">
               <div className="mct-palette-set">
@@ -1461,7 +1463,7 @@ export default function MasterTemplate() {
           <div className="mct-about-card">
             <div className="mct-about-portrait-wrap">
               <figure className="mct-about-portrait">
-                <img src={site.images.about} alt={`${site.master.name} — ${site.master.imageAlt}`} loading="lazy" />
+                <img src={site.images.about} alt={`${localizedMasterName} — ${translatedText(site.master.imageAlt)}`} loading="lazy" />
               </figure>
               {siteExperienceMode === "known" ? (
                 <div className="mct-about-experience" aria-label={site.master.experienceAria}>
@@ -1629,7 +1631,7 @@ export default function MasterTemplate() {
                         ? <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>
                         : <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>}
                     </span>
-                    <span className="mct-contact-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? site.contacts.phoneDisplay : `${translatedText("Написать")} ${locale === "ru" ? site.master.dative : site.master.name}`}</small></span><i className="mct-link-arrow" aria-hidden="true" />
+                    <span className="mct-contact-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? site.contacts.phoneDisplay : `${translatedText("Написать")} ${locale === "ru" ? site.master.dative : localizedMasterName}`}</small></span><i className="mct-link-arrow" aria-hidden="true" />
                   </a>
                 ))}
                 {mapUrl ? (
@@ -1676,7 +1678,7 @@ export default function MasterTemplate() {
                         ? <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>
                         : <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>}
                     </span>
-                    <span className="mct-contact-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? `${locale === "ru" ? site.master.dative : site.master.name} · ${site.contacts.phoneDisplay}` : `${translatedText("Написать")} ${locale === "ru" ? site.master.dative : site.master.name}`}</small></span><i className="mct-link-arrow" aria-hidden="true" />
+                    <span className="mct-contact-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? `${locale === "ru" ? site.master.dative : localizedMasterName} · ${site.contacts.phoneDisplay}` : `${translatedText("Написать")} ${locale === "ru" ? site.master.dative : localizedMasterName}`}</small></span><i className="mct-link-arrow" aria-hidden="true" />
                   </a>
                 ))}
                 {mapUrl ? (
@@ -1729,7 +1731,7 @@ export default function MasterTemplate() {
                     ? <svg viewBox="0 0 24 24"><path d="M7 4h3l1.3 4-2 1.5c1 2 2.6 3.6 4.6 4.6l1.5-2L19 13.5v3c0 1.1-.9 2-2 2C10.4 18.5 5.5 13.6 5.5 7A2 2 0 0 1 7 4Z" /></svg>
                     : <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" /></svg>}
                 </span>
-                <span className="mct-book-option-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? site.contacts.phoneDisplay : `${translatedText("Написать")} ${locale === "ru" ? site.master.dative : site.master.name}`}</small></span>
+                <span className="mct-book-option-copy"><strong>{item.kind === "phone" ? translatedText("Позвонить") : item.label}</strong><small>{item.kind === "phone" ? site.contacts.phoneDisplay : `${translatedText("Написать")} ${locale === "ru" ? site.master.dative : localizedMasterName}`}</small></span>
                 <span className="mct-book-arrow" aria-hidden="true">→</span>
               </a>
             ))}
