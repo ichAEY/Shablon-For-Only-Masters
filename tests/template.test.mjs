@@ -7,6 +7,7 @@ import {
   categoryMode,
   collapsedServiceCounts,
   contactOptions,
+  clientTranslationKeys,
   heroPreset,
   masterInitial,
   SERVICE_PREVIEW_LIMIT,
@@ -32,6 +33,23 @@ test("client data is empty in the base template", () => {
 test("the clean template uses one canonical stylesheet and runtime", () => {
   assert.ok(fs.existsSync("app/template.css"));
   assert.ok(fs.existsSync("public/template-runtime.js"));
+});
+
+
+test("master and brand names participate in localization", () => {
+  const translationKeys = clientTranslationKeys({
+    brand: { name: "Ланге Татьяна" },
+    master: { name: "Татьяна" },
+    location: {},
+    services: { groups: [] },
+    amenities: [],
+  });
+  assert.ok(translationKeys.includes("Ланге Татьяна"));
+  assert.ok(translationKeys.includes("Татьяна"));
+  assert.match(component, /const localizedBrandName = translatedText\(site\.brand\.name \|\| site\.master\.name \|\| "TANEM"\)/);
+  assert.match(component, /const localizedMasterName = translatedText\(site\.master\.name \|\| site\.brand\.name \|\| "TANEM"\)/);
+  assert.match(component, /<h1>\{localizedMasterName\}/);
+  assert.match(component, /<span>\{localizedBrandName\}<\/span>/);
 });
 
 test("portfolio and full gallery remain structural without client photos", () => {
