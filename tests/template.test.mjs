@@ -9,6 +9,7 @@ import {
   contactOptions,
   clientTranslationKeys,
   heroPreset,
+  masterImageSources,
   masterInitial,
   SERVICE_PREVIEW_LIMIT,
 } from "../template-rules.mjs";
@@ -26,6 +27,8 @@ test("client data is empty in the base template", () => {
   assert.equal(site.location.city, "");
   assert.equal(site.contacts.phoneDisplay, "");
   assert.equal(site.reviews.length, 0);
+  assert.equal(site.images.hero, "");
+  assert.equal(site.images.profile, "");
   assert.equal(site.images.gallery.length, 0);
   assert.equal(Object.values(site.services).flat().length, 0);
 });
@@ -57,6 +60,20 @@ test("portfolio and full gallery remain structural without client photos", () =>
   assert.match(html, /Смотреть все работы/);
   assert.match(html, /mct-work-placeholder/);
   assert.doesNotMatch(html, /disabled=""[^>]*Смотреть все работы/);
+});
+
+
+test("template renders canonical hero/profile through the media resolver", () => {
+  const resolved = masterImageSources({
+    basePath: "",
+    template: { specialty: "hair" },
+    images: { hero: "", profile: "" },
+  });
+  assert.equal(resolved.hero, "/fallback/masters/hair/hero.webp");
+  assert.equal(resolved.profile, "/fallback/masters/hair/profile.webp");
+  assert.match(component, /const resolvedImages = masterImageSources\(site\)/);
+  assert.match(component, /src=\{resolvedImages\.hero\}/);
+  assert.match(component, /src=\{resolvedImages\.profile\}/);
 });
 
 test("specialty hero copy is deterministic", () => {
