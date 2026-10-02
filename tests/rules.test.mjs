@@ -6,6 +6,7 @@ import {
   chooseInitialLocale,
   contactOptions,
   experienceMode,
+  masterImageSources,
   serviceBookingUrl,
   specialtyMode,
 } from "../template-rules.mjs";
@@ -17,6 +18,8 @@ const makeSite = (overrides = {}) => ({
   links: { bookingUrl: "", ...overrides.links },
   services: { groups: [], ...overrides.services },
   i18n: { locales: [{ code: "ru", label: "RU" }, { code: "en", label: "EN" }], ...overrides.i18n },
+  images: { logo: "", hero: "", profile: "", gallery: [], ...overrides.images },
+  basePath: overrides.basePath || "",
 });
 
 test("category modes follow 1 / 2 / 3+ rules", () => {
@@ -55,4 +58,22 @@ test("experience and specialty are explicit data-driven states", () => {
   assert.equal(specialtyMode(makeSite({ template: { specialty: "hair" } })), "hair");
   assert.equal(specialtyMode(makeSite({ template: { specialty: "nails" } })), "nails");
   assert.equal(specialtyMode(makeSite({ template: { specialty: "brows" } })), "generic");
+});
+
+
+test("master images prefer real canonical files and otherwise use specialty fallbacks", () => {
+  const hair = makeSite({ template: { specialty: "hair" }, basePath: "/TAN-TEST" });
+  assert.deepEqual(masterImageSources(hair), {
+    hero: "/TAN-TEST/fallback/masters/hair/hero.webp",
+    profile: "/TAN-TEST/fallback/masters/hair/profile.webp",
+  });
+
+  const nails = makeSite({
+    template: { specialty: "nails" },
+    images: { hero: "/hero.webp", profile: "/profile.webp" },
+  });
+  assert.deepEqual(masterImageSources(nails), {
+    hero: "/hero.webp",
+    profile: "/profile.webp",
+  });
 });

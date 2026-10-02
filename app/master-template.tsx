@@ -12,6 +12,7 @@ import {
   experienceMode,
   hasLogo,
   heroPreset,
+  masterImageSources,
   masterInitial,
   normalizedLocales,
   SERVICE_PREVIEW_LIMIT,
@@ -57,6 +58,7 @@ const siteBookingMode = bookingMode(site);
 const siteExperienceMode = experienceMode(site);
 const siteSpecialtyMode = specialtyMode(site);
 const siteHeroPreset = heroPreset(site);
+const resolvedImages = masterImageSources(site);
 const languages = normalizedLocales(site) as LocaleOption[];
 const bookingContacts = contactOptions(site);
 const locationFillsContactRow = Boolean(mapUrl && bookingContacts.length % 2 === 0);
@@ -1091,7 +1093,7 @@ export default function MasterTemplate() {
               <div className="mct-master-tools" aria-hidden="true"><img className="mct-master-hero-image" src={site.images.heroDecoration} alt="" /></div>
             ) : null}
             <figure className="dct-hero-portrait">
-              <img src={site.images.portrait} alt={`${localizedMasterName} — ${translatedText(site.master.imageAlt)}`} />
+              <img src={resolvedImages.hero} alt={`${localizedMasterName} — ${translatedText(site.master.imageAlt)}`} />
               <figcaption><span>{localizedMasterName}</span><small>{translatedText(site.master.heroCaption)}</small></figcaption>
             </figure>
             {siteSpecialtyMode === "nails" ? <div className="mct-palette-stage" aria-hidden="true">
@@ -1463,7 +1465,7 @@ export default function MasterTemplate() {
           <div className="mct-about-card">
             <div className="mct-about-portrait-wrap">
               <figure className="mct-about-portrait">
-                <img src={site.images.about} alt={`${localizedMasterName} — ${translatedText(site.master.imageAlt)}`} loading="lazy" />
+                <img src={resolvedImages.profile} alt={`${localizedMasterName} — ${translatedText(site.master.imageAlt)}`} loading="lazy" />
               </figure>
               {siteExperienceMode === "known" ? (
                 <div className="mct-about-experience" aria-label={site.master.experienceAria}>
@@ -1599,7 +1601,7 @@ export default function MasterTemplate() {
         </section>
       )}
 
-      <section className="mct-visit mct-reveal" id="mobile-location" ref={finalBookRef} style={{ "--dct-visit-image": `url(${site.images.about})` } as CSSProperties}>
+      <section className="mct-visit mct-reveal" id="mobile-location" ref={finalBookRef} style={{ "--dct-visit-image": `url(${resolvedImages.profile})` } as CSSProperties}>
         <div className="mct-shell">
           <div className="mct-visit-booking mct-visit-booking-desktop-current" id="mobile-booking">
             <div className="mct-visit-booking-top">

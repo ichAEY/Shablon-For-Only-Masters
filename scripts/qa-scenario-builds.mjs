@@ -69,12 +69,11 @@ const base = () => ({
   reputation: { rating: "5.0", reviewCount: "10" },
   images: {
     logo: "",
-    portrait: "/placeholder.svg",
-    about: "/placeholder.svg",
-    favicon: "/placeholder.svg",
+    hero: "",
+    profile: "",
     heroDecoration: "/assets/template/hair-tools.png",
     beforeAfter: [],
-    gallery: [],
+    gallery: [{ src: "/placeholder.svg", alt: "QA work" }],
   },
   services: { groups: [] },
   i18n: {
@@ -136,7 +135,8 @@ const scenarios = [
       assert.match(html, /Стрижки, окрашивание, блонд, уход и укладки с вниманием к состоянию волос, оттенку и вашему образу\./);
       assert.match(html, /Я Тест — эксперт по волосам со стажем более 8 лет\./);
       assert.match(html, /Смотреть все работы/);
-      assert.match(html, /mct-work-placeholder/);
+      assert.match(html, /QA work/);
+      assert.doesNotMatch(html, /mct-work-placeholder/);
       assert.match(html, /Открыть ещё<!-- --> <!-- -->2<!-- --> <!-- -->услуги|Открыть ещё 2 услуги/);
       assert.match(html, /Стрижки/);
       assert.match(html, /Окрашивание/);
@@ -165,7 +165,8 @@ const scenarios = [
       assert.doesNotMatch(html, /mct-master-tools/);
       assert.match(html, /эксперт по маникюру и педикюру/);
       assert.match(html, /Смотреть все работы/);
-      assert.match(html, /mct-work-placeholder/);
+      assert.match(html, /QA work/);
+      assert.doesNotMatch(html, /mct-work-placeholder/);
       assert.match(html, /is-two-stats/);
       assert.match(html, /mct-tabs mct-tabs-scroll is-two/);
       assert.doesNotMatch(html, /mct-tab-all/);

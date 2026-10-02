@@ -152,17 +152,38 @@ Layout:
 - Never invent a booking URL, phone or messenger.
 - Never expose Instagram as a booking/contact option.
 
-## System favicon
-- `favicon-source.png` is the canonical source image for the site's system favicon/identity icon.
-- It is not a client logo and must never be rendered inside the page, hero, header, intro or content blocks.
-- New `TAN-xxxx` sites use this source to produce the browser/system icon assets, including `favicon.ico`, `favicon-32x32.png` and `apple-touch-icon.png` (180×180).
-- Keep `favicon-source.png` in the template as the reusable source asset; derived favicon files belong to the generated site output.
-- Do not replace this system icon with a master's logo unless a separate favicon rule is explicitly approved.
+## Canonical media contract
+The same naming standard is used for every individual master.
 
-## Images
-- The operator uploads client photos into the target client repository.
-- Missing photos never delete major structural sections.
-- The template never guesses missing client photos and never generates a client logo.
+- `hero.webp` — the main master photo. It is the hero image on mobile and desktop. Site-level hero is mandatory.
+- `profile.webp` — a second master photo for the “О мастере” block. A client-supplied profile photo is optional.
+- `gallery-01.webp`, `gallery-02.webp` ... `gallery-15.webp` — real works of the master. Production sites use at least one and at most 15 gallery images.
+- `logo.webp`, `logo.png`, `logo.svg` or another suitable transparent logo file — optional. Never invent a logo.
+- File names are lowercase. New sites do not introduce `master.00000.webp`, `masterpc.00000.webp`, `portrait` or other competing client naming schemes.
+
+The operator uploads only real client media. In `site-data.mjs`, use `images.hero` for `hero.webp`, `images.profile` for `profile.webp`, and `images.gallery` for the numbered gallery files.
+
+## Master photo fallback
+Fallback files are template-owned system assets. The technical specialist never creates, downloads or copies them into a client package.
+
+Approved paths:
+- Hair: `public/fallback/masters/hair/hero.webp` and `public/fallback/masters/hair/profile.webp`.
+- Nails: `public/fallback/masters/nails/hero.webp` and `public/fallback/masters/nails/profile.webp`.
+
+Decision rules:
+- Real `hero.webp` exists → use it.
+- Real `hero.webp` is missing → use the fallback hero for the selected specialty.
+- Real `profile.webp` exists → use it in “О мастере”.
+- Real `profile.webp` is missing → use the fallback profile for the selected specialty.
+- Real client media always has priority over fallback media.
+- Hair fallback is never used for Nails and Nails fallback is never used for Hair.
+- For an unsupported specialty without an approved fallback, use the neutral template placeholder rather than inventing a person.
+
+## System favicon
+- `favicon-source.png` is the canonical TANEM system identity icon, not a client logo.
+- The served copy is `public/favicon-source.png`; it is used by browser/system favicon metadata.
+- A technical specialist does not prepare or replace the favicon for each client.
+- Client `logo.*` is rendered only inside the site and never replaces the TANEM system favicon unless a separate rule is explicitly approved.
 
 ## Mass-production quality gate
 Before a template version becomes stable, rendered QA must cover at least:

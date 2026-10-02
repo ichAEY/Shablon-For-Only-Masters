@@ -108,6 +108,27 @@ export function specialtyMode(site) {
   return "generic";
 }
 
+export function masterImageSources(site) {
+  const base = String(site?.basePath || "");
+  const mode = specialtyMode(site);
+  const explicitHero = String(site?.images?.hero || "").trim();
+  const explicitProfile = String(site?.images?.profile || "").trim();
+
+  // Read-only compatibility for older TAN-xxxx repositories. New sites must use hero/profile.
+  const legacyHero = String(site?.images?.portrait || "").trim();
+  const legacyProfile = String(site?.images?.about || "").trim();
+
+  const fallbackRoot = mode === "hair" || mode === "nails"
+    ? `${base}/fallback/masters/${mode}`
+    : "";
+  const placeholder = `${base}/placeholder.svg`;
+
+  return {
+    hero: explicitHero || legacyHero || (fallbackRoot ? `${fallbackRoot}/hero.webp` : placeholder),
+    profile: explicitProfile || legacyProfile || (fallbackRoot ? `${fallbackRoot}/profile.webp` : explicitHero || legacyHero || placeholder),
+  };
+}
+
 export function heroPreset(site) {
   const mode = specialtyMode(site);
   if (mode === "hair") {
