@@ -74,10 +74,11 @@ export default {
   },
 
   images: {
+    // Canonical client media: hero.webp, profile.webp, gallery-01.webp...gallery-15.webp, optional logo.*
+    // hero/profile may stay empty in source data: the engine resolves the approved specialty fallback.
     logo: "",
-    portrait: `${publicBase}/placeholder.svg`,
-    about: `${publicBase}/placeholder.svg`,
-    favicon: `${publicBase}/placeholder.svg`,
+    hero: "",
+    profile: "",
     heroDecoration: `${publicBase}/assets/template/hair-tools.png`,
     beforeAfter: [],
     gallery: [],
