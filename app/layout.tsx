@@ -7,6 +7,10 @@ import "@fontsource/manrope/500.css";
 import "@fontsource/manrope/600.css";
 import "./template.css";
 import site from "../site-data.mjs";
+import { masterImageSources } from "../template-rules.mjs";
+
+const resolvedImages = masterImageSources(site);
+const systemFavicon = `${site.basePath}/favicon-source.png`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.seo.siteUrl || "https://example.com/"),
@@ -19,11 +23,12 @@ export const metadata: Metadata = {
     description: site.seo.description,
     type: "website",
     locale: site.seo.locale,
-    images: [site.images.portrait],
+    images: [resolvedImages.hero],
   },
   icons: {
-    icon: site.images.favicon,
-    shortcut: site.images.favicon,
+    icon: systemFavicon,
+    shortcut: systemFavicon,
+    apple: systemFavicon,
   },
 };
 
