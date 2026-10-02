@@ -29,6 +29,14 @@ for (const [label, value] of arrays) {
   if (!Array.isArray(value)) fail(`${label} must be an array`);
 }
 
+if (site.images.gallery.length > 15) fail("publish at most 15 master gallery photos");
+if (site.master.name && site.images.gallery.length === 0) {
+  fail("published master must have at least one real gallery photo");
+}
+for (const field of ["logo", "hero", "profile"]) {
+  if (typeof site.images[field] !== "string") fail(`images.${field} must be a string`);
+}
+
 if (site.reviews.length > 9) fail("publish at most 9 verified reviews");
 for (const [index, review] of site.reviews.entries()) {
   if (!String(review?.author || "").trim()) fail(`review ${index + 1} must have the verified author`);
