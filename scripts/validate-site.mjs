@@ -59,6 +59,14 @@ if (!site.seo.siteUrl) fail("seo.siteUrl must exist");
 if (!["generic", "hair", "nails"].includes(specialtyMode(site))) fail("unsupported specialty");
 
 const locales = normalizedLocales(site).map((item) => item.code);
+const masterNames = site.i18n?.masterNames || {};
+if (typeof masterNames !== "object" || Array.isArray(masterNames)) fail("i18n.masterNames must be an object");
+for (const [rawLocale, value] of Object.entries(masterNames)) {
+  const locale = String(rawLocale || "").trim().toLowerCase();
+  if (!locales.includes(locale)) fail(`i18n.masterNames contains unsupported locale: ${rawLocale}`);
+  if (!String(value || "").trim()) fail(`i18n.masterNames.${rawLocale} must be a non-empty verified spelling/transliteration`);
+}
+
 if (site.location.countryCode) {
   const country = String(site.location.countryCode).toUpperCase();
   if (country === "RU") {
