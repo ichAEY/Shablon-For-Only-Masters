@@ -7,6 +7,7 @@ import {
   contactOptions,
   experienceMode,
   masterImageSources,
+  masterNameForLocale,
   serviceBookingUrl,
   specialtyMode,
 } from "../template-rules.mjs";
@@ -50,6 +51,21 @@ test("locale detection honors saved locale, then system locale, then English", (
   assert.equal(chooseInitialLocale(armenia, ["en-US"], "ru"), "ru");
   assert.equal(chooseInitialLocale(armenia, ["hy-AM"], ""), "hy");
   assert.equal(chooseInitialLocale(armenia, ["de-DE"], ""), "en");
+});
+
+test("Kazakhstan and other local languages use the same generic locale engine", () => {
+  const kazakhstan = makeSite({
+    master: { name: "Aizhan Serikkyzy" },
+    i18n: {
+      localLocale: "kk",
+      locales: [{ code: "kk", label: "KZ" }, { code: "ru", label: "RU" }, { code: "en", label: "EN" }],
+      masterNames: { kk: "Айжан Серікқызы" },
+    },
+  });
+  assert.deepEqual(kazakhstan.i18n.locales.map((item) => item.code), ["kk", "ru", "en"]);
+  assert.equal(chooseInitialLocale(kazakhstan, ["kk-KZ"], ""), "kk");
+  assert.equal(masterNameForLocale(kazakhstan, "kk"), "Айжан Серікқызы");
+  assert.equal(masterNameForLocale(kazakhstan, "en"), "Aizhan Serikkyzy");
 });
 
 test("experience and specialty are explicit data-driven states", () => {
