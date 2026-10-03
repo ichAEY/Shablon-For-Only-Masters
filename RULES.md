@@ -93,6 +93,8 @@ Russia:
 
 Outside Russia:
 - local country language + RU + EN.
+- The mechanism is not country-hardcoded: use the verified local language code for Kazakhstan, Uzbekistan, Kyrgyzstan, Armenia, Azerbaijan, Georgia, Belarus, Moldova and other supported markets (for example `kk`, `uz`, `ky`, `hy`, `az`, `ka`, `be`, `ro`).
+- Locale codes are normalized as lowercase language codes; the language switch label remains the short uppercase label supplied in `i18n.locales`.
 
 Initial locale:
 - saved visitor choice wins;
@@ -103,8 +105,13 @@ The selected locale is saved locally.
 
 Content normalization:
 - Russian is the canonical internal content language.
-- Other enabled languages receive faithful translations.
-- Reviews may remain in their original language; service names, descriptions, categories, master copy, location copy and interface must be translated.
+- Other enabled languages receive faithful, human-checked translations. Do not publish guessed or partial machine translation.
+- Translate interface/navigation, headings, CTAs, standard template copy, master profession and descriptive copy, service categories/names/descriptions/variant labels, city/metro labels and schedule text.
+- Translate complete dynamic phrases rather than stitching translated fragments together when word order can differ between languages.
+- Brand/business names are identity data and are never translated.
+- A master's personal name is never semantically translated. Keep the source spelling by default. A verified local spelling/transliteration may be supplied explicitly in `i18n.masterNames[locale]`; if it is absent, the original name is rendered.
+- Review author, review text and review source are immutable source data and are always rendered verbatim in the original language.
+- Phone numbers, URLs, booking/review provider names, prices/currency strings and exact street/address strings remain source data and are not translated. City/metro and explanatory location UI may be translated.
 - A populated site fails validation if a required enabled-language translation is missing.
 
 Layout:

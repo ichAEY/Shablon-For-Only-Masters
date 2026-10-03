@@ -14,6 +14,7 @@ import {
   heroPreset,
   masterImageSources,
   masterInitial,
+  masterNameForLocale,
   normalizedLocales,
   SERVICE_PREVIEW_LIMIT,
   serviceBookingUrl,
@@ -179,15 +180,6 @@ export default function MasterTemplate() {
       })
       .filter((group) => group.services.length > 0);
   })();
-  const serviceCountNoun = (count: number) => {
-    if (locale !== "ru") return translatedText("услуг");
-    const mod10 = count % 10;
-    const mod100 = count % 100;
-    if (mod10 === 1 && mod100 !== 11) return "услугу";
-    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "услуги";
-    return "услуг";
-  };
-
   const baseEnglish: Record<string, string> = {
     "Услуги и цены": "Services & prices",
     "ваш": "your",
@@ -209,6 +201,7 @@ export default function MasterTemplate() {
     "Подробнее": "More",
     "Открыть все услуги": "Show all services",
     "Открыть ещё": "Show",
+    "Открыть ещё {count} услуг": "Show {count} more services",
     "услугу": "more service",
     "услуг": "more services",
     "Свернуть услуги": "Collapse services",
@@ -283,8 +276,21 @@ export default function MasterTemplate() {
     if (locale === "en" && baseEnglish[value]) return baseEnglish[value];
     return value;
   };
-  const localizedBrandName = translatedText(site.brand.name || site.master.name || "TANEM");
-  const localizedMasterName = translatedText(site.master.name || site.brand.name || "TANEM");
+  const localizedMasterName = masterNameForLocale(site, locale) || "TANEM";
+  const localizedBrandName = site.brand.name || localizedMasterName || "TANEM";
+  const translatedCountText = (key: string, count: number) => {
+    if (locale === "ru") {
+      const mod10 = count % 10;
+      const mod100 = count % 100;
+      const noun = mod10 === 1 && mod100 !== 11
+        ? "услугу"
+        : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+          ? "услуги"
+          : "услуг";
+      return `Открыть ещё ${count} ${noun}`;
+    }
+    return translatedText(key).replace("{count}", String(count));
+  };
   const introText = String(localizedBrandName).trim();
   const introTextLengthClass = introText.length > 28 ? " is-very-long" : introText.length > 18 ? " is-long" : "";
   const bookingHref = siteBookingMode === "direct" ? bookingUrl : "#booking-options";
@@ -1446,8 +1452,8 @@ export default function MasterTemplate() {
             <button className={`mct-more-services${expanded ? " is-open" : ""}`} type="button" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>
               {expanded ? translatedText("Свернуть услуги") : (
                 <>
-                  <span className="mct-more-services-mobile-copy">{translatedText("Открыть ещё")} {hiddenServiceCount} {serviceCountNoun(hiddenServiceCount)}</span>
-                  <span className="mct-more-services-desktop-copy">{translatedText("Открыть ещё")} {hiddenServiceCount} {serviceCountNoun(hiddenServiceCount)}</span>
+                  <span className="mct-more-services-mobile-copy">{translatedCountText("Открыть ещё {count} услуг", hiddenServiceCount)}</span>
+                  <span className="mct-more-services-desktop-copy">{translatedCountText("Открыть ещё {count} услуг", hiddenServiceCount)}</span>
                 </>
               )}
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -1639,13 +1645,13 @@ export default function MasterTemplate() {
                 {mapUrl ? (
                   <a className={`mct-final-secondary is-location${locationFillsContactRow ? " is-full-row" : ""}`} href={mapUrl} target="_blank" rel="noopener noreferrer">
                     <span className="mct-contact-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span>
-                    <span className="mct-contact-copy"><strong className="mct-mobile-location-title">{translatedText("Яндекс Карты")}</strong><strong className="dct-location-title">{translatedText("Локация")}</strong><small className="mct-mobile-location-copy">{translatedText("Адрес и маршрут")}</small><small className="dct-location-copy">{translatedText(site.location.city)},<br />{translatedText(site.location.mapCardAddress)}</small></span><i className="mct-link-arrow" aria-hidden="true" />
+                    <span className="mct-contact-copy"><strong className="mct-mobile-location-title">{translatedText("Яндекс Карты")}</strong><strong className="dct-location-title">{translatedText("Локация")}</strong><small className="mct-mobile-location-copy">{translatedText("Адрес и маршрут")}</small><small className="dct-location-copy">{translatedText(site.location.city)},<br />{site.location.mapCardAddress}</small></span><i className="mct-link-arrow" aria-hidden="true" />
                   </a>
                 ) : null}
               </div>
               {site.location.address ? (
                 <p className="mct-visit-address mct-visit-address-mobile">
-                  {translatedText(site.location.address)}
+                  {site.location.address}
                   {site.location.schedule ? <span>{translatedText(site.location.schedule)}</span> : null}
                 </p>
               ) : null}
@@ -1697,12 +1703,12 @@ export default function MasterTemplate() {
             <div className="mct-visit-details mct-visit-details-mobile-julia">
               {routeUrl || mapUrl ? (
                 <a className="mct-visit-address mct-visit-address-link" href={routeUrl || mapUrl} target="_blank" rel="noopener noreferrer">
-                  {translatedText(site.location.address)}
+                  {site.location.address}
                   {site.location.schedule ? <span>{translatedText(site.location.schedule)}</span> : null}
                 </a>
               ) : (
                 <p className="mct-visit-address">
-                  {translatedText(site.location.address)}
+                  {site.location.address}
                   {site.location.schedule ? <span>{translatedText(site.location.schedule)}</span> : null}
                 </p>
               )}

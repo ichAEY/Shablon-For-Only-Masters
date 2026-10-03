@@ -75,6 +75,25 @@ test("Foreign master / local + RU + EN / saved and system language precedence", 
   assert.deepEqual(contactOptions(site).map((x) => x.kind), ["phone", "telegram"]);
 });
 
+test("Kazakhstan / local + RU + EN uses the generic foreign-market locale contract", () => {
+  const site = {
+    template: { specialty: "hair" },
+    master: { name: "Aizhan Serikkyzy", experienceYears: "5" },
+    contacts: { phoneHref: "tel:+77000000000", phoneDisplay: "+7 700 000 00 00", messenger: null },
+    links: { bookingUrl: "" },
+    services: { groups: [group("hair", "Шаш")] },
+    i18n: {
+      localLocale: "kk",
+      locales: [{ code: "kk", label: "KZ" }, { code: "ru", label: "RU" }, { code: "en", label: "EN" }],
+      masterNames: { kk: "Айжан Серікқызы" },
+    },
+  };
+
+  assert.deepEqual(normalizedLocales(site).map((x) => x.code), ["kk", "ru", "en"]);
+  assert.equal(chooseInitialLocale(site, ["kk-KZ"], ""), "kk");
+  assert.equal(chooseInitialLocale(site, ["de-DE"], ""), "en");
+});
+
 test("service-specific booking URL overrides master booking URL", () => {
   const site = {
     links: { bookingUrl: "https://booking.example/master" },

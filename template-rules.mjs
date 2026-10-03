@@ -57,6 +57,23 @@ export const UI_TRANSLATION_KEYS = [
   "Все отзывы в",
   "Зажмите ленту мышью и двигайте в любую сторону",
   "ваш",
+  "Выбор услуги",
+  "Мастер поможет определиться.",
+  "Пожелания",
+  "Покажите пример результата.",
+  "Перенос записи",
+  "Предупредите заранее.",
+  "Все отзывы",
+  "клиенты",
+  "Категории услуг",
+  "Разведите двумя пальцами, чтобы увеличить",
+  "Предыдущая фотография",
+  "Следующая фотография",
+  "Закрыть фотографию",
+  "Закрыть галерею",
+  "Открыть меню",
+  "Закрыть меню",
+  "Открыть ещё {count} услуг",
 ];
 
 const invalidLinks = new Set(["", "#", "about:blank"]);
@@ -171,6 +188,16 @@ export function masterFirstName(site) {
 export function masterInitial(site) {
   const name = masterFirstName(site) || "T";
   return Array.from(name)[0]?.toUpperCase() || "T";
+}
+
+export function masterNameForLocale(site, locale) {
+  const original = String(site?.master?.name || "").trim();
+  const brandFallback = String(site?.brand?.name || "").trim();
+  if (!original) return brandFallback;
+
+  const code = String(locale || "").trim().toLowerCase();
+  const localized = String(site?.i18n?.masterNames?.[code] || "").trim();
+  return localized || original;
 }
 
 export function aboutPreset(site) {
@@ -290,8 +317,8 @@ export function clientTranslationKeys(site) {
     if (text) values.push(text);
   };
 
-  add(site?.brand?.name);
-  add(site?.master?.name);
+  // Identity fields are source-locked. Brand names are never translated here.
+  // Personal names use i18n.masterNames only when a verified local spelling/transliteration exists.
   add(site?.master?.profession);
   add(site?.master?.heroEmphasis);
   add(site?.master?.heroCaption);
@@ -310,8 +337,7 @@ export function clientTranslationKeys(site) {
   add(site?.location?.city);
   add(site?.location?.metro);
   add(site?.location?.cityMetro);
-  add(site?.location?.address);
-  add(site?.location?.mapCardAddress);
+  // Exact street/address strings stay verbatim to avoid changing route-critical source data.
   add(site?.location?.schedule);
   add(site?.location?.scheduleCapitalized);
 
