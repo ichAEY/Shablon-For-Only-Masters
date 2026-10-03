@@ -94,6 +94,9 @@ export default {
       { code: "ru", label: "RU" },
       { code: "en", label: "EN" },
     ],
+    // Optional verified local spelling/transliteration of the master's personal name.
+    // Example: masterNames: { kk: "..." }. Never machine-translate a personal name.
+    masterNames: {},
     translations: {
       en: {},
     },
