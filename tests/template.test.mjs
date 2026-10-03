@@ -39,20 +39,45 @@ test("the clean template uses one canonical stylesheet and runtime", () => {
 });
 
 
-test("master and brand names participate in localization", () => {
+test("identity, reviews and exact address stay source-locked while descriptive content localizes", () => {
   const translationKeys = clientTranslationKeys({
-    brand: { name: "Ланге Татьяна" },
-    master: { name: "Татьяна" },
-    location: {},
-    services: { groups: [] },
+    template: { specialty: "generic" },
+    brand: { name: "Studio Aizhan" },
+    master: {
+      name: "Aizhan Serikkyzy",
+      profession: "Колорист",
+      heroEmphasis: "эксперт по волосам",
+      aboutParagraphs: [],
+      skills: [],
+    },
+    location: {
+      city: "Алматы",
+      address: "ул. Абая, 10",
+      mapCardAddress: "ул. Абая, 10",
+      schedule: "Ежедневно 10:00–20:00",
+    },
+    services: { groups: [{ id: "hair", label: "Волосы", services: [{ name: "Окрашивание", description: "Описание", time: "2 часа" }] }] },
     amenities: [],
+    reviews: [{ author: "Анна", text: "Оригинальный отзыв", source: "Яндекс Карты" }],
   });
-  assert.ok(translationKeys.includes("Ланге Татьяна"));
-  assert.ok(translationKeys.includes("Татьяна"));
-  assert.match(component, /const localizedBrandName = translatedText\(site\.brand\.name \|\| site\.master\.name \|\| "TANEM"\)/);
-  assert.match(component, /const localizedMasterName = translatedText\(site\.master\.name \|\| site\.brand\.name \|\| "TANEM"\)/);
-  assert.match(component, /<h1>\{localizedMasterName\}/);
-  assert.match(component, /<span>\{localizedBrandName\}<\/span>/);
+  assert.ok(!translationKeys.includes("Studio Aizhan"));
+  assert.ok(!translationKeys.includes("Aizhan Serikkyzy"));
+  assert.ok(!translationKeys.includes("ул. Абая, 10"));
+  assert.ok(!translationKeys.includes("Оригинальный отзыв"));
+  assert.ok(translationKeys.includes("Колорист"));
+  assert.ok(translationKeys.includes("Алматы"));
+  assert.ok(translationKeys.includes("Ежедневно 10:00–20:00"));
+  assert.ok(translationKeys.includes("Окрашивание"));
+  assert.match(component, /const localizedMasterName = masterNameForLocale\(site, locale\)/);
+  assert.doesNotMatch(component, /translatedText\(site\.brand\.name/);
+  assert.doesNotMatch(component, /translatedText\(site\.master\.name/);
+  assert.doesNotMatch(component, /translatedText\(site\.location\.address\)/);
+  assert.doesNotMatch(component, /translatedText\(site\.location\.mapCardAddress\)/);
+  assert.match(component, /<blockquote>\{review\.text\}<\/blockquote>/);
+});
+
+test("dynamic service count is translated as one complete phrase", () => {
+  assert.match(component, /translatedCountText\("Открыть ещё \{count\} услуг", hiddenServiceCount\)/);
 });
 
 test("portfolio and full gallery remain structural without client photos", () => {
