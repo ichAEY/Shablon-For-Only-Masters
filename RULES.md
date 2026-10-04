@@ -18,7 +18,8 @@ This repository is the single production template for individual masters. It is 
 - `hair`: mobile shows the approved Hair scissors/comb decoration; desktop does not.
 - `nails`: mobile shows the approved animated nail palette; desktop does not.
 - The Nails palette is positioned inside the hero with a stable reserved gap above the booking-action row, so client text length cannot push it into the CTA.
-- Unknown specialties render safely without a specialty decoration until a new approved preset is added.
+- Only specialties with an approved preset may be published. Currently approved: `hair` and `nails`.
+- If the client's specialty does not match an approved preset, STOP the client build before changing client files. Do not use a generic mode, a similar preset, a neutral substitution or an improvised adaptation. Report that the current Master template does not support this specialty and that a separate approved preset is required.
 
 ## Hero copy
 Hair is deterministic:
@@ -29,7 +30,7 @@ Nails is deterministic in the heading:
 - heading: `<Имя> — ваш эксперт по маникюру и педикюру`;
 - supporting copy may come from verified client data until a separate fixed Nails copy is approved.
 
-Generic/unsupported specialties use verified client copy.
+Unsupported specialties are not built or published until a separate approved preset is added to this template.
 
 ## Intro
 - Logo has priority when a real logo is supplied.
@@ -184,7 +185,7 @@ Decision rules:
 - Real `profile.webp` is missing → use the fallback profile for the selected specialty.
 - Real client media always has priority over fallback media.
 - Hair fallback is never used for Nails and Nails fallback is never used for Hair.
-- For an unsupported specialty without an approved fallback, use the neutral template placeholder rather than inventing a person.
+- Unsupported specialties never reach media fallback selection: the build must already have been stopped by the Specialty rule.
 
 ## System favicon
 - `favicon-source.png` is the canonical TANEM system identity icon, not a client logo.
