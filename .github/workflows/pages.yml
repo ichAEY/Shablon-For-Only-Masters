@@ -19,10 +19,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      pages-ready: ${{ steps.pages-check.outputs.enabled }}
     env:
-      NEXT_PUBLIC_BASE_PATH: /Shablon-For-Only-Masters
+      NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
     steps:
       - uses: actions/checkout@v5
       - name: Checkout approved Hair decoration source
@@ -48,27 +46,18 @@ jobs:
       - run: npm test
       - name: Render production scenarios
         run: npm run qa:scenarios
-      - id: pages-check
-        name: Check whether Pages is enabled
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-          fi
-      - if: steps.pages-check.outputs.enabled == 'true'
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-      - if: steps.pages-check.outputs.enabled != 'true'
-        run: echo "::notice::Quality checks passed. Enable Settings → Pages → GitHub Actions to publish the preview."
-      - if: steps.pages-check.outputs.enabled == 'true'
+        with:
+          token: ${{ secrets.TANEM_PAGES_TOKEN || github.token }}
+          enablement: ${{ secrets.TANEM_PAGES_TOKEN != '' && 'true' || 'false' }}
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: out
 
   deploy:
-    if: github.event_name != 'pull_request' && needs.build.outputs.pages-ready == 'true'
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
